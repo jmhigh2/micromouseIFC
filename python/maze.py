@@ -1,10 +1,8 @@
 import numpy as np
-
 class Maze:
 
     def __init__(self, n):
 
-        self.n = n #number of squares
         horiz_walls = np.zeros(n, int)
         vert_walls = np.zeros(n-1, int)
         nodes = np.ones(n, int)
@@ -23,25 +21,27 @@ class Maze:
             nodes[int(n/2) - 1, int(n/2)] = 0
             nodes[int(n/2) - 1, int(n/2) - 1] = 0
 
-        else: #odd number of squares
+        else: #odd number of squares. set center block to target
             nodes[int(n/2), int(n/2)] = 0
 
         nodes = nodes*n #initialize distance to really high values for initial fill
 
+        x_target, y_target = np.where(nodes == 0)
         initial = [(int(n/2), int(n/2)+1)] #square next to center to start floodfill
-        new_maze = {'nodes': nodes, 'horiz_walls': horiz_walls, 'vert_walls': vert_walls} #put attributes into dictionary to pass to floodfill
 
-        #save attributes of maze
-        self.horiz_walls = horiz_walls
+        self.target = [(x,y) for x, y in zip(x_target, y_target)]
+        self.n = n #number of squares
+        self.nodes = nodes
         self.vert_walls = vert_walls
-        self.nodes = self.floodfill(initial, new_maze)
+        self.horiz_walls = horiz_walls
+        self.floodfill(initial)
 
+    def floodfill(self, queue): #expecting a list of tuples called queue, and a maze dict with vertwalls, horiz_walls, nodes
 
-    def floodfill(self, queue, maze): #expecting a list of tuples called queue, and a maze dict with vertwalls, horiz_walls, nodes
-
-        horiz_walls = maze['horiz_walls']
-        nodes = maze['nodes']
-        vert_walls = maze['vert_walls']
+        n = self.n
+        nodes = self.nodes
+        horiz_walls = self.horiz_walls
+        vert_walls = self.vert_walls
 
         while queue:
 
@@ -60,7 +60,7 @@ class Maze:
                 vals.append(up_square)
                 up = True
 
-            if (row_coord < (self.n - 1)) and (horiz_walls[row_coord, col_coord] != 1): #check if wall below or at edge
+            if (row_coord < (n - 1)) and (horiz_walls[row_coord, col_coord] != 1): #check if wall below or at edge
 
                 down_square = nodes[row_coord + 1, col_coord]
                 vals.append(down_square)
@@ -72,7 +72,7 @@ class Maze:
                 vals.append(left_square)
                 left = True
 
-            if (col_coord < (self.n - 1)) and (vert_walls[row_coord, col_coord] != 1): #check if wall to the right or edge edge
+            if (col_coord < (n - 1)) and (vert_walls[row_coord, col_coord] != 1): #check if wall to the right or edge edge
 
                 right_square = nodes[row_coord, col_coord + 1]
                 vals.append(right_square)
@@ -90,9 +90,4 @@ class Maze:
             if left and (left_square > 0) and (left_square > new_val):
                 queue.append((row_coord, col_coord - 1))
 
-        return nodes #nodes are only thing being updates, so return those
-
-a = Maze(8)
-print a.nodes
-print a.horiz_walls
-print a.vert_walls
+        self.nodes = nodes
