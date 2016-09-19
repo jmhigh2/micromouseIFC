@@ -1,18 +1,20 @@
 import numpy as np
+
 class Maze:
 
     def __init__(self, n):
 
-        horiz_walls = np.zeros(n, int)
-        vert_walls = np.zeros(n-1, int)
-        nodes = np.ones(n, int)
+        DTYPE = np.int
+        horiz_walls = np.zeros(n, dtype=DTYPE)
+        vert_walls = np.zeros(n-1, dtype=DTYPE)
+        nodes = np.ones(n, dtype=DTYPE)
 
         for a in range(1, n):
-            nodes = np.vstack([nodes, np.ones(n)]) #create nxn matrix that represents the distance values
+            nodes = np.vstack([nodes, np.ones(n, dtype=DTYPE)]) #create nxn matrix that represents the distance values
         for a in range(1, n):
-            vert_walls = np.vstack([vert_walls, np.zeros(n-1)]) #create matrix that represents the vertical walls
+            vert_walls = np.vstack([vert_walls, np.zeros(n-1, dtype=DTYPE)]) #create matrix that represents the vertical walls
         for a in range(1, n-1):
-            horiz_walls = np.vstack([horiz_walls, np.zeros(n)]) #create matrix that repressent the horizontal walls
+            horiz_walls = np.vstack([horiz_walls, np.zeros(n, dtype=DTYPE)]) #create matrix that repressent the horizontal walls
 
         #set center blocks to 0 (targets)
         if (n % 2 == 0): #even number
@@ -30,11 +32,12 @@ class Maze:
         initial = [(int(n/2), int(n/2)+1)] #square next to center to start floodfill
 
         self.target = [(x,y) for x, y in zip(x_target, y_target)]
+        self.final = zip(x_target, y_target)[0] #there is only one entrance to the target, so this is that one square
         self.n = n #number of squares
-        self.nodes = nodes
+        self.nodes = nodes #nodes in maze
         self.vert_walls = vert_walls
         self.horiz_walls = horiz_walls
-        self.floodfill(initial)
+        self.floodfill(initial) #initialize values
 
     def floodfill(self, queue): #expecting a list of tuples called queue, and a maze dict with vertwalls, horiz_walls, nodes
 
