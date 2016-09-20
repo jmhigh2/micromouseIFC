@@ -32,7 +32,9 @@ class Maze:
         initial = [(int(n/2), int(n/2)+1)] #square next to center to start floodfill
 
         self.target = [(x,y) for x, y in zip(x_target, y_target)]
-        self.final = zip(x_target, y_target)[0] #there is only one entrance to the target, so this is that one square
+        target = zip(x_target, y_target)[0]
+        self.final = (target[0]+ 1, target[1]) #there is only one entrance to the target, so this is that one square
+
         self.n = n #number of squares
         self.nodes = nodes #nodes in maze
         self.vert_walls = vert_walls
