@@ -1,3 +1,8 @@
 *.pyc
+python/old
 python/*.pyc
 python/mazegame.py
+python/neuralnets
+python/neuralnets
+python/neuralnets
+*.docx

@@ -2,10 +2,13 @@ import json, codecs
 import numpy as np
 from maze import Maze
 
-new_maze = Maze(16)
+new_maze = Maze(4, target=(1,2))
+new_maze.target = [(np.asscalar(np.int16(x)), np.asscalar(np.int16(y))) for x,y in new_maze.target] #change numpy int to int
+print new_maze.target
+
 #store files into dictionary
-maze_dict = {'n': new_maze.n, 'horiz_walls': new_maze.horiz_walls.tolist(), 'vert_walls': new_maze.vert_walls.tolist()}
-json.dump(maze_dict, codecs.open("maze.json", 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
+maze_dict = {'n': new_maze.n, 'horiz_walls': new_maze.horiz_walls.tolist(), 'vert_walls': new_maze.vert_walls.tolist(), 'target': list(new_maze.target)}
+json.dump(maze_dict, codecs.open("maze.json", 'w', encoding='utf-8'), separators=(',', ':'), sort_keys = True, indent=None)
 
 print "Done Storing Files"
 

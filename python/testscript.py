@@ -1,10 +1,10 @@
 from maze import Maze
 from mouse import Mouse
 import json, codecs
+import time
 
-maze = Maze(16)
-mouse = Mouse("L", maze, maze_file="maze.json")
-
-print mouse.maze.nodes
+maze = Maze(4, target=(1,2))
+mouse = Mouse("L", maze, maze_file="python/maze.json")
 mouse.search()
-mouse.calc_optimal()
+print mouse.optimal_path
+print mouse.maze.nodes
