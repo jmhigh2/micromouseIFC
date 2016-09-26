@@ -51,8 +51,7 @@ class Mouse:
         #print "Done Solving"
         #print "Calculating Optimal"
         self.maze.final = self.cur_pos #found the entrance to the centerblocks
-
-        self.calc_optimal() #calculate optimal path. Will do this while going to back to start
+        #self.calc_optimal() #calculate optimal path. Will do this while going to back to start
 
         #at target do something
 

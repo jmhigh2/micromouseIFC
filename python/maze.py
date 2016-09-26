@@ -123,21 +123,21 @@ class Maze:
 
                 up_square = nodes[row_coord - 1, col_coord]
                 vals.append(up_square)
-                if (up_square > 0): #and (up_square > val):
+                if (up_square > 0) and (up_square > val):
                     queue.append((row_coord - 1, col_coord))
 
             if (row_coord < (n - 1)) and (horiz_walls[row_coord, col_coord] != 1): #check if wall below or at edge
 
                 down_square = nodes[row_coord + 1, col_coord]
                 vals.append(down_square)
-                if (down_square > 0): #and (down_square > val):
+                if (down_square > 0) and (down_square > val):
                     queue.append((row_coord + 1, col_coord))
 
             if (col_coord > 0) and (vert_walls[row_coord, col_coord - 1] != 1): #check if wall to the left or edge
 
                 left_square = nodes[row_coord, col_coord - 1]
                 vals.append(left_square)
-                if (left_square > 0): #and (left_square > val):
+                if (left_square > 0) and (left_square > val):
                     queue.append((row_coord, col_coord - 1))
 
 
@@ -145,7 +145,7 @@ class Maze:
 
                 right_square = nodes[row_coord, col_coord + 1]
                 vals.append(right_square)
-                if (right_square > 0): #and (right_square > val):
+                if (right_square > 0) and (right_square > val):
                     queue.append((row_coord, col_coord + 1))
 
 
