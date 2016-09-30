@@ -37,19 +37,27 @@ class Maze:
 
         #Maze Properties
 
-        self.final = () #there is only one entrance to the target, so this is that one square
+
+        self.final = self.target[0] #there is only one entrance to the target, so this is that one square
         self.n = n #number of squares
         self.nodes = nodes #nodes in maze
         self.vert_walls = vert_walls #walls
         self.horiz_walls = horiz_walls
 
-    def floodfill(self, position):
+    def floodfill(self, position, reverse=False):
 
-        targets = self.target[:]
+
         coordinates = []
-        self.nodes.fill(127)
-        for target in targets:
-            self.nodes[target[0], target[1]] = 0
+        self.nodes.fill(127) #fill all values with really high number
+
+        if not reverse:
+            targets = self.target[:]
+            for target in targets:
+                self.nodes[target[0], target[1]] = 0
+
+        else: #going back to start
+            self.nodes[self.start[0], self.start[1]] = 0
+
         pathdist = 1
 
         while True:
@@ -66,8 +74,12 @@ class Maze:
 
             coordinates = []
             #check if any destination squares are not -1
-            if (self.nodes[self.start[0], self.start[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
-                break
+            if not reverse:
+                if (self.nodes[self.start[0], self.start[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
+                    break
+            else:
+                if (self.nodes[self.final[0], self.final[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
+                    break
 
             pathdist += 1
 

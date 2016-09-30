@@ -35,12 +35,10 @@ class Mouse:
 
     def search(self):
 
-        print "Target: {}".format(self.maze.target)
+        path = []
         while not self.cur_pos in self.maze.target: #check to see if at target
+            path.append(self.cur_pos)
 
-            print "Current Position: {}".format(self.cur_pos)
-            print "FloodFill Values:"
-            print self.maze.nodes
             self.read_walls() #read the walls and floodfill the distance values
             on_path = self.get_next_move() #move in desired direction
             if not on_path:
@@ -52,33 +50,47 @@ class Mouse:
             next_col = self.cur_pos[1] + self.direction[1] #move
             self.cur_pos = (next_row, next_col)
 
-        print "Current Position: {}".format(self.cur_pos)
-        print "Done Solving"
-        print self.maze.horiz_walls
-        print self.maze.vert_walls
-        print self.maze.nodes
         self.maze.final = self.cur_pos #found the entrance to the centerblocks
 
-        #self.calc_optimal() #calculate optimal path. Will do this while going to back to start
+        '''
+        Arrived at Target. Time to go back. Reverse floodfill the values and try to get back to the starting square as fast as possible.
 
-        #Current position should still be at target
-        #try to take optimal path and read walls while going
-        #while self.cur_pos!= self.start_pos:
+        '''
+        self.maze.floodfill(self.cur_pos, reverse=True)
+        while self.cur_pos != self.maze.start:
 
+            path.append(self.cur_pos)
+            self.read_walls()
+            on_path = self.get_next_move() #returns true if can go to lower distance square
+            if not on_path: #if all squares are higher/blocked, update the nodes
+
+                self.maze.floodfill(self.cur_pos, reverse=True)
+                self.get_next_move()
+
+            next_row = self.cur_pos[0] + self.direction[0]
+            next_col = self.cur_pos[1] + self.direction[1] #move
+            self.cur_pos = (next_row, next_col)
+
+        '''
+        Arrived back to start. Should be able to find the optimal path. Refloodfill the matrix.
+
+        '''
+        self.maze.floodfill(self.cur_pos)
+        print self.maze.nodes
+        print "Back to Start!"
 
     def get_next_move(self): #decide which way to go
 
         '''Assumptions:
         1. Assumes each node is currently up to date.
 
-
-        '''
-
-        '''Current Algorithm:
+        Current Algorithm:
         1. Get Surrounding Values that aren't blocked, and store them into a list.
         2. Specific Indexes in List represent a direction: 0 - North, 1 - South, 2 - West, 3 - East
         3. Get the minimum value of the list.
         4. Get the indexe(s) of the minimum values
+        5. If minimum surrounding value is higher/equal than current distance value, return False so maze can update
+        6. If minimum surrounding is lower, point mouse in that direction and return True
 
         '''
 
@@ -115,7 +127,7 @@ class Mouse:
 
         #go to lower number
         low_square = min(next_values)
-        if low_square > nodes[row_coord, col_coord]:
+        if low_square >= nodes[row_coord, col_coord]:
             return False #there is no lower square, need to update values
 
         index = [x for x, y in enumerate(next_values) if y == low_square] #gets index(s)
