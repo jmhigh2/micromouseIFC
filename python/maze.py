@@ -3,7 +3,7 @@ import time
 
 class Maze:
 
-    def __init__(self, n, target="default"): #default is four center squares for even, single center for odd
+    def __init__(self, n, target="default", start="default"): #default is four center squares for even, single center for odd
 
         DTYPE = np.int
         horiz_walls = np.zeros(n, dtype=DTYPE)
@@ -17,139 +17,89 @@ class Maze:
         for a in range(1, n-1):
             horiz_walls = np.vstack([horiz_walls, np.zeros(n, dtype=DTYPE)]) #create matrix that repressent the horizontal walls
 
-        #set center blocks to 0 (targets)
-        if target == "default":
+        nodes = np.multiply(nodes, 127) #initialize all values to be -1
+
+        if target == "default": #default target is center block for odds, center four for even
             if (n % 2 == 0): #even number
-                nodes[int(n/2), int(n/2)] = 0
-                nodes[int(n/2), int(n/2) - 1] = 0
-                nodes[int(n/2) - 1, int(n/2)] = 0
-                nodes[int(n/2) - 1, int(n/2) - 1] = 0
+                self.target = [(n/2, n/2), (n/2 - 1, n/2 -1), (n/2 - 1, n/2), (n/2, n/2 - 1)]
 
             else: #odd number of squares. set center block to target
-                nodes[int(n/2), int(n/2)] = 0
+
+                self.target = [(int(n/2), int(n/2))]
 
         else:  #expecting a tuple, if target isn't default i.e: (3,2)
-            tarx = target[0]
-            tary = target[1]
-            nodes[tarx, tary] = 0
+            self.target = [(target[0], target[1])]
 
-        nodes = nodes*n*n #initialize distance to really high values for initial fill
+        if start == "default":
+            self.start = (0, 0)
 
-        x_target, y_target = np.where(nodes == 0) #target was set earlier
+        else:
+            self.start = (n-1, 0)
 
         #Maze Properties
-        self.target = [(x,y) for x, y in zip(x_target, y_target)]
+
         self.final = () #there is only one entrance to the target, so this is that one square
         self.n = n #number of squares
         self.nodes = nodes #nodes in maze
         self.vert_walls = vert_walls #walls
         self.horiz_walls = horiz_walls
 
-        initial = self.target[:] #floodfill will use up list, so need to copy it to new one
-        self.initialize(initial) #initialize values
+    def floodfill(self, end=True):
 
-    def initialize(self, queue): #modified algorthim to get the proper starting values
+        targets = self.target[:]
+        coordinates = []
+        self.nodes.fill(127)
+        for target in targets:
+            self.nodes[target[0], target[1]] = 0
+        pathdist = 1
 
-        n = self.n
-        nodes = self.nodes
+        while True:
+            for row_num in range(0, self.n):
+                for col_num in range(0, self.n):
+                    if self.nodes[row_num, col_num] != 127:
+                        continue
 
-        while queue:
+                    if self.get_lowest_square((row_num, col_num)) != 127:
+                        coordinates.append((row_num, col_num)) #needs to be updated, add to queue
 
-            coord = queue.pop()
-            vals = [] # [up, down, left, right]
-            row_coord = coord[0]
-            col_coord = coord[1] #current distance of
-            up = False
-            down = False
-            left = False
-            right = False
+            for coordinate in coordinates:
+                 self.nodes[coordinate[0], coordinate[1]] = pathdist #update all values that are next to a cell that's been reached.
 
-            if row_coord > 0: #check if at top
-                up_square = nodes[row_coord - 1, col_coord]
-                vals.append(up_square)
-                up = True
+            coordinates = []
+            #check if any destination squares are not -1
+            if self.nodes[self.start[0], self.start[1]] != 127:
+                break
 
-            if row_coord < (n - 1): #check if bottom
-                down_square = nodes[row_coord + 1, col_coord]
-                vals.append(down_square)
-                down = True
+            pathdist += 1
 
-            if col_coord > 0: #check if boundary to the left
+    def get_lowest_square(self, position): #expecting a (row, column) tuple
 
-                left_square = nodes[row_coord, col_coord - 1]
-                vals.append(left_square)
-                left = True
-
-            if col_coord < (n - 1): #check if boundary to the right
-
-                right_square = nodes[row_coord, col_coord + 1]
-                vals.append(right_square)
-                right = True
-
-            if nodes[row_coord, col_coord] > 0:
-                nodes[row_coord, col_coord] = min(vals) + 1
-            val = nodes[row_coord, col_coord]
-
-            if up and (up_square > 0) and (up_square > val):
-                queue.append((row_coord - 1, col_coord))
-
-            if down and (down_square > 0) and (down_square > val):
-                queue.append((row_coord + 1, col_coord))
-
-            if right and  (right_square > 0) and (right_square > val):
-                queue.append((row_coord, col_coord + 1))
-
-            if left and (left_square > 0) and (left_square > val):
-                queue.append((row_coord, col_coord - 1))
-
-        self.nodes = nodes
-
-    def floodfill(self, queue):
-
-        n = self.n
+        n= self.n
         nodes = self.nodes
         horiz_walls = self.horiz_walls
         vert_walls = self.vert_walls
+        row_coord = position[0]
+        col_coord = position[1]
 
-        while queue:
+        vals = []
+        if (row_coord > 0) and (horiz_walls[row_coord - 1, col_coord] != 1): #check if wall above or edge
 
-            coord = queue.pop()
-            vals = [] # [up, down, left, right]
-            row_coord = coord[0]
-            col_coord = coord[1] #current distance of
-            val = nodes[row_coord, col_coord]
+            up_square = nodes[row_coord - 1, col_coord] #value of up square
+            vals.append(up_square) #add to list
 
-            if (row_coord > 0) and (horiz_walls[row_coord - 1, col_coord] != 1): #check if wall above or edge
+        if (row_coord < (n - 1)) and (horiz_walls[row_coord, col_coord] != 1): #check if wall below or at edge
 
-                up_square = nodes[row_coord - 1, col_coord]
-                vals.append(up_square)
-                if (up_square > 0) and (up_square > val):
-                    queue.append((row_coord - 1, col_coord))
+            down_square = nodes[row_coord + 1, col_coord] #value of down square
+            vals.append(down_square)
 
-            if (row_coord < (n - 1)) and (horiz_walls[row_coord, col_coord] != 1): #check if wall below or at edge
+        if (col_coord > 0) and (vert_walls[row_coord, col_coord - 1] != 1): #check if wall to the left or edge
 
-                down_square = nodes[row_coord + 1, col_coord]
-                vals.append(down_square)
-                if (down_square > 0) and (down_square > val):
-                    queue.append((row_coord + 1, col_coord))
+            left_square = nodes[row_coord, col_coord - 1] #value of left square
+            vals.append(left_square)
 
-            if (col_coord > 0) and (vert_walls[row_coord, col_coord - 1] != 1): #check if wall to the left or edge
+        if (col_coord < (n - 1)) and (vert_walls[row_coord, col_coord] != 1): #check if wall to the right or edge edge
 
-                left_square = nodes[row_coord, col_coord - 1]
-                vals.append(left_square)
-                if (left_square > 0) and (left_square > val):
-                    queue.append((row_coord, col_coord - 1))
+            right_square = nodes[row_coord, col_coord + 1] #value of right square
+            vals.append(right_square)
 
-
-            if (col_coord < (n - 1)) and (vert_walls[row_coord, col_coord] != 1): #check if wall to the right or edge edge
-
-                right_square = nodes[row_coord, col_coord + 1]
-                vals.append(right_square)
-                if (right_square > 0) and (right_square > val):
-                    queue.append((row_coord, col_coord + 1))
-
-
-            if nodes[row_coord, col_coord] > 0:
-                nodes[row_coord, col_coord] = min(vals) + 1
-
-        self.nodes = nodes #if done, save all updated values in class attributes
+        return min(vals)

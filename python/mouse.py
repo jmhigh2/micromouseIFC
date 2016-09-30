@@ -25,38 +25,64 @@ class Mouse:
 
         self.maze = maze #expecting a maze object with walls and distances (the maze that the mouse remembers)
 
-        if start_wall == "L":
-            self.start_pos = (self.maze.n-1, 0) # bottom of maze looking up
-            self.direction = self.NORTH
-
-        else: #top of maze looking down
-            self.start_pos = (0, 0)
+        if self.maze.start == (0, 0): #top of maze looking down
             self.direction = self.SOUTH
 
-        self.cur_pos = self.start_pos #initialize starting position
+        else:
+            self.direction = self.NORTH
+
+        self.cur_pos = self.maze.start #initialize starting position
         self.optimal_path = [] #to optimal path yet, because the target is unknown
 
     def search(self):
 
+        print "Target: {}".format(self.maze.target)
         while not self.cur_pos in self.maze.target: #check to see if at target
 
+            print "Current Position: {}".format(self.cur_pos)
+            print self.maze.nodes
             self.read_walls() #read the walls and floodfill the distance values
+            on_path = self.get_next_move() #move in desired direction
+            if not on_path:
+                print "Going to Floodfill"
+                self.maze.floodfill()
+                print "Direction: {}".format(self.direction)
+                self.get_next_move()
+                print "Direction: {}".format(self.direction)
 
-            print "Before: {}, Direction: {}".format(self.cur_pos, self.direction)
-            print self.maze.nodes
-            self.advance() #move in desired direction
-            print "After: {}, Direction: {}".format(self.cur_pos, self.direction)
-            print self.maze.nodes
+            next_row = self.cur_pos[0] + self.direction[0]
+            next_col = self.cur_pos[1] + self.direction[1] #move
+            self.cur_pos = (next_row, next_col)
 
-        #print "Done Solving"
-        #print "Calculating Optimal"
+        print "Current Position: {}".format(self.cur_pos)
+        print "Done Solving"
+        print self.maze.horiz_walls
+        print self.maze.vert_walls
+        print self.maze.nodes
         self.maze.final = self.cur_pos #found the entrance to the centerblocks
+
         #self.calc_optimal() #calculate optimal path. Will do this while going to back to start
 
-        #at target do something
+        #Current position should still be at target
+        #try to take optimal path and read walls while going
+        #while self.cur_pos!= self.start_pos:
 
 
-    def advance(self):
+    def get_next_move(self): #decide which way to go
+
+        '''Assumptions:
+        1. Assumes each node is currently up to date.
+
+
+        '''
+
+        '''Current Algorithm:
+        1. Get Surrounding Values that aren't blocked, and store them into a list.
+        2. Specific Indexes in List represent a direction: 0 - North, 1 - South, 2 - West, 3 - East
+        3. Get the minimum value of the list.
+        4. Get the indexe(s) of the minimum values
+
+        '''
 
         row_coord = self.cur_pos[0]
         col_coord = self.cur_pos[1]
@@ -64,11 +90,10 @@ class Mouse:
         vert_walls = self.maze.vert_walls
         n = self.maze.n
         nodes = self.maze.nodes
-        cur_direc = self.direction
         #get surrounding squares that aren't blocked
         #set direction to the lowest one in list
 
-        next_values = [100, 100, 100, 100]
+        next_values = [63,63,63,63]
 
         if (row_coord > 0) and (horiz_walls[row_coord - 1, col_coord] != 1): #check if wall above or edge
 
@@ -90,46 +115,40 @@ class Mouse:
             right_square = nodes[row_coord, col_coord + 1]
             next_values[3] = right_square
 
+        print nodes[self.cur_pos[0], self.cur_pos[1]]
+        print next_values
         #go to lower number
         low_square = min(next_values)
-        index = [x for x, y in enumerate(next_values) if y == low_square] #gets index
+        if low_square > nodes[row_coord, col_coord]:
+            print "Need to Floodfill"
+            return False #there is no lower square, need to update values
+
+        index = [x for x, y in enumerate(next_values) if y == low_square] #gets index(s)
 
         if len(index) > 1: #if multiple choices, favor the straight line
 
-            if cur_direc == self.NORTH and 0 in index:
-                pass
-            elif cur_direc == self.NORTH and 1 in index:
-                pass
-            elif cur_direc == self.NORTH and 2 in index:
-                pass
-            elif cur_direc == self.NORTH and 3 in index:
-                pass
+            if self.direction == self.NORTH and 0 in index:
+                return True
+            elif self.direction == self.SOUTH and 1 in index:
+                return True
+            elif self.direction == self.WEST and 2 in index:
+                return True
+            elif self.direction == self.EAST and 3 in index:
+                return True
 
             else: #choose one at random
                 del index[0]
-                if index[0] == 0:
-                    cur_direc = self.NORTH
-                if index[0] == 1:
-                    cur_direc = self.SOUTH
-                if index[0] == 2:
-                    cur_direc = self.WEST
-                if index[0] == 3:
-                    cur_direc = self.EAST
-        else:
-            if index[0] == 0:
-                cur_direc = self.NORTH
-            if index[0] == 1:
-                cur_direc = self.SOUTH
-            if index[0] == 2:
-                cur_direc = self.WEST
-            if index[0] == 3:
-                cur_direc = self.EAST
 
-        next_row = row_coord + cur_direc[0]
-        next_col = col_coord + cur_direc[1] #move
+        if index[0] == 0:
+            self.direction = self.NORTH
+        if index[0] == 1:
+            self.direction = self.SOUTH
+        if index[0] == 2:
+            self.direction = self.WEST
+        if index[0] == 3:
+            self.direction = self.EAST
 
-        self.direction = cur_direc
-        self.cur_pos = (next_row, next_col)
+        return True #successfull direction picked
 
     def read_walls(self):
 
@@ -144,52 +163,39 @@ class Mouse:
         horiz_sol = self.horiz_walls_sol #the walls that need to be explored
         vert_sol = self.vert_walls_sol
 
-        try:
         #FRONT IR
         #the three if/else blocks of code simulate reading a wall in each sensor
-            if direction == self.NORTH and row > 0:
-                horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
-            if direction == self.SOUTH and row < (n - 1):
-                horiz_walls[row, column] = horiz_sol[row, column]
-            if direction == self.WEST and column > 0:
-                vert_walls[row - 1, column] = vert_sol[row - 1, column]
-            if direction == self.EAST and column < (n - 1):
-                vert_walls[row, column] = vert_sol[row, column]
+        if direction == self.NORTH and row > 0:
+            horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
+        if direction == self.SOUTH and row < (n - 1):
+            horiz_walls[row, column] = horiz_sol[row, column]
+        if direction == self.WEST and column > 0:
+            vert_walls[row - 1, column] = vert_sol[row - 1, column]
+        if direction == self.EAST and column < (n - 1):
+            vert_walls[row, column] = vert_sol[row, column]
 
             #LEFT IR
-            if direction == self.NORTH and column > 0:
-                vert_walls[row, column - 1] = vert_sol[row, column - 1]
-            if direction == self.SOUTH and column < (n - 1):
-                vert_walls[row, column] = vert_sol[row, column]
-            if direction == self.WEST and row < (n - 1):
-                horiz_walls[row, column] = horiz_sol[row, column]
-            if direction == self.EAST and column < (n - 1):
-                horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
+        if direction == self.NORTH and column > 0:
+            vert_walls[row, column - 1] = vert_sol[row, column - 1]
+        if direction == self.SOUTH and column < (n - 1):
+            vert_walls[row, column] = vert_sol[row, column]
+        if direction == self.WEST and row < (n - 1):
+            horiz_walls[row, column] = horiz_sol[row, column]
+        if direction == self.EAST and column < (n - 1):
+            horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
 
             #RIGHT IR
-            if direction == self.NORTH and column < (n - 1):
-                vert_walls[row, column] = vert_sol[row, column]
-            if direction == self.SOUTH and column > 0:
-                vert_walls[row, column - 1] = vert_sol[row, column - 1]
-            if direction == self.WEST and row > 0 :
-                horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
-            if direction == self.EAST and row < (n - 1):
-                horiz_walls[row, column] = horiz_sol[row, column]
-
-        except IndexError as e:
-            print "Values at time of exception: "
-            print "Position: {}".format(self.cur_pos)
-            print "Direction {}".format(self.direction)
-            print "Nodes: {}".format(self.maze.nodes)
-            print self.maze.vert_walls
-            print self.maze.horiz_walls
-            raise e
+        if direction == self.NORTH and column < (n - 1):
+            vert_walls[row, column] = vert_sol[row, column]
+        if direction == self.SOUTH and column > 0:
+            vert_walls[row, column - 1] = vert_sol[row, column - 1]
+        if direction == self.WEST and row > 0 :
+            horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
+        if direction == self.EAST and row < (n - 1):
+            horiz_walls[row, column] = horiz_sol[row, column]
 
         self.maze.horiz_walls = horiz_walls #saves found walls into memory
         self.maze.vert_walls = vert_walls
-        position = self.cur_pos[:]
-        self.maze.floodfill([position])
-        #after reading walls recommend a movement
 
     def sensor_read(self): #use for the actual device
 
@@ -234,7 +240,21 @@ class Mouse:
         self.horiz_walls = horiz_walls
         self.vert_walls = vert_walls
 
-    def calc_optimal(self): #this function assumes that all the (relevant) walls are found.
+    def calc_optimal(self): #this function assumes that all the (relevant) walls are found
+        #this function calculates the optimal path from the values
+
+        """Algorithm Steps:
+
+        Assumes all walls have been found.
+        Initialize list of empty coordinates.
+
+        1. Get distance value of current position
+        2. Make a list of 4 random values. Each index represents next move.
+        3. Gets all adjacent distance values. Any walls should reflect in distance values.
+        4. Finds the index of any square that is current - 1.
+        5. If multiple, then favor the one that doesn't switch direction.
+        6. Calculate next move, and append new position to coordinate list.
+        """
 
         n = self.maze.n
         position = self.start_pos
