@@ -1,7 +1,6 @@
 import json, codecs #for simulated mazes
 import numpy as np
 from maze import Maze
-import time #for debugging
 from random import random
 
 class Mouse:
@@ -40,15 +39,14 @@ class Mouse:
         while not self.cur_pos in self.maze.target: #check to see if at target
 
             print "Current Position: {}".format(self.cur_pos)
+            print "FloodFill Values:"
             print self.maze.nodes
             self.read_walls() #read the walls and floodfill the distance values
             on_path = self.get_next_move() #move in desired direction
             if not on_path:
-                print "Going to Floodfill"
-                self.maze.floodfill()
-                print "Direction: {}".format(self.direction)
+
+                self.maze.floodfill(self.cur_pos)
                 self.get_next_move()
-                print "Direction: {}".format(self.direction)
 
             next_row = self.cur_pos[0] + self.direction[0]
             next_col = self.cur_pos[1] + self.direction[1] #move
@@ -115,12 +113,9 @@ class Mouse:
             right_square = nodes[row_coord, col_coord + 1]
             next_values[3] = right_square
 
-        print nodes[self.cur_pos[0], self.cur_pos[1]]
-        print next_values
         #go to lower number
         low_square = min(next_values)
         if low_square > nodes[row_coord, col_coord]:
-            print "Need to Floodfill"
             return False #there is no lower square, need to update values
 
         index = [x for x, y in enumerate(next_values) if y == low_square] #gets index(s)

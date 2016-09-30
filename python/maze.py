@@ -1,5 +1,4 @@
 import numpy as np
-import time
 
 class Maze:
 
@@ -44,7 +43,7 @@ class Maze:
         self.vert_walls = vert_walls #walls
         self.horiz_walls = horiz_walls
 
-    def floodfill(self, end=True):
+    def floodfill(self, position):
 
         targets = self.target[:]
         coordinates = []
@@ -67,7 +66,7 @@ class Maze:
 
             coordinates = []
             #check if any destination squares are not -1
-            if self.nodes[self.start[0], self.start[1]] != 127:
+            if (self.nodes[self.start[0], self.start[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
                 break
 
             pathdist += 1
