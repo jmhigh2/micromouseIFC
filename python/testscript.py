@@ -1,9 +1,17 @@
-from maze import Maze
 from mouse import Mouse
 
-maze = Maze(16, start="left")
-maze.floodfill((7, 7))
+mouse = Mouse("L", maze_file="python/maze.json") #the maze file to be read
+print "Initialized Values"
+print mouse.maze.nodes
+print mouse.maze.horiz_walls
+print mouse.maze.vert_walls
 
-mouse = Mouse("L", maze, maze_file="maze.json")
 mouse.search()
-print mouse.path
+
+#Results
+print "Results"
+print mouse.maze.nodes
+print mouse.maze.horiz_walls
+print mouse.maze.vert_wallsf
+print "Optimal Path of Length {}".format(len(mouse.optimal_path))
+print mouse.optimal_path

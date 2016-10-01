@@ -16,7 +16,7 @@ class Maze:
         for a in range(1, n-1):
             horiz_walls = np.vstack([horiz_walls, np.zeros(n, dtype=DTYPE)]) #create matrix that repressent the horizontal walls
 
-        nodes = np.multiply(nodes, 127) #initialize all values to be -1
+        nodes = np.multiply(nodes, 127) #initialize all values to be highvalues
 
         if target == "default": #default target is center block for odds, center four for even
             if (n % 2 == 0): #even number
@@ -36,13 +36,15 @@ class Maze:
             self.start = (n-1, 0)
 
         #Maze Properties
-
-
         self.final = self.target[0] #there is only one entrance to the target, so this is that one square
         self.n = n #number of squares
         self.nodes = nodes #nodes in maze
         self.vert_walls = vert_walls #walls
         self.horiz_walls = horiz_walls
+
+        #get maze ready to be explored
+        self.floodfill(self.target[0])
+
 
     def floodfill(self, position, reverse=False):
 
