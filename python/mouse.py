@@ -35,9 +35,9 @@ class Mouse:
 
     def search(self):
 
-        path = []
+        #path = []
         while not self.cur_pos in self.maze.target: #check to see if at target
-            path.append(self.cur_pos)
+            #path.append(self.cur_pos)
 
             self.read_walls() #read the walls and floodfill the distance values
             on_path = self.get_next_move() #move in desired direction
@@ -59,7 +59,7 @@ class Mouse:
         self.maze.floodfill(self.cur_pos, reverse=True)
         while self.cur_pos != self.maze.start:
 
-            path.append(self.cur_pos)
+            #path.append(self.cur_pos)
             self.read_walls()
             on_path = self.get_next_move() #returns true if can go to lower distance square
             if not on_path: #if all squares are higher/blocked, update the nodes
@@ -77,7 +77,7 @@ class Mouse:
         '''
         self.maze.floodfill(self.cur_pos)
         self.calc_optimal()
-        print "Back to Start!"
+
 
     def get_next_move(self): #decide which way to go
 
