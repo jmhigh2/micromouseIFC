@@ -4,6 +4,11 @@ from maze import Maze
 
 class Mouse:
 
+    '''Future Additions to Class:
+    1. Add 'visited' attribute to each node in array, to visualize where the mouse has been.
+    2. Add 'cost' attribute to each node, to take into account the level of difficulty in traversing that cell.
+    '''
+
     #directions of travel in the matrix, a.k.a constants
     NORTH = (-1, 0)
     SOUTH = (1, 0)
@@ -19,8 +24,8 @@ class Mouse:
             vert_walls = np.array(maze_data['vert_walls'])
             n = maze_data['n']
 
-            self.horiz_walls_sol = horiz_walls #loading the walls to be analyzed
-            self.vert_walls_sol = vert_walls
+            self.horiz_walls_abs = horiz_walls #loading the walls to be analyzed
+            self.vert_walls_abs = vert_walls
 
         self.maze = Maze(n, start="left") #create maze object for mouse to save
 
@@ -30,18 +35,17 @@ class Mouse:
         else:
             self.direction = self.NORTH
 
+        #attributes needed for later
         self.cur_pos = self.maze.start #initialize starting position
         self.optimal_path = [] #to optimal path yet, because the target is unknown
 
     def search(self):
 
-        #path = []
         while not self.cur_pos in self.maze.target: #check to see if at target
-            #path.append(self.cur_pos)
 
             self.read_walls() #read the walls and floodfill the distance values
             on_path = self.get_next_move() #move in desired direction
-            if not on_path:
+            if not on_path: #if node value don't reflect the current optimal path, to update
 
                 self.maze.floodfill(self.cur_pos)
                 self.get_next_move()
@@ -50,16 +54,14 @@ class Mouse:
             next_col = self.cur_pos[1] + self.direction[1] #move
             self.cur_pos = (next_row, next_col)
 
-        self.maze.final = self.cur_pos #found the entrance to the centerblocks
-
+        self.maze.final = self.cur_pos #found the entrance to the centerblocks, save it in maze
         '''
         Arrived at Target. Time to go back. Reverse floodfill the values and try to get back to the starting square as fast as possible.
 
         '''
-        self.maze.floodfill(self.cur_pos, reverse=True)
+        self.maze.floodfill(self.cur_pos, reverse=True) #set the start position to be the target
         while self.cur_pos != self.maze.start:
 
-            #path.append(self.cur_pos)
             self.read_walls()
             on_path = self.get_next_move() #returns true if can go to lower distance square
             if not on_path: #if all squares are higher/blocked, update the nodes
@@ -72,7 +74,7 @@ class Mouse:
             self.cur_pos = (next_row, next_col)
 
         '''
-        Arrived back to start. Should be able to find the optimal path. Refloodfill the matrix.
+        Arrived back to start. Should be able to find the optimal path from known walls. Refloodfill the array.
 
         '''
         self.maze.floodfill(self.cur_pos)
@@ -166,39 +168,39 @@ class Mouse:
         vert_walls = self.maze.vert_walls
         n = self.maze.n
 
-        horiz_sol = self.horiz_walls_sol #the walls that need to be explored
-        vert_sol = self.vert_walls_sol
+        horiz_abs = self.horiz_walls_abs #the walls that need to be explored
+        vert_abs = self.vert_walls_abs
 
         #FRONT IR
         #the three if/else blocks of code simulate reading a wall in each sensor
         if direction == self.NORTH and row > 0:
-            horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
+            horiz_walls[row - 1, column] = horiz_abs[row - 1, column]
         if direction == self.SOUTH and row < (n - 1):
-            horiz_walls[row, column] = horiz_sol[row, column]
+            horiz_walls[row, column] = horiz_abs[row, column]
         if direction == self.WEST and column > 0:
-            vert_walls[row - 1, column] = vert_sol[row - 1, column]
+            vert_walls[row - 1, column] = vert_abs[row - 1, column]
         if direction == self.EAST and column < (n - 1):
-            vert_walls[row, column] = vert_sol[row, column]
+            vert_walls[row, column] = vert_abs[row, column]
 
             #LEFT IR
         if direction == self.NORTH and column > 0:
-            vert_walls[row, column - 1] = vert_sol[row, column - 1]
+            vert_walls[row, column - 1] = vert_abs[row, column - 1]
         if direction == self.SOUTH and column < (n - 1):
-            vert_walls[row, column] = vert_sol[row, column]
+            vert_walls[row, column] = vert_abs[row, column]
         if direction == self.WEST and row < (n - 1):
-            horiz_walls[row, column] = horiz_sol[row, column]
+            horiz_walls[row, column] = horiz_abs[row, column]
         if direction == self.EAST and column < (n - 1):
-            horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
+            horiz_walls[row - 1, column] = horiz_abs[row - 1, column]
 
             #RIGHT IR
         if direction == self.NORTH and column < (n - 1):
-            vert_walls[row, column] = vert_sol[row, column]
+            vert_walls[row, column] = vert_abs[row, column]
         if direction == self.SOUTH and column > 0:
-            vert_walls[row, column - 1] = vert_sol[row, column - 1]
+            vert_walls[row, column - 1] = vert_abs[row, column - 1]
         if direction == self.WEST and row > 0 :
-            horiz_walls[row - 1, column] = horiz_sol[row - 1, column]
+            horiz_walls[row - 1, column] = horiz_abs[row - 1, column]
         if direction == self.EAST and row < (n - 1):
-            horiz_walls[row, column] = horiz_sol[row, column]
+            horiz_walls[row, column] = horiz_abs[row, column]
 
         self.maze.horiz_walls = horiz_walls #saves found walls into memory
         self.maze.vert_walls = vert_walls
@@ -211,10 +213,10 @@ class Mouse:
         Assumes all walls have been found.
         Initialize list of empty coordinates.
 
-        1. Get distance value of current position
-        2. Make a list of 4 random values. Each index represents next move.
+        1. Get distance value of start position
+        2. Make a list of 4 high values. Each index represents next move.
         3. Gets all adjacent distance values. Any walls should reflect in distance values.
-        4. Finds the index of any square that is current - 1.
+        4. Finds the index of any square that is (current - 1).
         5. If multiple, then favor the one that doesn't switch direction.
         6. Calculate next move, and append new position to coordinate list.
         """
@@ -298,3 +300,5 @@ class Mouse:
 
         optimal_path.append(target) #arrived at target. Append target to list to finalize
         self.optimal_path = optimal_path #save it as class variable
+
+        return True

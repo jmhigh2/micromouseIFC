@@ -8,3 +8,5 @@ python/neuralnets
 *.docx
 python/random
 python/sensorread.py
+andy/
+*.pdf
