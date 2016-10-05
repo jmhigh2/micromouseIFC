@@ -9,11 +9,11 @@ class Mouse:
     2. Add 'cost' attribute to each node, to take into account the level of difficulty in traversing that cell.
     '''
 
-    #directions of travel in the matrix, a.k.a constants
-    NORTH = (-1, 0)
-    SOUTH = (1, 0)
-    WEST = (0, -1)
-    EAST = (0, 1)
+    #directions of travel in the matrix
+    NORTH = (-1, 0) #row up
+    SOUTH = (1, 0) #row down
+    WEST = (0, -1) #row left
+    EAST = (0, 1) #row right
 
     def __init__(self, start_wall, **kwargs): #expecting a start wall (for start position), a maze object (to store the memorized maze)
             #cont'd - and a maze file in kwargs, that stores the maze to be analyzed
@@ -28,6 +28,10 @@ class Mouse:
             self.vert_walls_abs = vert_walls
 
         self.maze = Maze(n, start="left") #create maze object for mouse to save
+        self.visited = np.zeros(n, dtype=bool)
+
+        for a in range(1, n):
+            self.visited = np.vstack([self.visited, np.zeros(n, dtype=bool)])
 
         if self.maze.start == (0, 0): #top of maze looking down
             self.direction = self.SOUTH
@@ -43,9 +47,10 @@ class Mouse:
 
         while not self.cur_pos in self.maze.target: #check to see if at target
 
-            self.read_walls() #read the walls and floodfill the distance values
+            self.visited[self.cur_pos[0], self.cur_pos[1]] = True
+            self.read_walls() #read the walls
             on_path = self.get_next_move() #move in desired direction
-            if not on_path: #if node value don't reflect the current optimal path, to update
+            if not on_path: #if node value don't reflect the current optimal path, update
 
                 self.maze.floodfill(self.cur_pos)
                 self.get_next_move()
@@ -55,13 +60,17 @@ class Mouse:
             self.cur_pos = (next_row, next_col)
 
         self.maze.final = self.cur_pos #found the entrance to the centerblocks, save it in maze
+        self.maze.floodfill(self.cur_pos) #update array with current walls
         '''
         Arrived at Target. Time to go back. Reverse floodfill the values and try to get back to the starting square as fast as possible.
 
         '''
-        self.maze.floodfill(self.cur_pos, reverse=True) #set the start position to be the target
+    def goback(self): #need to be at different square
+
+        self.maze.floodfill(self.cur_pos, reverse=True) #set the maze start position to be the target, reverse floodfill back to target
         while self.cur_pos != self.maze.start:
 
+            self.visited[self.cur_pos[0], self.cur_pos[1]] = True
             self.read_walls()
             on_path = self.get_next_move() #returns true if can go to lower distance square
             if not on_path: #if all squares are higher/blocked, update the nodes
@@ -238,7 +247,6 @@ class Mouse:
         while (position != target): #checks to see to see if at target
 
             optimal_path.append(position) #adds the start/new position coord to the optimal path list
-
 
             row_coord = position[0]
             col_coord = position[1]
