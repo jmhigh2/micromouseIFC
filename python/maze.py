@@ -48,34 +48,35 @@ class Maze:
 
     def floodfill(self, position, reverse=False):
 
-
         coordinates = []
         self.nodes.fill(127) #fill all values with really high number
 
-        if not reverse:
+        if not reverse: #going from start to target, set target(s) to zero
             targets = self.target[:]
             for target in targets:
                 self.nodes[target[0], target[1]] = 0
 
-        else: #going back to start
+        else: #going back to start, set start position to zero
             self.nodes[self.start[0], self.start[1]] = 0
 
-        pathdist = 1
+        pathdist = 1 #set initial path value to be 1
 
         while True:
-            for row_num in range(0, self.n):
-                for col_num in range(0, self.n):
-                    if self.nodes[row_num, col_num] != 127:
+            for row_num in range(0, self.n): #loop over rows
+                for col_num in range(0, self.n): #loop over columns
+                    if self.nodes[row_num, col_num] != 127: #if cell has been updated, skip over it
                         continue
 
-                    if self.get_lowest_square((row_num, col_num)) != 127:
-                        coordinates.append((row_num, col_num)) #needs to be updated, add to queue
+                    if self.get_lowest_square((row_num, col_num)) != 127: #if any adjacent square has already been reached, that means this square has just been reached
+                        coordinates.append((row_num, col_num)) #cell needs to be updated, add to update queue
 
             for coordinate in coordinates:
                  self.nodes[coordinate[0], coordinate[1]] = pathdist #update all values that are next to a cell that's been reached.
 
-            coordinates = []
-            #check if any destination squares are not -1
+            coordinates = [] #resets the update quere for next distance
+
+
+            #check if any destination squares have been reached. If reached, break the loop and exit
             if not reverse:
                 if (self.nodes[self.start[0], self.start[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
                     break
@@ -83,7 +84,10 @@ class Maze:
                 if (self.nodes[self.final[0], self.final[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
                     break
 
-            pathdist += 1
+            pathdist += 1 #increase the distance away from initial value
+
+
+            #no return value needed, all class attributes should be updated
 
     def get_lowest_square(self, position): #expecting a (row, column) tuple
 
@@ -115,4 +119,4 @@ class Maze:
             right_square = nodes[row_coord, col_coord + 1] #value of right square
             vals.append(right_square)
 
-        return min(vals)
+        return min(vals) #return the minimum value around the given square
