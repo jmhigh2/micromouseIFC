@@ -47,7 +47,7 @@ bool neighbors(struct cell maze[16][16], int x, int y) {
 			return true;
 	}
 	else if (x > 0 && x < 15 && y > 0 && y < 15) {
-		if ((maze[x - 1][y].currentpathdistance != -1 && maze[x-1][y].previous != true) || (maze[x][y + 1].currentpathdistance != -1) || (maze[x + 1][y].currentpathdistance != -1) || (maze[x][y - 1].currentpathdistance != -1 && maze[x][y-1].previous != true))
+		if ((maze[x - 1][y].currentpathdistance != -1) || (maze[x][y + 1].currentpathdistance != -1) || (maze[x + 1][y].currentpathdistance != -1) || (maze[x][y - 1].currentpathdistance != -1))
 			return true;
 	}
 	else
