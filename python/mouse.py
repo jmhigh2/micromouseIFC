@@ -61,6 +61,7 @@ class Mouse:
 
         self.maze.final = self.cur_pos #found the entrance to the centerblocks, save it in maze
         self.maze.floodfill(self.cur_pos) #update array with current walls
+        self.calc_optimal()
         '''
         Arrived at Target. Time to go back. Reverse floodfill the values and try to get back to the starting square as fast as possible.
 
@@ -252,7 +253,7 @@ class Mouse:
             col_coord = position[1]
             cur_val = nodes[row_coord, col_coord] #get current distance value of square
 
-            next_values = [127, 127, 127, 127] #
+            next_values = [-1, -1, -1, -1] #
 
             if (row_coord > 0) and (horiz_walls[row_coord - 1, col_coord] != 1): #check if wall above or edge
 

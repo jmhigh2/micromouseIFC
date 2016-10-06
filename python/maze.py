@@ -75,7 +75,6 @@ class Maze:
 
             coordinates = [] #resets the update quere for next distance
 
-
             #check if any destination squares have been reached. If reached, break the loop and exit
             if not reverse:
                 if (self.nodes[self.start[0], self.start[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
@@ -85,8 +84,6 @@ class Maze:
                     break
 
             pathdist += 1 #increase the distance away from initial value
-
-
             #no return value needed, all class attributes should be updated
 
     def get_lowest_square(self, position): #expecting a (row, column) tuple
