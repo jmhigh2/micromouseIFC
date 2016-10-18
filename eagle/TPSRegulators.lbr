@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<!--This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA) with Design Exception 1.0-->
-<eagle version="7.1.0">
+<eagle version="7.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -82,6 +81,20 @@ Source: http://focus.ti.com/lit/ds/symlink/tps77001.pdf</description>
 <smd name="4" x="0.95" y="1.3" dx="0.75" dy="1.2" layer="1"/>
 <smd name="5" x="-0.95" y="1.3" dx="0.75" dy="1.2" layer="1"/>
 </package>
+<package name="8-SOIC(SMT)">
+<smd name="IN1" x="0.635" y="-2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<smd name="NC" x="-0.635" y="2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<smd name="PG" x="-1.905" y="2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<smd name="OUT2" x="0.635" y="2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<smd name="OUT1" x="1.905" y="2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<smd name="GND" x="-1.905" y="-2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<smd name="EN" x="-0.635" y="-2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<smd name="IN2" x="1.905" y="-2.7" dx="1.55" dy="0.6" layer="1" rot="R270"/>
+<wire x1="-2.3" y1="2.7" x2="-2.3" y2="-2.7" width="0.127" layer="1"/>
+<wire x1="-2.3" y1="-2.7" x2="2.3" y2="-2.7" width="0.127" layer="1"/>
+<wire x1="2.3" y1="-2.7" x2="2.3" y2="2.7" width="0.127" layer="1"/>
+<wire x1="2.3" y1="2.7" x2="-2.3" y2="2.7" width="0.127" layer="1"/>
+</package>
 </packages>
 <symbols>
 <symbol name="TPS73633DBVR">
@@ -90,13 +103,28 @@ Source: http://focus.ti.com/lit/ds/symlink/tps77001.pdf</description>
 <wire x1="-10.16" y1="-10.16" x2="10.16" y2="-10.16" width="0.254" layer="94"/>
 <wire x1="10.16" y1="-10.16" x2="10.16" y2="7.62" width="0.254" layer="94"/>
 <wire x1="10.16" y1="7.62" x2="-10.16" y2="7.62" width="0.254" layer="94"/>
-<text x="-10.16" y="12.7" size="1.778" layer="94">>Name</text>
-<text x="-10.16" y="9.144" size="1.778" layer="94">>Value</text>
+<text x="-10.16" y="12.7" size="1.778" layer="94">&gt;Name</text>
+<text x="-10.16" y="9.144" size="1.778" layer="94">&gt;Value</text>
 <pin name="IN" x="-15.24" y="5.08" length="middle"/>
 <pin name="EN" x="-15.24" y="-2.54" length="middle"/>
 <pin name="OUT" x="15.24" y="5.08" length="middle" rot="R180"/>
 <pin name="NR" x="15.24" y="-2.54" length="middle" rot="R180"/>
 <pin name="GND" x="0" y="-15.24" length="middle" rot="R90"/>
+</symbol>
+<symbol name="TPS76850QD">
+<wire x1="-12.7" y1="17.78" x2="-12.7" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="-12.7" y1="-15.24" x2="12.7" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-15.24" x2="12.7" y2="17.78" width="0.254" layer="94"/>
+<wire x1="12.7" y1="17.78" x2="-12.7" y2="17.78" width="0.254" layer="94"/>
+<pin name="GND" x="-17.78" y="12.7" length="middle"/>
+<pin name="EN" x="-17.78" y="5.08" length="middle"/>
+<pin name="IN1" x="-17.78" y="-2.54" length="middle"/>
+<pin name="IN2" x="-17.78" y="-10.16" length="middle"/>
+<pin name="OUT1" x="17.78" y="-10.16" length="middle" rot="R180"/>
+<pin name="OUT2" x="17.78" y="-2.54" length="middle" rot="R180"/>
+<pin name="NC" x="17.78" y="5.08" length="middle" rot="R180"/>
+<pin name="PG" x="17.78" y="12.7" length="middle" rot="R180"/>
+<text x="-7.62" y="20.32" size="1.778" layer="97">TPS76850QD</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -116,13 +144,35 @@ Source: http://focus.ti.com/lit/ds/symlink/tps77001.pdf</description>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="Description" value="Single Output LDO, 400mA, Adj.(1.2 to 5.5V), Cap free, Low Noise, Reverse Current Protection 5-SOT-23 -40 to 125"/>
-<attribute name="MP" value="TPS73633DBVR"/>
-<attribute name="Availability" value="Good"/>
-<attribute name="Package" value="SOT-23 Texas Instruments"/>
-<attribute name="Price" value="1.34 USD"/>
+<attribute name="AVAILABILITY" value="Good"/>
+<attribute name="DESCRIPTION" value="Single Output LDO, 400mA, Adj.(1.2 to 5.5V), Cap free, Low Noise, Reverse Current Protection 5-SOT-23 -40 to 125"/>
 <attribute name="MF" value="Texas Instruments"/>
+<attribute name="MP" value="TPS73633DBVR"/>
+<attribute name="PACKAGE" value="SOT-23 Texas Instruments"/>
+<attribute name="PRICE" value="1.34 USD"/>
 </technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="TPS76850">
+<gates>
+<gate name="G$1" symbol="TPS76850QD" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="8-SOIC(SMT)">
+<connects>
+<connect gate="G$1" pin="EN" pad="EN"/>
+<connect gate="G$1" pin="GND" pad="GND"/>
+<connect gate="G$1" pin="IN1" pad="IN1"/>
+<connect gate="G$1" pin="IN2" pad="IN2"/>
+<connect gate="G$1" pin="NC" pad="NC"/>
+<connect gate="G$1" pin="OUT1" pad="OUT1"/>
+<connect gate="G$1" pin="OUT2" pad="OUT2"/>
+<connect gate="G$1" pin="PG" pad="PG"/>
+</connects>
+<technologies>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
