@@ -3875,6 +3875,79 @@ In this library the device names are the same as the pin names of the symbols, t
 </deviceset>
 </devicesets>
 </library>
+<library name="TPS73633DBVR">
+<packages>
+<package name="SOT23-DBV">
+<description>&lt;b&gt;Small Outline Transistor&lt;/b&gt; DBV (R-PDSO-G5)&lt;p&gt;
+Source: http://focus.ti.com/lit/ds/symlink/tps77001.pdf</description>
+<wire x1="1.5" y1="0.81" x2="1.5" y2="-0.81" width="0.1524" layer="21"/>
+<wire x1="1.422" y1="-0.81" x2="-1.422" y2="-0.81" width="0.1524" layer="51"/>
+<wire x1="-1.5" y1="-0.81" x2="-1.5" y2="0.81" width="0.1524" layer="21"/>
+<wire x1="-1.5" y1="0.81" x2="1.5" y2="0.81" width="0.1524" layer="51"/>
+<wire x1="-0.45" y1="0.81" x2="0.45" y2="0.81" width="0.1524" layer="21"/>
+<wire x1="-1.45" y1="-0.81" x2="-1.5" y2="-0.81" width="0.1524" layer="21"/>
+<wire x1="1.45" y1="0.81" x2="1.5" y2="0.81" width="0.1524" layer="21"/>
+<wire x1="-1.5" y1="0.81" x2="-1.45" y2="0.81" width="0.1524" layer="21"/>
+<text x="2.415" y="-1.685" size="0.6096" layer="25" rot="R90">&gt;NAME</text>
+<rectangle x1="-1.2" y1="-1.5" x2="-0.7" y2="-0.85" layer="51"/>
+<rectangle x1="-0.25" y1="-1.5" x2="0.25" y2="-0.85" layer="51"/>
+<rectangle x1="0.7" y1="-1.5" x2="1.2" y2="-0.85" layer="51"/>
+<rectangle x1="0.7" y1="0.85" x2="1.2" y2="1.5" layer="51"/>
+<rectangle x1="-1.2" y1="0.85" x2="-0.7" y2="1.5" layer="51"/>
+<wire x1="1.45" y1="-0.81" x2="1.5" y2="-0.81" width="0.1524" layer="21"/>
+<smd name="1" x="-0.95" y="-1.3" dx="0.75" dy="1.2" layer="1"/>
+<smd name="2" x="0" y="-1.3" dx="0.75" dy="1.2" layer="1"/>
+<smd name="3" x="0.95" y="-1.3" dx="0.75" dy="1.2" layer="1"/>
+<smd name="4" x="0.95" y="1.3" dx="0.75" dy="1.2" layer="1"/>
+<smd name="5" x="-0.95" y="1.3" dx="0.75" dy="1.2" layer="1"/>
+</package>
+</packages>
+<symbols>
+<symbol name="TPS73633DBVR">
+<description>Symbol for TPS73633DBVR LDO voltage regulator</description>
+<wire x1="-10.16" y1="7.62" x2="-10.16" y2="-10.16" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="-10.16" x2="10.16" y2="-10.16" width="0.254" layer="94"/>
+<wire x1="10.16" y1="-10.16" x2="10.16" y2="7.62" width="0.254" layer="94"/>
+<wire x1="10.16" y1="7.62" x2="-10.16" y2="7.62" width="0.254" layer="94"/>
+<text x="-10.16" y="12.7" size="1.778" layer="94">&gt;Name</text>
+<text x="-10.16" y="9.144" size="1.778" layer="94">&gt;Value</text>
+<pin name="IN" x="-15.24" y="5.08" length="middle"/>
+<pin name="EN" x="-15.24" y="-2.54" length="middle"/>
+<pin name="OUT" x="15.24" y="5.08" length="middle" rot="R180"/>
+<pin name="NR" x="15.24" y="-2.54" length="middle" rot="R180"/>
+<pin name="GND" x="0" y="-15.24" length="middle" rot="R90"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="TPS73633DBVR" prefix="U">
+<description>3.3V LDO regulator. Package footprint not verified!!</description>
+<gates>
+<gate name="U1" symbol="TPS73633DBVR" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SOT23-DBV">
+<connects>
+<connect gate="U1" pin="EN" pad="3"/>
+<connect gate="U1" pin="GND" pad="2"/>
+<connect gate="U1" pin="IN" pad="1"/>
+<connect gate="U1" pin="NR" pad="4"/>
+<connect gate="U1" pin="OUT" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="AVAILABILITY" value="Good"/>
+<attribute name="DESCRIPTION" value="Single Output LDO, 400mA, Adj.(1.2 to 5.5V), Cap free, Low Noise, Reverse Current Protection 5-SOT-23 -40 to 125"/>
+<attribute name="MF" value="Texas Instruments"/>
+<attribute name="MP" value="TPS73633DBVR"/>
+<attribute name="PACKAGE" value="SOT-23 Texas Instruments"/>
+<attribute name="PRICE" value="1.34 USD"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -3908,6 +3981,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <part name="SUPPLY6" library="supply2" deviceset="DGND" device=""/>
 <part name="SUPPLY7" library="supply2" deviceset="DGND" device=""/>
 <part name="SUPPLY8" library="supply2" deviceset="DGND" device=""/>
+<part name="U1" library="TPS73633DBVR" deviceset="TPS73633DBVR" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -4129,6 +4203,17 @@ In this library the device names are the same as the pin names of the symbols, t
 <wire x1="35.56" y1="60.96" x2="15.24" y2="60.96" width="0.1524" layer="91"/>
 </segment>
 </net>
+</nets>
+</sheet>
+<sheet>
+<plain>
+</plain>
+<instances>
+<instance part="U1" gate="U1" x="58.42" y="88.9"/>
+</instances>
+<busses>
+</busses>
+<nets>
 </nets>
 </sheet>
 </sheets>
