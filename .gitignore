@@ -8,5 +8,9 @@ python/neuralnets
 *.docx
 python/random
 python/sensorread.py
-andy/
 *.pdf
+*.xlsx
+*.jpg
+GreenGiant/
+Invoices/
+ST datasheets/
