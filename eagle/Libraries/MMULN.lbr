@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.2.0">
+<eagle version="7.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -57,77 +57,77 @@
 </layers>
 <library>
 <packages>
-<package name="ULN">
+<package name="16-PINSOIC">
 <wire x1="2.5" y1="-2.2" x2="2.5" y2="2.2" width="0.127" layer="1"/>
 <wire x1="2.5" y1="2.2" x2="-2.5" y2="2.2" width="0.127" layer="1"/>
 <wire x1="-2.5" y1="2.2" x2="-2.5" y2="-2.2" width="0.127" layer="1"/>
 <wire x1="-2.5" y1="-2.2" x2="2.5" y2="-2.2" width="0.127" layer="1"/>
-<smd name="P$1" x="1.95" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$2" x="1.4" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$3" x="0.85" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$4" x="0.3" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$5" x="-0.25" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$6" x="-0.8" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$7" x="-1.35" y="-2.22" dx="0.245" dy="1" layer="1"/>
-<smd name="P$8" x="-1.9" y="-2.2" dx="0.245" dy="1" layer="1" rot="R180"/>
-<smd name="P$9" x="-1.9" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$10" x="-1.35" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$11" x="-0.8" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$12" x="-0.25" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$13" x="0.3" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$14" x="0.85" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$15" x="1.4" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="P$16" x="1.95" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="8" x="1.95" y="-2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="7" x="1.4" y="-2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="6" x="0.85" y="-2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="5" x="0.3" y="-2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="4" x="-0.25" y="-2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="3" x="-0.8" y="-2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="2" x="-1.35" y="-2.22" dx="0.245" dy="1" layer="1"/>
+<smd name="1" x="-1.9" y="-2.2" dx="0.245" dy="1" layer="1" rot="R180"/>
+<smd name="16" x="-1.9" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="15" x="-1.35" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="14" x="-0.8" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="13" x="-0.25" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="12" x="0.3" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="11" x="0.85" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="10" x="1.4" y="2.2" dx="0.245" dy="1" layer="1"/>
+<smd name="9" x="1.95" y="2.2" dx="0.245" dy="1" layer="1"/>
 </package>
 </packages>
 <symbols>
-<symbol name="ULN">
+<symbol name="ULN2003APWR">
 <wire x1="-17.78" y1="20.32" x2="-17.78" y2="-20.32" width="0.254" layer="94"/>
 <wire x1="-17.78" y1="-20.32" x2="17.78" y2="-20.32" width="0.254" layer="94"/>
 <wire x1="17.78" y1="-20.32" x2="17.78" y2="20.32" width="0.254" layer="94"/>
 <wire x1="17.78" y1="20.32" x2="-17.78" y2="20.32" width="0.254" layer="94"/>
-<pin name="P$1" x="-22.86" y="17.78" length="middle"/>
-<pin name="P$2" x="-22.86" y="12.7" length="middle"/>
-<pin name="P$3" x="-22.86" y="7.62" length="middle"/>
-<pin name="P$4" x="-22.86" y="2.54" length="middle"/>
-<pin name="P$5" x="-22.86" y="-2.54" length="middle"/>
-<pin name="P$6" x="-22.86" y="-7.62" length="middle"/>
-<pin name="P$7" x="-22.86" y="-12.7" length="middle"/>
-<pin name="P$8" x="-22.86" y="-17.78" length="middle"/>
-<pin name="P$9" x="22.86" y="-17.78" length="middle" rot="R180"/>
-<pin name="P$10" x="22.86" y="-12.7" length="middle" rot="R180"/>
-<pin name="P$11" x="22.86" y="-7.62" length="middle" rot="R180"/>
-<pin name="P$12" x="22.86" y="-2.54" length="middle" rot="R180"/>
-<pin name="P$13" x="22.86" y="2.54" length="middle" rot="R180"/>
-<pin name="P$14" x="22.86" y="7.62" length="middle" rot="R180"/>
-<pin name="P$15" x="22.86" y="12.7" length="middle" rot="R180"/>
-<pin name="P$16" x="22.86" y="17.78" length="middle" rot="R180"/>
+<pin name="1B" x="-22.86" y="17.78" length="middle"/>
+<pin name="2B" x="-22.86" y="12.7" length="middle"/>
+<pin name="3B" x="-22.86" y="7.62" length="middle"/>
+<pin name="4B" x="-22.86" y="2.54" length="middle"/>
+<pin name="5B" x="-22.86" y="-2.54" length="middle"/>
+<pin name="6B" x="-22.86" y="-7.62" length="middle"/>
+<pin name="7B" x="-22.86" y="-12.7" length="middle"/>
+<pin name="E" x="-22.86" y="-17.78" length="middle"/>
+<pin name="COM" x="22.86" y="-17.78" length="middle" rot="R180"/>
+<pin name="7C" x="22.86" y="-12.7" length="middle" rot="R180"/>
+<pin name="6C" x="22.86" y="-7.62" length="middle" rot="R180"/>
+<pin name="5C" x="22.86" y="-2.54" length="middle" rot="R180"/>
+<pin name="4C" x="22.86" y="2.54" length="middle" rot="R180"/>
+<pin name="3C" x="22.86" y="7.62" length="middle" rot="R180"/>
+<pin name="2C" x="22.86" y="12.7" length="middle" rot="R180"/>
+<pin name="1C" x="22.86" y="17.78" length="middle" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="ULN">
+<deviceset name="ULN2003APWR">
 <gates>
-<gate name="G$1" symbol="ULN" x="0" y="0"/>
+<gate name="G$1" symbol="ULN2003APWR" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="ULN">
+<device name="" package="16-PINSOIC">
 <connects>
-<connect gate="G$1" pin="P$1" pad="P$1"/>
-<connect gate="G$1" pin="P$10" pad="P$10"/>
-<connect gate="G$1" pin="P$11" pad="P$11"/>
-<connect gate="G$1" pin="P$12" pad="P$12"/>
-<connect gate="G$1" pin="P$13" pad="P$13"/>
-<connect gate="G$1" pin="P$14" pad="P$14"/>
-<connect gate="G$1" pin="P$15" pad="P$15"/>
-<connect gate="G$1" pin="P$16" pad="P$16"/>
-<connect gate="G$1" pin="P$2" pad="P$2"/>
-<connect gate="G$1" pin="P$3" pad="P$3"/>
-<connect gate="G$1" pin="P$4" pad="P$4"/>
-<connect gate="G$1" pin="P$5" pad="P$5"/>
-<connect gate="G$1" pin="P$6" pad="P$6"/>
-<connect gate="G$1" pin="P$7" pad="P$7"/>
-<connect gate="G$1" pin="P$8" pad="P$8"/>
-<connect gate="G$1" pin="P$9" pad="P$9"/>
+<connect gate="G$1" pin="1B" pad="1"/>
+<connect gate="G$1" pin="1C" pad="16"/>
+<connect gate="G$1" pin="2B" pad="2"/>
+<connect gate="G$1" pin="2C" pad="15"/>
+<connect gate="G$1" pin="3B" pad="3"/>
+<connect gate="G$1" pin="3C" pad="14"/>
+<connect gate="G$1" pin="4B" pad="4"/>
+<connect gate="G$1" pin="4C" pad="13"/>
+<connect gate="G$1" pin="5B" pad="5"/>
+<connect gate="G$1" pin="5C" pad="12"/>
+<connect gate="G$1" pin="6B" pad="6"/>
+<connect gate="G$1" pin="6C" pad="11"/>
+<connect gate="G$1" pin="7B" pad="7"/>
+<connect gate="G$1" pin="7C" pad="10"/>
+<connect gate="G$1" pin="COM" pad="9"/>
+<connect gate="G$1" pin="E" pad="8"/>
 </connects>
 <technologies>
 <technology name=""/>

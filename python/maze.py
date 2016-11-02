@@ -76,7 +76,7 @@ class Maze:
             coordinates = [] #resets the update quere for next distance
 
             #check if any destination squares have been reached. If reached, break the loop and exit
-            if not reverse:
+            if not reverse: #can forgo the start position during searching to save memory. Only need start position when at middle
                 if (self.nodes[self.start[0], self.start[1]] != 127) and (self.nodes[position[0], position[1]] != 127):
                     break
             else:
