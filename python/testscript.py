@@ -56,20 +56,20 @@ def graph(mouse):
     for x in range(0, 16): #plot floodfill numbers
         for y in range(0, 16):
             plt.text(x+.25, y+.30, str(nodes[x][y]), fontproperties=font)
-            if mouse.visited[x][y]:
-                plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
+            #if mouse.visited[x][y]:
+            #    plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
 
             #horizontal walls will be drawn vertical
     for x in range(0, 15):
         for y in range(0, 16):
-            plt.text(x+.85, y+.35, str(horiz_walls[x][y]), color='m', fontsize=7)
+            #plt.text(x+.85, y+.35, str(horiz_walls[x][y]), color='m', fontsize=7)
             if horiz_walls[x][y] == 1:
             #draw ()
                 plt.vlines(x+1, y, y+1)
 
     for x in range(0, 16): #vertical walls will be drawn
         for y in range(0, 15):
-            plt.text(x+.35, y+.75, str(vert_walls[x][y]), color='b', fontsize=7)
+            #plt.text(x+.35, y+.75, str(vert_walls[x][y]), color='b', fontsize=7)
             if vert_walls[x][y] == 1:
                 #draw line
                 plt.hlines(y+1, x, x+1)
@@ -92,7 +92,7 @@ def graph(mouse):
             #horizontal walls will be drawn vertical
     for x in range(0, 15):
         for y in range(0, 16):
-            plt.text(x+.75, y+.35, str(abs_horizwalls[x][y]), color='m')
+            #plt.text(x+.75, y+.35, str(abs_horizwalls[x][y]), color='m')
             if abs_horizwalls[x][y] == 1:
             #draw ()
                 plt.vlines(x+1, y, y+1)
@@ -100,9 +100,9 @@ def graph(mouse):
 
     for x in range(0, 16): #vertical walls will be drawn
         for y in range(0, 15):
-            plt.text(x+.35, y+.75, str(abs_vertwalls[x][y]), color='b')
+            #plt.text(x+.35, y+.75, str(abs_vertwalls[x][y]), color='b')
             if abs_vertwalls[x][y] == 1:
-                #draw line
+    #            #draw line
                 plt.hlines(y+1, x, x+1)
 
 
@@ -115,7 +115,7 @@ def graph(mouse):
 if __name__ == '__main__':
 
     mouse = Mouse("L", maze_file="maze.json") #the maze file to be read
-    for a in range(1,3):
+    for a in range(1,4):
         graph(mouse) #initialized values
         mouse.search() #first search, find target
         graph(mouse)

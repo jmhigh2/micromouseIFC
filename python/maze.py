@@ -4,7 +4,7 @@ class Maze:
 
     def __init__(self, n, target="default", start="default"): #default is four center squares for even, single center for odd
 
-        DTYPE = np.int
+        DTYPE = np.int #data type for numpy. Integer is the fastest
         horiz_walls = np.zeros(n, dtype=DTYPE)
         vert_walls = np.zeros(n-1, dtype=DTYPE)
         nodes = np.ones(n, dtype=DTYPE)
