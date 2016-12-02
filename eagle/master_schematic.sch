@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.2.0">
+<eagle version="7.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -14462,6 +14462,7 @@ infrared emitting diode, Infineon</description>
 <part name="R_SW1" library="resistor" deviceset="R-US_" device="R0603" value="47k"/>
 <part name="R_SW2" library="resistor" deviceset="R-US_" device="R0603" value="47k"/>
 <part name="SW1" library="special" deviceset="SW_DIP-1" device=""/>
+<part name="JP5" library="pinhead" deviceset="PINHD-2X3" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -14472,6 +14473,8 @@ infrared emitting diode, Infineon</description>
 <text x="-27.94" y="-45.72" size="1.778" layer="97">Pins 30-33 are ADC Pins</text>
 <text x="91.44" y="-38.1" size="1.778" layer="97">Pins 59 - 62 are TIM4 pins</text>
 <text x="2.54" y="-40.64" size="1.778" layer="97">Pin 22 and 25 are TIM2 Pins</text>
+<text x="-81.28" y="73.66" size="1.27" layer="97">Decoupling Capacitors (One at Every Vdd/Vss Pair)</text>
+<text x="88.9" y="43.18" size="1.27" layer="97">Programming Headers</text>
 </plain>
 <instances>
 <instance part="U$1" gate="G$1" x="-10.16" y="-43.18"/>
@@ -14491,6 +14494,7 @@ infrared emitting diode, Infineon</description>
 <instance part="SUPPLY5" gate="GND" x="38.1" y="48.26"/>
 <instance part="SUPPLY6" gate="GND" x="58.42" y="48.26"/>
 <instance part="SUPPLY9" gate="GND" x="20.32" y="30.48" rot="R90"/>
+<instance part="JP5" gate="A" x="99.06" y="35.56" rot="R180"/>
 </instances>
 <busses>
 </busses>
@@ -14664,6 +14668,11 @@ infrared emitting diode, Infineon</description>
 <junction x="12.7" y="30.48"/>
 <pinref part="SUPPLY9" gate="GND" pin="GND"/>
 </segment>
+<segment>
+<pinref part="JP5" gate="A" pin="2"/>
+<wire x1="93.98" y1="33.02" x2="81.28" y2="33.02" width="0.1524" layer="91"/>
+<label x="81.28" y="33.02" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
 </net>
 <net name="RPWMA" class="0">
 <segment>
@@ -14710,7 +14719,7 @@ infrared emitting diode, Infineon</description>
 <wire x1="73.66" y1="-33.02" x2="83.82" y2="-33.02" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="NRST" class="0">
+<net name="RESET" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="NRST"/>
 <wire x1="35.56" y1="-30.48" x2="33.02" y2="-30.48" width="0.1524" layer="91"/>
@@ -14723,12 +14732,22 @@ infrared emitting diode, Infineon</description>
 <wire x1="73.66" y1="-2.54" x2="78.74" y2="-2.54" width="0.1524" layer="91"/>
 <label x="78.74" y="-2.54" size="1.016" layer="95" xref="yes"/>
 </segment>
+<segment>
+<pinref part="JP5" gate="A" pin="5"/>
+<wire x1="101.6" y1="38.1" x2="109.22" y2="38.1" width="0.1524" layer="91"/>
+<label x="109.22" y="38.1" size="1.27" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="SWCLK" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="PA14"/>
 <wire x1="-81.28" y1="-58.42" x2="-86.36" y2="-58.42" width="0.1524" layer="91"/>
 <label x="-86.36" y="-58.42" size="1.016" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="JP5" gate="A" pin="6"/>
+<wire x1="93.98" y1="38.1" x2="81.28" y2="38.1" width="0.1524" layer="91"/>
+<label x="81.28" y="38.1" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="TDS-SWO" class="0">
@@ -14744,12 +14763,22 @@ infrared emitting diode, Infineon</description>
 <wire x1="73.66" y1="-10.16" x2="78.74" y2="-10.16" width="0.1524" layer="91"/>
 <label x="78.74" y="-10.16" size="1.016" layer="95" xref="yes"/>
 </segment>
+<segment>
+<pinref part="JP5" gate="A" pin="4"/>
+<wire x1="93.98" y1="35.56" x2="81.28" y2="35.56" width="0.1524" layer="91"/>
+<label x="81.28" y="35.56" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
 </net>
 <net name="TX" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="PA9"/>
 <label x="83.82" y="-12.7" size="1.016" layer="95" xref="yes"/>
 <wire x1="73.66" y1="-12.7" x2="83.82" y2="-12.7" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="JP5" gate="A" pin="3"/>
+<wire x1="101.6" y1="35.56" x2="109.22" y2="35.56" width="0.1524" layer="91"/>
+<label x="109.22" y="35.56" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="LED2" class="0">
@@ -14850,16 +14879,18 @@ infrared emitting diode, Infineon</description>
 <label x="78.74" y="-45.72" size="1.016" layer="95" xref="yes"/>
 </segment>
 </net>
-<net name="LED1-" class="0">
+<net name="US_1" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="PE9"/>
 <wire x1="-48.26" y1="-25.4" x2="-45.72" y2="-25.4" width="0.1524" layer="91"/>
+<label x="-45.72" y="-25.4" size="0.8128" layer="95" xref="yes"/>
 </segment>
 </net>
-<net name="N$9" class="0">
+<net name="US_2" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="PE8"/>
 <wire x1="-48.26" y1="-27.94" x2="-45.72" y2="-27.94" width="0.1524" layer="91"/>
+<label x="-45.72" y="-27.94" size="0.8128" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$12" class="0">
@@ -14916,11 +14947,45 @@ infrared emitting diode, Infineon</description>
 <label x="-43.18" y="-40.64" size="0.8128" layer="95" xref="yes"/>
 </segment>
 </net>
+<net name="VDD" class="0">
+<segment>
+<pinref part="JP5" gate="A" pin="1"/>
+<wire x1="101.6" y1="33.02" x2="109.22" y2="33.02" width="0.1524" layer="91"/>
+<label x="109.22" y="33.02" size="1.27" layer="95" xref="yes"/>
+</segment>
+</net>
+<net name="LED6" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="PD3"/>
+<wire x1="-81.28" y1="-38.1" x2="-86.36" y2="-38.1" width="0.1524" layer="91"/>
+<label x="-86.36" y="-38.1" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+</net>
+<net name="LED5" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="PD2"/>
+<wire x1="-81.28" y1="-40.64" x2="-86.36" y2="-40.64" width="0.1524" layer="91"/>
+<label x="-86.36" y="-40.64" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+</net>
+<net name="LED4" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="PD1"/>
+<wire x1="-81.28" y1="-43.18" x2="-86.36" y2="-43.18" width="0.1524" layer="91"/>
+<label x="-86.36" y="-43.18" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+</net>
 </nets>
 </sheet>
 <sheet>
 <description>Power Supply</description>
 <plain>
+<text x="-157.48" y="20.32" size="1.27" layer="97">Battery1</text>
+<text x="-157.48" y="5.08" size="1.27" layer="97">Battery2</text>
+<text x="-157.48" y="48.26" size="1.27" layer="97">On/Off Switch</text>
+<text x="-93.98" y="60.96" size="1.27" layer="97">5V Low-Dropout Regulator</text>
+<text x="22.86" y="38.1" size="1.27" layer="97">3.3V Low Dropout Regulator</text>
+<text x="-55.88" y="7.62" size="1.27" layer="97">Power Indicator</text>
 </plain>
 <instances>
 <instance part="U1" gate="U1" x="33.02" y="20.32"/>
@@ -15511,6 +15576,15 @@ infrared emitting diode, Infineon</description>
 <sheet>
 <description>LED's and Buttons</description>
 <plain>
+<text x="20.32" y="2.54" size="1.27" layer="97">Reset Switch</text>
+<text x="68.58" y="-2.54" size="1.27" layer="97">Flash Mode Switch
+(Low - User Program
+High - Bootloader)
+</text>
+<text x="114.3" y="2.54" size="1.27" layer="97">User Switch 1
+(Normally High)</text>
+<text x="152.4" y="2.54" size="1.27" layer="97">User Switch 2
+(Normally High)</text>
 </plain>
 <instances>
 <instance part="LED10" gate="1" x="-106.68" y="-25.4"/>
@@ -15536,13 +15610,13 @@ infrared emitting diode, Infineon</description>
 <instance part="R_BT0_1" gate="G$1" x="63.5" y="38.1"/>
 <instance part="SUPPLY27" gate="GND" x="-66.04" y="-58.42"/>
 <instance part="BOOT0" gate="1" x="76.2" y="10.16" rot="R270"/>
-<instance part="S2" gate="1" x="154.94" y="10.16" rot="R270"/>
+<instance part="S2" gate="1" x="157.48" y="10.16" rot="R270"/>
 <instance part="S3" gate="1" x="119.38" y="10.16" rot="R270"/>
 <instance part="RST" gate="1" x="25.4" y="10.16" rot="R270"/>
-<instance part="C_RESET2" gate="G$1" x="127" y="25.4"/>
-<instance part="C_RESET3" gate="G$1" x="162.56" y="25.4"/>
-<instance part="R_SW1" gate="G$1" x="104.14" y="-12.7" rot="R90"/>
-<instance part="R_SW2" gate="G$1" x="134.62" y="-12.7" rot="R90"/>
+<instance part="C_RESET2" gate="G$1" x="96.52" y="-5.08"/>
+<instance part="C_RESET3" gate="G$1" x="134.62" y="-5.08"/>
+<instance part="R_SW1" gate="G$1" x="99.06" y="38.1" rot="R90"/>
+<instance part="R_SW2" gate="G$1" x="134.62" y="35.56" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -15559,18 +15633,14 @@ infrared emitting diode, Infineon</description>
 <label x="68.58" y="10.16" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="S3" gate="1" pin="P"/>
-<wire x1="114.3" y1="10.16" x2="111.76" y2="10.16" width="0.1524" layer="91"/>
-<label x="109.22" y="10.16" size="1.778" layer="95" rot="R180" xref="yes"/>
-<wire x1="111.76" y1="10.16" x2="109.22" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="116.84" y1="10.16" x2="111.76" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="111.76" y1="10.16" x2="109.22" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="111.76" y1="10.16" x2="109.22" y2="10.16" width="0.1524" layer="91"/>
+<pinref part="R_SW1" gate="G$1" pin="2"/>
+<wire x1="99.06" y1="43.18" x2="99.06" y2="58.42" width="0.1524" layer="91"/>
+<label x="99.06" y="58.42" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 <segment>
-<pinref part="S2" gate="1" pin="P"/>
-<wire x1="149.86" y1="10.16" x2="144.78" y2="10.16" width="0.1524" layer="91"/>
-<label x="144.78" y="10.16" size="1.778" layer="95" rot="R180" xref="yes"/>
+<pinref part="R_SW2" gate="G$1" pin="2"/>
+<wire x1="134.62" y1="40.64" x2="134.62" y2="58.42" width="0.1524" layer="91"/>
+<label x="134.62" y="58.42" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -15635,14 +15705,27 @@ infrared emitting diode, Infineon</description>
 <wire x1="20.32" y1="10.16" x2="7.62" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="7.62" y1="10.16" x2="7.62" y2="-38.1" width="0.1524" layer="91"/>
 <junction x="7.62" y="-38.1"/>
-<pinref part="R_SW1" gate="G$1" pin="1"/>
-<wire x1="104.14" y1="-17.78" x2="104.14" y2="-38.1" width="0.1524" layer="91"/>
-<wire x1="104.14" y1="-38.1" x2="50.8" y2="-38.1" width="0.1524" layer="91"/>
 <junction x="50.8" y="-38.1"/>
-<pinref part="R_SW2" gate="G$1" pin="1"/>
-<wire x1="134.62" y1="-17.78" x2="134.62" y2="-38.1" width="0.1524" layer="91"/>
-<wire x1="134.62" y1="-38.1" x2="104.14" y2="-38.1" width="0.1524" layer="91"/>
-<junction x="104.14" y="-38.1"/>
+<pinref part="S3" gate="1" pin="P"/>
+<wire x1="162.56" y1="-38.1" x2="149.86" y2="-38.1" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="-38.1" x2="134.62" y2="-38.1" width="0.1524" layer="91"/>
+<wire x1="134.62" y1="-38.1" x2="111.76" y2="-38.1" width="0.1524" layer="91"/>
+<wire x1="111.76" y1="-38.1" x2="96.52" y2="-38.1" width="0.1524" layer="91"/>
+<wire x1="96.52" y1="-38.1" x2="50.8" y2="-38.1" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="10.16" x2="111.76" y2="10.16" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="10.16" x2="114.3" y2="10.16" width="0.1524" layer="91"/>
+<wire x1="111.76" y1="10.16" x2="111.76" y2="-38.1" width="0.1524" layer="91"/>
+<junction x="111.76" y="-38.1"/>
+<pinref part="S2" gate="1" pin="P"/>
+<wire x1="152.4" y1="10.16" x2="149.86" y2="10.16" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="10.16" x2="149.86" y2="-38.1" width="0.1524" layer="91"/>
+<junction x="149.86" y="-38.1"/>
+<pinref part="C_RESET2" gate="G$1" pin="2"/>
+<wire x1="96.52" y1="-10.16" x2="96.52" y2="-38.1" width="0.1524" layer="91"/>
+<junction x="96.52" y="-38.1"/>
+<pinref part="C_RESET3" gate="G$1" pin="2"/>
+<wire x1="134.62" y1="-10.16" x2="134.62" y2="-38.1" width="0.1524" layer="91"/>
+<junction x="134.62" y="-38.1"/>
 </segment>
 </net>
 <net name="N$40" class="0">
@@ -15830,42 +15913,37 @@ infrared emitting diode, Infineon</description>
 <wire x1="81.28" y1="10.16" x2="91.44" y2="10.16" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$26" class="0">
+<net name="US_1" class="0">
 <segment>
 <pinref part="S3" gate="1" pin="S"/>
 <wire x1="124.46" y1="10.16" x2="127" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="127" y1="10.16" x2="127" y2="-7.62" width="0.1524" layer="91"/>
-<pinref part="R_SW1" gate="G$1" pin="2"/>
-<wire x1="127" y1="-7.62" x2="104.14" y2="-7.62" width="0.1524" layer="91"/>
-<junction x="127" y="10.16"/>
-<pinref part="C_RESET2" gate="G$1" pin="2"/>
-<wire x1="127" y1="20.32" x2="127" y2="10.16" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$32" class="0">
-<segment>
-<pinref part="R_SW2" gate="G$1" pin="2"/>
-<wire x1="134.62" y1="-7.62" x2="162.56" y2="-7.62" width="0.1524" layer="91"/>
-<wire x1="162.56" y1="-7.62" x2="162.56" y2="10.16" width="0.1524" layer="91"/>
-<pinref part="S2" gate="1" pin="S"/>
-<wire x1="162.56" y1="10.16" x2="160.02" y2="10.16" width="0.1524" layer="91"/>
-<junction x="162.56" y="10.16"/>
-<pinref part="C_RESET3" gate="G$1" pin="2"/>
-<wire x1="162.56" y1="20.32" x2="162.56" y2="10.16" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$33" class="0">
-<segment>
+<wire x1="127" y1="10.16" x2="127" y2="25.4" width="0.1524" layer="91"/>
+<pinref part="R_SW1" gate="G$1" pin="1"/>
 <pinref part="C_RESET2" gate="G$1" pin="1"/>
-<wire x1="127" y1="27.94" x2="127" y2="58.42" width="0.1524" layer="91"/>
-<label x="127" y="58.42" size="1.778" layer="95" font="vector" rot="R90" xref="yes"/>
+<wire x1="99.06" y1="33.02" x2="96.52" y2="33.02" width="0.1524" layer="91"/>
+<wire x1="96.52" y1="33.02" x2="96.52" y2="25.4" width="0.1524" layer="91"/>
+<wire x1="96.52" y1="25.4" x2="96.52" y2="-2.54" width="0.1524" layer="91"/>
+<wire x1="127" y1="25.4" x2="96.52" y2="25.4" width="0.1524" layer="91"/>
+<junction x="96.52" y="25.4"/>
+<wire x1="127" y1="25.4" x2="127" y2="45.72" width="0.1524" layer="91"/>
+<junction x="127" y="25.4"/>
+<label x="127" y="45.72" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
-<net name="N$34" class="0">
+<net name="US_2" class="0">
 <segment>
+<pinref part="R_SW2" gate="G$1" pin="1"/>
 <pinref part="C_RESET3" gate="G$1" pin="1"/>
-<wire x1="162.56" y1="27.94" x2="162.56" y2="58.42" width="0.1524" layer="91"/>
-<label x="162.56" y="58.42" size="1.778" layer="95" font="vector" rot="R90" xref="yes"/>
+<wire x1="134.62" y1="30.48" x2="134.62" y2="25.4" width="0.1524" layer="91"/>
+<pinref part="S2" gate="1" pin="S"/>
+<wire x1="134.62" y1="25.4" x2="134.62" y2="-2.54" width="0.1524" layer="91"/>
+<wire x1="162.56" y1="10.16" x2="167.64" y2="10.16" width="0.1524" layer="91"/>
+<wire x1="167.64" y1="10.16" x2="167.64" y2="25.4" width="0.1524" layer="91"/>
+<wire x1="167.64" y1="25.4" x2="134.62" y2="25.4" width="0.1524" layer="91"/>
+<junction x="134.62" y="25.4"/>
+<wire x1="167.64" y1="25.4" x2="167.64" y2="43.18" width="0.1524" layer="91"/>
+<junction x="167.64" y="25.4"/>
+<label x="167.64" y="43.18" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 </nets>
@@ -16005,6 +16083,7 @@ infrared emitting diode, Infineon</description>
 <description>Infrared Emitters</description>
 <plain>
 <text x="-27.94" y="15.24" size="1.778" layer="91">ULN2003APWR</text>
+<text x="-22.86" y="22.86" size="1.27" layer="97">Current Amplifier</text>
 </plain>
 <instances>
 <instance part="PE1" gate="M" x="-45.72" y="-33.02"/>
