@@ -1,0 +1,11 @@
+C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp: In function 'void flood(cell (*)[16])':
+C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:61:92: error: 'struct cell' has no member named 'previous'
+     if (neighbors(maze, i, j) == true && maze[i][j].currentpathdistance != 0 && maze[i][j].previous == false) {
+                                                                                            ^
+C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:63:18: error: 'struct cell' has no member named 'previous'
+       maze[i][j].previous = true;
+                  ^
+C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp: In function 'void intmaze(cell (*)[16])':
+C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:76:15: error: 'struct cell' has no member named 'previous'
+    maze[i][j].previous = false;
+               ^
