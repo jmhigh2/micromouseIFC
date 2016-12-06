@@ -57,7 +57,7 @@
 </layers>
 <library>
 <packages>
-<package name="H-BRIDGE">
+<package name="8-SOIC">
 <wire x1="2.45" y1="1.95" x2="2.45" y2="-1.95" width="0.127" layer="21"/>
 <wire x1="2.45" y1="-1.95" x2="-2.45" y2="-1.95" width="0.127" layer="21"/>
 <wire x1="-2.45" y1="-1.95" x2="-2.45" y2="1.95" width="0.127" layer="21"/>
@@ -73,7 +73,7 @@
 </package>
 </packages>
 <symbols>
-<symbol name="H-BRIDGE">
+<symbol name="ZXMHC3F381N8TC">
 <wire x1="-12.7" y1="15.24" x2="-12.7" y2="-12.7" width="0.254" layer="94"/>
 <wire x1="12.7" y1="-12.7" x2="12.7" y2="15.24" width="0.254" layer="94"/>
 <wire x1="12.7" y1="15.24" x2="-12.7" y2="15.24" width="0.254" layer="94"/>
@@ -86,17 +86,17 @@
 <pin name="N1D/P1D" x="-17.78" y="5.08" length="middle"/>
 <pin name="N1G" x="-17.78" y="12.7" length="middle"/>
 <wire x1="-12.7" y1="-12.7" x2="12.7" y2="-12.7" width="0.254" layer="94"/>
-<text x="-12.7" y="17.78" size="1.778" layer="95">&gt;NAME</text>
-<text x="-12.7" y="-17.78" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-12.7" y="20.32" size="1.778" layer="95">&gt;NAME</text>
+<text x="-12.7" y="17.78" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="H-BRIDGE">
+<deviceset name="ZXMHC3F381N8TC">
 <gates>
-<gate name="G$1" symbol="H-BRIDGE" x="-2.54" y="-2.54"/>
+<gate name="G$1" symbol="ZXMHC3F381N8TC" x="-2.54" y="-2.54"/>
 </gates>
 <devices>
-<device name="" package="H-BRIDGE">
+<device name="" package="8-SOIC">
 <connects>
 <connect gate="G$1" pin="N1D/P1D" pad="N1D/P1D"/>
 <connect gate="G$1" pin="N1G" pad="N1G"/>

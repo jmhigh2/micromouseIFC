@@ -124,9 +124,8 @@ Source: http://focus.ti.com/lit/ds/symlink/tps77001.pdf</description>
 <pin name="OUT2" x="17.78" y="-2.54" length="middle" rot="R180"/>
 <pin name="NC" x="17.78" y="5.08" length="middle" rot="R180"/>
 <pin name="PG" x="17.78" y="12.7" length="middle" rot="R180"/>
-<text x="-7.62" y="20.32" size="1.778" layer="97">TPS76850QD</text>
-<text x="-10.16" y="-20.32" size="1.778" layer="95">&gt;NAME</text>
-<text x="-10.16" y="-25.4" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-12.7" y="22.86" size="1.778" layer="95">&gt;NAME</text>
+<text x="-12.7" y="20.32" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
 </symbols>
 <devicesets>
