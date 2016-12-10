@@ -14,3 +14,4 @@ python/sensorread.py
 GreenGiant/
 Invoices/
 ST datasheets/
+eagle/*.brd

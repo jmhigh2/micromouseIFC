@@ -251,7 +251,7 @@
 </package>
 </packages>
 <symbols>
-<symbol name="STM32F769IG">
+<symbol name="STM32F767VG">
 <description>STM Electronics STM32F76-LQFP100</description>
 <wire x1="-40.64" y1="40.64" x2="-40.64" y2="-40.64" width="0.254" layer="94"/>
 <pin name="PE2" x="-45.72" y="30.48" length="middle"/>
@@ -363,7 +363,7 @@ LQFP100</text>
 <text x="-7.62" y="17.78" size="1.778" layer="95">&gt;NAME</text>
 <text x="-7.62" y="-12.7" size="1.778" layer="95">&gt;VALUE</text>
 </symbol>
-<symbol name="STM32F769IG(2)">
+<symbol name="STM32F767VG-1">
 <pin name="VDD@1" x="-15.24" y="86.36" length="middle"/>
 <pin name="VDD@2" x="-15.24" y="83.82" length="middle"/>
 <pin name="VDD@3" x="-15.24" y="81.28" length="middle"/>
@@ -485,9 +485,9 @@ Power Pins</text>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="STM32F769IG">
+<deviceset name="STM32F769VG-1">
 <gates>
-<gate name="G$1" symbol="STM32F769IG" x="0" y="0"/>
+<gate name="G$1" symbol="STM32F767VG" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="LQFP100">
@@ -599,9 +599,9 @@ Power Pins</text>
 </device>
 </devices>
 </deviceset>
-<deviceset name="STM32F767VG(2)">
+<deviceset name="STM32F767VG">
 <gates>
-<gate name="G$1" symbol="STM32F769IG(2)" x="0" y="0"/>
+<gate name="G$1" symbol="STM32F767VG-1" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="LQFP100">
