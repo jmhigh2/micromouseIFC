@@ -15,3 +15,5 @@ GreenGiant/
 Invoices/
 ST datasheets/
 eagle/*.brd
+eagle/*.lck
+*.ioc
