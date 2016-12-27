@@ -17,3 +17,5 @@ ST datasheets/
 eagle/*.brd
 eagle/*.lck
 *.ioc
+eagle/*.b##
+eagle/*.s##

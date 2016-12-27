@@ -12805,90 +12805,6 @@ Source: www.kingbright.com</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="MMULN">
-<packages>
-<package name="16-PINSOIC">
-<wire x1="2.5" y1="-2.2" x2="2.5" y2="2.2" width="0.127" layer="21"/>
-<wire x1="2.5" y1="2.2" x2="-2.5" y2="2.2" width="0.127" layer="21"/>
-<wire x1="-2.5" y1="2.2" x2="-2.5" y2="-2.2" width="0.127" layer="21"/>
-<wire x1="-2.5" y1="-2.2" x2="2.5" y2="-2.2" width="0.127" layer="21"/>
-<smd name="8" x="1.95" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="7" x="1.4" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="6" x="0.85" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="5" x="0.3" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="4" x="-0.25" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="3" x="-0.8" y="-2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="2" x="-1.35" y="-2.22" dx="0.245" dy="1" layer="1"/>
-<smd name="1" x="-1.9" y="-2.2" dx="0.245" dy="1" layer="1" rot="R180"/>
-<smd name="16" x="-1.9" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="15" x="-1.35" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="14" x="-0.8" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="13" x="-0.25" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="12" x="0.3" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="11" x="0.85" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="10" x="1.4" y="2.2" dx="0.245" dy="1" layer="1"/>
-<smd name="9" x="1.95" y="2.2" dx="0.245" dy="1" layer="1"/>
-</package>
-</packages>
-<symbols>
-<symbol name="ULN2003APWR">
-<wire x1="-17.78" y1="20.32" x2="-17.78" y2="-20.32" width="0.254" layer="94"/>
-<wire x1="-17.78" y1="-20.32" x2="17.78" y2="-20.32" width="0.254" layer="94"/>
-<wire x1="17.78" y1="-20.32" x2="17.78" y2="20.32" width="0.254" layer="94"/>
-<wire x1="17.78" y1="20.32" x2="-17.78" y2="20.32" width="0.254" layer="94"/>
-<pin name="1B" x="-22.86" y="17.78" length="middle"/>
-<pin name="2B" x="-22.86" y="12.7" length="middle"/>
-<pin name="3B" x="-22.86" y="7.62" length="middle"/>
-<pin name="4B" x="-22.86" y="2.54" length="middle"/>
-<pin name="5B" x="-22.86" y="-2.54" length="middle"/>
-<pin name="6B" x="-22.86" y="-7.62" length="middle"/>
-<pin name="7B" x="-22.86" y="-12.7" length="middle"/>
-<pin name="E" x="-22.86" y="-17.78" length="middle"/>
-<pin name="COM" x="22.86" y="-17.78" length="middle" rot="R180"/>
-<pin name="7C" x="22.86" y="-12.7" length="middle" rot="R180"/>
-<pin name="6C" x="22.86" y="-7.62" length="middle" rot="R180"/>
-<pin name="5C" x="22.86" y="-2.54" length="middle" rot="R180"/>
-<pin name="4C" x="22.86" y="2.54" length="middle" rot="R180"/>
-<pin name="3C" x="22.86" y="7.62" length="middle" rot="R180"/>
-<pin name="2C" x="22.86" y="12.7" length="middle" rot="R180"/>
-<pin name="1C" x="22.86" y="17.78" length="middle" rot="R180"/>
-<text x="-17.78" y="25.4" size="1.778" layer="95">&gt;NAME</text>
-<text x="-17.78" y="22.86" size="1.778" layer="96">&gt;VALUE</text>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="ULN2003APWR">
-<gates>
-<gate name="G$1" symbol="ULN2003APWR" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="16-PINSOIC">
-<connects>
-<connect gate="G$1" pin="1B" pad="1"/>
-<connect gate="G$1" pin="1C" pad="16"/>
-<connect gate="G$1" pin="2B" pad="2"/>
-<connect gate="G$1" pin="2C" pad="15"/>
-<connect gate="G$1" pin="3B" pad="3"/>
-<connect gate="G$1" pin="3C" pad="14"/>
-<connect gate="G$1" pin="4B" pad="4"/>
-<connect gate="G$1" pin="4C" pad="13"/>
-<connect gate="G$1" pin="5B" pad="5"/>
-<connect gate="G$1" pin="5C" pad="12"/>
-<connect gate="G$1" pin="6B" pad="6"/>
-<connect gate="G$1" pin="6C" pad="11"/>
-<connect gate="G$1" pin="7B" pad="7"/>
-<connect gate="G$1" pin="7C" pad="10"/>
-<connect gate="G$1" pin="COM" pad="9"/>
-<connect gate="G$1" pin="E" pad="8"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="pinhead">
 <description>&lt;b&gt;Pin Header Connectors&lt;/b&gt;&lt;p&gt;
 &lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
@@ -15972,6 +15888,94 @@ Updated  by  Dan Xu 2014-07-08&lt;br&gt;
 </deviceset>
 </devicesets>
 </library>
+<library name="ULN2003APWR">
+<packages>
+<package name="ULN2003APWR">
+<wire x1="2" y1="-2.5" x2="2" y2="2.5" width="0.05" layer="21"/>
+<wire x1="2" y1="2.5" x2="-2" y2="2.5" width="0.05" layer="21"/>
+<wire x1="-2" y1="2.5" x2="-2" y2="-2.5" width="0.05" layer="21"/>
+<wire x1="-2" y1="-2.5" x2="2" y2="-2.5" width="0.05" layer="21"/>
+<circle x="-1.3749" y="1.8862" radius="0.2434" width="0.0508" layer="21"/>
+<smd name="1B" x="-2.8" y="2.275" dx="1.55" dy="0.3" layer="1"/>
+<smd name="3B" x="-2.8" y="0.975" dx="1.55" dy="0.3" layer="1"/>
+<smd name="5B" x="-2.8" y="-0.325" dx="1.55" dy="0.3" layer="1"/>
+<smd name="6B" x="-2.8" y="-0.975" dx="1.55" dy="0.3" layer="1"/>
+<smd name="7B" x="-2.8" y="-1.625" dx="1.55" dy="0.3" layer="1"/>
+<smd name="4B" x="-2.8" y="0.325" dx="1.55" dy="0.3" layer="1"/>
+<smd name="2B" x="-2.8" y="1.625" dx="1.55" dy="0.3" layer="1"/>
+<smd name="GND" x="-2.8" y="-2.275" dx="1.55" dy="0.3" layer="1"/>
+<smd name="1C" x="2.8" y="2.275" dx="1.55" dy="0.3" layer="1"/>
+<smd name="3C" x="2.8" y="0.975" dx="1.55" dy="0.3" layer="1"/>
+<smd name="5C" x="2.8" y="-0.325" dx="1.55" dy="0.3" layer="1"/>
+<smd name="6C" x="2.8" y="-0.975" dx="1.55" dy="0.3" layer="1"/>
+<smd name="7C" x="2.8" y="-1.625" dx="1.55" dy="0.3" layer="1"/>
+<smd name="4C" x="2.8" y="0.325" dx="1.55" dy="0.3" layer="1"/>
+<smd name="2C" x="2.8" y="1.625" dx="1.55" dy="0.3" layer="1"/>
+<smd name="COM" x="2.8" y="-2.275" dx="1.55" dy="0.3" layer="1"/>
+<text x="-2.5" y="2.9" size="0.5" layer="21">ULN2003APWR</text>
+</package>
+</packages>
+<symbols>
+<symbol name="ULN2003APWR">
+<wire x1="-7.62" y1="-17.78" x2="7.62" y2="-17.78" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="22.86" x2="-7.62" y2="-17.78" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="22.86" x2="-2.54" y2="22.86" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="22.86" x2="1.27" y2="22.86" width="0.254" layer="94"/>
+<wire x1="1.27" y1="22.86" x2="7.62" y2="22.86" width="0.254" layer="94"/>
+<wire x1="1.27" y1="22.86" x2="-2.54" y2="22.86" width="0.254" layer="94" curve="-180"/>
+<wire x1="7.62" y1="22.86" x2="7.62" y2="-17.78" width="0.254" layer="94"/>
+<text x="-9.442" y="23.698" size="1.8" layer="95">ULN2003APWR</text>
+<pin name="1B" x="-12.7" y="20.32" visible="pin" length="middle"/>
+<pin name="2B" x="-12.7" y="15.24" visible="pin" length="middle"/>
+<pin name="3B" x="-12.7" y="10.16" visible="pin" length="middle"/>
+<pin name="4B" x="-12.7" y="5.08" visible="pin" length="middle"/>
+<pin name="5B" x="-12.7" y="0" visible="pin" length="middle"/>
+<pin name="6B" x="-12.7" y="-5.08" visible="pin" length="middle"/>
+<pin name="7B" x="-12.7" y="-10.16" visible="pin" length="middle"/>
+<pin name="GND" x="-12.7" y="-15.24" visible="pin" length="middle"/>
+<pin name="1C" x="12.7" y="20.32" visible="pin" length="middle" rot="R180"/>
+<pin name="2C" x="12.7" y="15.24" visible="pin" length="middle" rot="R180"/>
+<pin name="3C" x="12.7" y="10.16" visible="pin" length="middle" rot="R180"/>
+<pin name="4C" x="12.7" y="5.08" visible="pin" length="middle" rot="R180"/>
+<pin name="5C" x="12.7" y="0" visible="pin" length="middle" rot="R180"/>
+<pin name="6C" x="12.7" y="-5.08" visible="pin" length="middle" rot="R180"/>
+<pin name="7C" x="12.7" y="-10.16" visible="pin" length="middle" rot="R180"/>
+<pin name="COM" x="12.7" y="-15.24" visible="pin" length="middle" rot="R180"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="ULN2003APWR">
+<gates>
+<gate name="G$1" symbol="ULN2003APWR" x="19.05" y="-4.064"/>
+</gates>
+<devices>
+<device name="" package="ULN2003APWR">
+<connects>
+<connect gate="G$1" pin="1B" pad="1B"/>
+<connect gate="G$1" pin="1C" pad="1C"/>
+<connect gate="G$1" pin="2B" pad="2B"/>
+<connect gate="G$1" pin="2C" pad="2C"/>
+<connect gate="G$1" pin="3B" pad="3B"/>
+<connect gate="G$1" pin="3C" pad="3C"/>
+<connect gate="G$1" pin="4B" pad="4B"/>
+<connect gate="G$1" pin="4C" pad="4C"/>
+<connect gate="G$1" pin="5B" pad="5B"/>
+<connect gate="G$1" pin="5C" pad="5C"/>
+<connect gate="G$1" pin="6B" pad="6B"/>
+<connect gate="G$1" pin="6C" pad="6C"/>
+<connect gate="G$1" pin="7B" pad="7B"/>
+<connect gate="G$1" pin="7C" pad="7C"/>
+<connect gate="G$1" pin="COM" pad="COM"/>
+<connect gate="G$1" pin="GND" pad="GND"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -16049,7 +16053,6 @@ Updated  by  Dan Xu 2014-07-08&lt;br&gt;
 <part name="C1_L_EMIT" library="resistor" deviceset="C-EU" device="C1206" value="4.7uF"/>
 <part name="C1_F_EMITS" library="resistor" deviceset="C-EU" device="C1206" value="4.7uF"/>
 <part name="C2_F_EMITS" library="resistor" deviceset="C-EU" device="C1206" value=".1uF"/>
-<part name="U$4" library="MMULN" deviceset="ULN2003APWR" device=""/>
 <part name="R_MOT" library="pinhead" deviceset="PINHD-2X3" device=""/>
 <part name="L_MOT" library="pinhead" deviceset="PINHD-2X3" device=""/>
 <part name="BOOT0" library="switch-omron" deviceset="10-XX" device=""/>
@@ -16119,6 +16122,7 @@ Updated  by  Dan Xu 2014-07-08&lt;br&gt;
 <part name="R_REC" library="sfh4550 &amp; teft4300" deviceset="RECEIVER" device=""/>
 <part name="U$7" library="JST_CONNECTOR_FEMALE. through hole" deviceset="JST_CONNECTOR_FEMALE" device=""/>
 <part name="U$8" library="JST_CONNECTOR_FEMALE. through hole" deviceset="JST_CONNECTOR_FEMALE" device=""/>
+<part name="U$9" library="ULN2003APWR" deviceset="ULN2003APWR" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -17803,7 +17807,6 @@ High - Bootloader)
 <instance part="C1_L_EMIT" gate="G$1" x="114.3" y="27.94" rot="R180"/>
 <instance part="C1_F_EMITS" gate="G$1" x="147.32" y="27.94" rot="R180"/>
 <instance part="C2_F_EMITS" gate="G$1" x="165.1" y="27.94" rot="R180"/>
-<instance part="U$4" gate="G$1" x="-17.78" y="0"/>
 <instance part="SUPPLY10" gate="GND" x="81.28" y="-17.78"/>
 <instance part="SUPPLY11" gate="GND" x="-45.72" y="-33.02"/>
 <instance part="R_IR_EMIT" gate="G$1" x="33.02" y="30.48"/>
@@ -17812,15 +17815,16 @@ High - Bootloader)
 <instance part="RF_IR_EMIT" gate="G$1" x="22.86" y="30.48" rot="MR0"/>
 <instance part="SPK1" gate="G$1" x="-7.62" y="45.72"/>
 <instance part="D2" gate="G$1" x="-7.62" y="38.1" rot="R180"/>
+<instance part="U$9" gate="G$1" x="-17.78" y="-2.54"/>
 </instances>
 <busses>
 </busses>
 <nets>
 <net name="RF_EMITTER" class="0">
 <segment>
-<wire x1="-45.72" y1="12.7" x2="-40.64" y2="12.7" width="0.1524" layer="91"/>
 <label x="-45.72" y="12.7" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$4" gate="G$1" pin="2B"/>
+<pinref part="U$9" gate="G$1" pin="2B"/>
+<wire x1="-45.72" y1="12.7" x2="-30.48" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="R_EMITTER" class="0">
@@ -17828,8 +17832,10 @@ High - Bootloader)
 <wire x1="-45.72" y1="2.54" x2="-40.64" y2="2.54" width="0.1524" layer="91"/>
 <wire x1="-40.64" y1="2.54" x2="-40.64" y2="7.62" width="0.1524" layer="91"/>
 <label x="-45.72" y="2.54" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$4" gate="G$1" pin="3B"/>
-<pinref part="U$4" gate="G$1" pin="4B"/>
+<pinref part="U$9" gate="G$1" pin="3B"/>
+<wire x1="-40.64" y1="7.62" x2="-30.48" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="U$9" gate="G$1" pin="4B"/>
+<wire x1="-40.64" y1="2.54" x2="-30.48" y2="2.54" width="0.1524" layer="91"/>
 <junction x="-40.64" y="2.54"/>
 </segment>
 </net>
@@ -17838,24 +17844,26 @@ High - Bootloader)
 <wire x1="-45.72" y1="-7.62" x2="-40.64" y2="-7.62" width="0.1524" layer="91"/>
 <wire x1="-40.64" y1="-7.62" x2="-40.64" y2="-2.54" width="0.1524" layer="91"/>
 <label x="-45.72" y="-7.62" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$4" gate="G$1" pin="5B"/>
-<pinref part="U$4" gate="G$1" pin="6B"/>
+<pinref part="U$9" gate="G$1" pin="5B"/>
+<wire x1="-40.64" y1="-2.54" x2="-30.48" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="U$9" gate="G$1" pin="6B"/>
+<wire x1="-40.64" y1="-7.62" x2="-30.48" y2="-7.62" width="0.1524" layer="91"/>
 <junction x="-40.64" y="-7.62"/>
 </segment>
 </net>
 <net name="LF_EMITTER" class="0">
 <segment>
-<wire x1="-40.64" y1="-12.7" x2="-45.72" y2="-12.7" width="0.1524" layer="91"/>
 <label x="-45.72" y="-12.7" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$4" gate="G$1" pin="7B"/>
+<pinref part="U$9" gate="G$1" pin="7B"/>
+<wire x1="-45.72" y1="-12.7" x2="-30.48" y2="-12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$22" class="0">
 <segment>
 <pinref part="R_RF" gate="G$1" pin="1"/>
 <junction x="12.7" y="12.7"/>
-<wire x1="12.7" y1="12.7" x2="5.08" y2="12.7" width="0.1524" layer="91"/>
-<pinref part="U$4" gate="G$1" pin="2C"/>
+<pinref part="U$9" gate="G$1" pin="2C"/>
+<wire x1="12.7" y1="12.7" x2="-5.08" y2="12.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$23" class="0">
@@ -17873,9 +17881,11 @@ High - Bootloader)
 <junction x="17.78" y="2.54"/>
 <wire x1="5.08" y1="7.62" x2="5.08" y2="2.54" width="0.1524" layer="91"/>
 <wire x1="17.78" y1="2.54" x2="5.08" y2="2.54" width="0.1524" layer="91"/>
-<pinref part="U$4" gate="G$1" pin="4C"/>
+<pinref part="U$9" gate="G$1" pin="4C"/>
+<wire x1="5.08" y1="2.54" x2="-5.08" y2="2.54" width="0.1524" layer="91"/>
 <junction x="5.08" y="2.54"/>
-<pinref part="U$4" gate="G$1" pin="3C"/>
+<pinref part="U$9" gate="G$1" pin="3C"/>
+<wire x1="5.08" y1="7.62" x2="-5.08" y2="7.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$27" class="0">
@@ -17884,25 +17894,27 @@ High - Bootloader)
 <junction x="25.4" y="-7.62"/>
 <wire x1="5.08" y1="-2.54" x2="5.08" y2="-7.62" width="0.1524" layer="91"/>
 <wire x1="25.4" y1="-7.62" x2="5.08" y2="-7.62" width="0.1524" layer="91"/>
-<pinref part="U$4" gate="G$1" pin="6C"/>
+<pinref part="U$9" gate="G$1" pin="5C"/>
+<wire x1="5.08" y1="-2.54" x2="-5.08" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="U$9" gate="G$1" pin="6C"/>
+<wire x1="5.08" y1="-7.62" x2="-5.08" y2="-7.62" width="0.1524" layer="91"/>
 <junction x="5.08" y="-7.62"/>
-<pinref part="U$4" gate="G$1" pin="5C"/>
 </segment>
 </net>
 <net name="N$30" class="0">
 <segment>
 <pinref part="R_LF" gate="G$1" pin="1"/>
 <junction x="38.1" y="-12.7"/>
-<wire x1="38.1" y1="-12.7" x2="5.08" y2="-12.7" width="0.1524" layer="91"/>
-<pinref part="U$4" gate="G$1" pin="7C"/>
+<wire x1="38.1" y1="-12.7" x2="-5.08" y2="-12.7" width="0.1524" layer="91"/>
+<pinref part="U$9" gate="G$1" pin="7C"/>
 </segment>
 </net>
 <net name="GND" class="0">
 <segment>
-<wire x1="-40.64" y1="-17.78" x2="-45.72" y2="-17.78" width="0.1524" layer="91"/>
 <wire x1="-45.72" y1="-17.78" x2="-45.72" y2="-30.48" width="0.1524" layer="91"/>
-<pinref part="U$4" gate="G$1" pin="E"/>
 <pinref part="SUPPLY11" gate="GND" pin="GND"/>
+<pinref part="U$9" gate="G$1" pin="GND"/>
+<wire x1="-45.72" y1="-17.78" x2="-30.48" y2="-17.78" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="C1_R_EMIT" gate="G$1" pin="1"/>
@@ -18024,15 +18036,13 @@ High - Bootloader)
 </net>
 <net name="BUZZER" class="0">
 <segment>
-<pinref part="U$4" gate="G$1" pin="1B"/>
-<wire x1="-40.64" y1="17.78" x2="-45.72" y2="17.78" width="0.1524" layer="91"/>
 <label x="-45.72" y="17.78" size="1.778" layer="95" rot="R180" xref="yes"/>
+<pinref part="U$9" gate="G$1" pin="1B"/>
+<wire x1="-45.72" y1="17.78" x2="-30.48" y2="17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$29" class="0">
 <segment>
-<pinref part="U$4" gate="G$1" pin="1C"/>
-<wire x1="7.62" y1="17.78" x2="5.08" y2="17.78" width="0.1524" layer="91"/>
 <pinref part="SPK1" gate="G$1" pin="-"/>
 <wire x1="-2.54" y1="45.72" x2="7.62" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="7.62" y1="45.72" x2="7.62" y2="38.1" width="0.1524" layer="91"/>
@@ -18040,6 +18050,8 @@ High - Bootloader)
 <wire x1="7.62" y1="38.1" x2="7.62" y2="17.78" width="0.1524" layer="91"/>
 <wire x1="-5.08" y1="38.1" x2="7.62" y2="38.1" width="0.1524" layer="91"/>
 <junction x="7.62" y="38.1"/>
+<pinref part="U$9" gate="G$1" pin="1C"/>
+<wire x1="7.62" y1="17.78" x2="-5.08" y2="17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="3.3V" class="0">
