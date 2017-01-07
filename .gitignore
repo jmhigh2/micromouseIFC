@@ -8,7 +8,6 @@ python/neuralnets
 *.docx
 python/random
 python/sensorread.py
-*.pdf
 *.xlsx
 *.jpg
 GreenGiant/
