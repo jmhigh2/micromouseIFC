@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.025" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="yes"/>
@@ -62,28 +62,32 @@
 <library>
 <packages>
 <package name="MOTOR_MOUNT">
-<hole x="-8.75" y="0" drill="2"/>
-<hole x="8.75" y="-0.25" drill="2"/>
-<wire x1="-7.75" y1="3.5" x2="7.75" y2="3.5" width="0.127" layer="21"/>
-<wire x1="7.75" y1="3.5" x2="7.75" y2="-13.5" width="0.127" layer="21"/>
-<wire x1="7.75" y1="-13.5" x2="-7.75" y2="-13.5" width="0.127" layer="21"/>
-<wire x1="-7.75" y1="-13.5" x2="-7.75" y2="3.5" width="0.127" layer="21"/>
-<text x="-6.35" y="1.27" size="1.27" layer="21">Motor</text>
+<hole x="-9" y="4.25" drill="2.2"/>
+<hole x="8.5" y="4" drill="2.2"/>
+<wire x1="-8" y1="8.75" x2="-6" y2="8.75" width="0.127" layer="21"/>
+<wire x1="-6" y1="8.75" x2="5.5" y2="8.75" width="0.127" layer="21"/>
+<wire x1="5.5" y1="8.75" x2="7.5" y2="8.75" width="0.127" layer="21"/>
+<wire x1="7.5" y1="8.75" x2="7.5" y2="-9.25" width="0.127" layer="21"/>
+<wire x1="7.5" y1="-9.25" x2="-8" y2="-9.25" width="0.127" layer="21"/>
+<wire x1="-8" y1="-9.25" x2="-8" y2="8.75" width="0.127" layer="21"/>
+<wire x1="-6" y1="8.75" x2="-6" y2="22.75" width="0.127" layer="21"/>
+<wire x1="-6" y1="22.75" x2="5.5" y2="22.75" width="0.127" layer="21"/>
+<wire x1="5.5" y1="22.75" x2="5.5" y2="8.75" width="0.127" layer="21"/>
+<text x="-3" y="6.25" size="1.27" layer="21">Mount</text>
+<text x="-3.25" y="19.5" size="1.27" layer="21">Encoder</text>
 </package>
 <package name="BAT_FOOTPRINT">
-<wire x1="-13" y1="-8.25" x2="13" y2="-8.25" width="0.127" layer="21"/>
-<wire x1="13" y1="-8.25" x2="13" y2="8.25" width="0.127" layer="21"/>
 <wire x1="13" y1="8.25" x2="-13" y2="8.25" width="0.127" layer="21"/>
-<wire x1="-13" y1="8.25" x2="-13" y2="-8.25" width="0.127" layer="21"/>
-<hole x="-14" y="-9.25" drill="2"/>
-<hole x="-14" y="9.25" drill="2"/>
-<hole x="14" y="9.25" drill="2"/>
-<hole x="14" y="-9.25" drill="2"/>
-<hole x="14" y="0" drill="2"/>
-<hole x="-14.25" y="0" drill="2"/>
-<hole x="0" y="9.5" drill="2"/>
-<hole x="0" y="-9.5" drill="2"/>
+<hole x="-14" y="9.25" drill="2.2"/>
+<hole x="14" y="9.25" drill="2.2"/>
+<hole x="13.9" y="1" drill="2.2"/>
+<hole x="-14.15" y="1" drill="2.2"/>
+<hole x="0" y="9.5" drill="2.2"/>
+<hole x="0" y="1" drill="2.2"/>
 <text x="-11.43" y="5.08" size="1.27" layer="21">Battery</text>
+<wire x1="-13" y1="8.2" x2="-13" y2="2" width="0.127" layer="21"/>
+<wire x1="-13" y1="2" x2="13" y2="2" width="0.127" layer="21"/>
+<wire x1="13" y1="2" x2="13" y2="8.2" width="0.127" layer="21"/>
 </package>
 </packages>
 <symbols>

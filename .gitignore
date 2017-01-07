@@ -13,9 +13,9 @@ python/sensorread.py
 *.jpg
 GreenGiant/
 Invoices/
-ST datasheets/
 eagle/*.brd
 eagle/*.lck
 *.ioc
 eagle/*.b##
 eagle/*.s##
+eagle/fab
