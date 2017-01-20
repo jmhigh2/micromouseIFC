@@ -1,3 +1,307 @@
+C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:1:1: error: 'e' does not name a type
+ e//Mason Carnino Maze Conversion
+ ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:40:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:104:66: error: 'std::size_t' has not been declared
+       compare(const char_type* __s1, const char_type* __s2, std::size_t __n);
+                                                                  ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:106:19: error: 'size_t' in namespace 'std' does not name a type
+       static std::size_t
+                   ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:110:39: error: 'std::size_t' has not been declared
+       find(const char_type* __s, std::size_t __n, const char_type& __a);
+                                       ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:113:57: error: 'std::size_t' has not been declared
+       move(char_type* __s1, const char_type* __s2, std::size_t __n);
+                                                         ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:116:57: error: 'std::size_t' has not been declared
+       copy(char_type* __s1, const char_type* __s2, std::size_t __n);
+                                                         ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:119:35: error: 'std::size_t' has not been declared
+       assign(char_type* __s, std::size_t __n, char_type __a);
+                                   ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:145:64: error: 'std::size_t' has not been declared
+     compare(const char_type* __s1, const char_type* __s2, std::size_t __n)
+                                                                ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h: In static member function 'static int __gnu_cxx::char_traits<_CharT>::compare(const char_type*, const char_type*, int)':
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:147:12: error: 'size_t' is not a member of 'std'
+       for (std::size_t __i = 0; __i < __n; ++__i)
+            ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:147:12: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:40:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:147:33: error: '__i' was not declared in this scope
+       for (std::size_t __i = 0; __i < __n; ++__i)
+                                 ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h: At global scope:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:156:10: error: 'size_t' in namespace 'std' does not name a type
+     std::size_t
+          ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:169:37: error: 'std::size_t' has not been declared
+     find(const char_type* __s, std::size_t __n, const char_type& __a)
+                                     ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h: In static member function 'static const char_type* __gnu_cxx::char_traits<_CharT>::find(const char_type*, int, const char_type&)':
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:171:12: error: 'size_t' is not a member of 'std'
+       for (std::size_t __i = 0; __i < __n; ++__i)
+            ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:171:12: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:40:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:171:33: error: '__i' was not declared in this scope
+       for (std::size_t __i = 0; __i < __n; ++__i)
+                                 ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h: At global scope:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:180:55: error: 'std::size_t' has not been declared
+     move(char_type* __s1, const char_type* __s2, std::size_t __n)
+                                                       ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:189:55: error: 'std::size_t' has not been declared
+     copy(char_type* __s1, const char_type* __s2, std::size_t __n)
+                                                       ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\char_traits.h:199:33: error: 'std::size_t' has not been declared
+     assign(char_type* __s, std::size_t __n, char_type __a)
+                                 ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:111:31: error: declaration of 'operator new' as non-function
+ void* operator new(std::size_t) _GLIBCXX_THROW (std::bad_alloc)
+                               ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:111:20: error: 'size_t' is not a member of 'std'
+ void* operator new(std::size_t) _GLIBCXX_THROW (std::bad_alloc)
+                    ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:111:20: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:113:33: error: declaration of 'operator new []' as non-function
+ void* operator new[](std::size_t) _GLIBCXX_THROW (std::bad_alloc)
+                                 ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:113:22: error: 'size_t' is not a member of 'std'
+ void* operator new[](std::size_t) _GLIBCXX_THROW (std::bad_alloc)
+                      ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:113:22: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:119:25: error: declaration of 'operator new' as non-function
+ void* operator new(std::size_t, const std::nothrow_t&) _GLIBCXX_USE_NOEXCEPT
+                         ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:119:20: error: 'size_t' is not a member of 'std'
+ void* operator new(std::size_t, const std::nothrow_t&) _GLIBCXX_USE_NOEXCEPT
+                    ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:119:20: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:119:33: error: expected primary-expression before 'const'
+ void* operator new(std::size_t, const std::nothrow_t&) _GLIBCXX_USE_NOEXCEPT
+                                 ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:121:27: error: declaration of 'operator new []' as non-function
+ void* operator new[](std::size_t, const std::nothrow_t&) _GLIBCXX_USE_NOEXCEPT
+                           ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:121:22: error: 'size_t' is not a member of 'std'
+ void* operator new[](std::size_t, const std::nothrow_t&) _GLIBCXX_USE_NOEXCEPT
+                      ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:121:22: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:121:35: error: expected primary-expression before 'const'
+ void* operator new[](std::size_t, const std::nothrow_t&) _GLIBCXX_USE_NOEXCEPT
+                                   ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:129:32: error: declaration of 'operator new' as non-function
+ inline void* operator new(std::size_t, void* __p) _GLIBCXX_USE_NOEXCEPT
+                                ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:129:27: error: 'size_t' is not a member of 'std'
+ inline void* operator new(std::size_t, void* __p) _GLIBCXX_USE_NOEXCEPT
+                           ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:129:27: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:129:40: error: expected primary-expression before 'void'
+ inline void* operator new(std::size_t, void* __p) _GLIBCXX_USE_NOEXCEPT
+                                        ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:131:34: error: declaration of 'operator new []' as non-function
+ inline void* operator new[](std::size_t, void* __p) _GLIBCXX_USE_NOEXCEPT
+                                  ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:131:29: error: 'size_t' is not a member of 'std'
+ inline void* operator new[](std::size_t, void* __p) _GLIBCXX_USE_NOEXCEPT
+                             ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:131:29: note: suggested alternative:
+In file included from c:\mingw\include\sys\types.h:174:0,
+                 from c:\mingw\include\wchar.h:66,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\cwchar:44,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\postypes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iosfwd:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\stddef.h:216:23: note:   'size_t'
+ typedef __SIZE_TYPE__ size_t;
+                       ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\new:131:42: error: expected primary-expression before 'void'
+ inline void* operator new[](std::size_t, void* __p) _GLIBCXX_USE_NOEXCEPT
+                                          ^
+In file included from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\mingw32\bits\c++allocator.h:33:0,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\allocator.h:46,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\string:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\locale_classes.h:40,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\bits\ios_base.h:41,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ios:42,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ostream:38,
+                 from c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\iostream:39,
+                 from C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:6:
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:44:14: error: 'std::size_t' has not been declared
+   using std::size_t;
+              ^
+c:\mingw\lib\gcc\mingw32\5.3.0\include\c++\ext\new_allocator.h:45:14: error: 'std::ptrdiff_t' has not been declared
+   using std::ptrdiff_t;
+              ^
 C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp: In function 'void flood(cell (*)[16])':
 C:\Users\Jonathan\Desktop\micromouse\Mason's code\Maze.cpp:61:92: error: 'struct cell' has no member named 'previous'
      if (neighbors(maze, i, j) == true && maze[i][j].currentpathdistance != 0 && maze[i][j].previous == false) {
