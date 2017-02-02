@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.patches as patches
 from matplotlib.font_manager import FontProperties
 
-
 def graph(mouse):
     path = mouse.optimal_path
     x_coord = []
@@ -52,10 +51,10 @@ def graph(mouse):
     font = FontProperties()
     font.set_weight('bold')
 
-    plt.plot(x_coord, y_coord, linewidth=2.0, color='g') #plot optimal path
-    for x in range(0, 16): #plot floodfill numbers
+    plt.plot(x_coord, y_coord, linewidth=2.0, color='g') #plot optimal pat
+    for x in range(0, 16): #plot nodes
         for y in range(0, 16):
-            plt.text(x+.25, y+.30, str(nodes[x][y]), fontproperties=font)
+            plot1.scatter(x+.5, y+.5, s=10, color='b')
             #if mouse.visited[x][y]:
             #    plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
 
@@ -110,12 +109,11 @@ def graph(mouse):
     #mng.full_screen_toggle()
     plt.show()
 
-#def animate(i): #need to pass interval
 
 if __name__ == '__main__':
 
     mouse = Mouse("L", maze_file="maze.json") #the maze file to be read
-    for a in range(1,4):
+    for a in range(1,2):
         graph(mouse) #initialized values
         mouse.search() #first search, find target
         graph(mouse)

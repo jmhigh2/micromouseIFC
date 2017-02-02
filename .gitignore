@@ -18,3 +18,7 @@ eagle/*.lck
 eagle/*.b##
 eagle/*.s##
 eagle/fab
+eagle/rev2
+pictures/
+*.pdf
+*.jpeg
