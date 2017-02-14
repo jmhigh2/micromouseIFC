@@ -4,10 +4,17 @@
 struct cell
 {
 	int currentpathdistance;
-	int row;
-	int col;
+	bool previous;
+	bool update;
 	bool N_wall;
 	bool E_wall;
 	bool S_wall;
 	bool W_wall;
+};
+
+struct mouse
+{
+	int row;
+	int col;
+	int navi;
 };
