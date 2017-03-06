@@ -1,0 +1,6 @@
+stm32f7xx_hal_flash_ex.c:630:13:FLASH_MassErase	0	static
+stm32f7xx_hal_flash_ex.c:298:19:HAL_FLASHEx_OBProgram	24	static
+stm32f7xx_hal_flash_ex.c:383:6:HAL_FLASHEx_OBGetConfig	0	static
+stm32f7xx_hal_flash_ex.c:661:6:FLASH_Erase_Sector	0	static
+stm32f7xx_hal_flash_ex.c:169:19:HAL_FLASHEx_Erase	32	static
+stm32f7xx_hal_flash_ex.c:242:19:HAL_FLASHEx_Erase_IT	8	static

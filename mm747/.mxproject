@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Jonathan/Desktop/mm747/Inc
+HeaderPath=C:/Users/Jonathan/Desktop/micromouse/mm747/Inc
 HeaderFiles=stm32f7xx_it.h;stm32f7xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Jonathan/Desktop/mm747/Src
+SourcePath=C:/Users/Jonathan/Desktop/micromouse/mm747/Src
 SourceFiles=stm32f7xx_it.h;stm32f7xx_hal_conf.h;main.h;stm32f7xx_it.c;stm32f7xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

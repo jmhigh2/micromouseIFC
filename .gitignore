@@ -14,7 +14,6 @@ GreenGiant/
 Invoices/
 eagle/*.brd
 eagle/*.lck
-*.ioc
 eagle/*.b##
 eagle/*.s##
 eagle/fab
