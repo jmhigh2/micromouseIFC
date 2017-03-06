@@ -16087,6 +16087,8 @@ Updated  by  Dan Xu 2014-07-08&lt;br&gt;
 <part name="U$7" library="JST_CONNECTOR_FEMALE. through hole" deviceset="JST_CONNECTOR_FEMALE" device=""/>
 <part name="U$8" library="JST_CONNECTOR_FEMALE. through hole" deviceset="JST_CONNECTOR_FEMALE" device=""/>
 <part name="U$9" library="ULN2003APWR" deviceset="ULN2003APWR" device=""/>
+<part name="R_LED8" library="resistor" deviceset="R-US_" device="R0603" value="1k"/>
+<part name="LED8" library="led" deviceset="LED" device="CHIPLED_0805"/>
 </parts>
 <sheets>
 <sheet>
@@ -16582,6 +16584,13 @@ Updated  by  Dan Xu 2014-07-08&lt;br&gt;
 <label x="-15.24" y="7.62" size="1.27" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
+<net name="LED9" class="0">
+<segment>
+<pinref part="U$3" gate="G$1" pin="PB13"/>
+<wire x1="40.64" y1="-73.66" x2="50.8" y2="-73.66" width="0.1524" layer="91"/>
+<label x="50.8" y="-73.66" size="1.27" layer="95" xref="yes"/>
+</segment>
+</net>
 </nets>
 </sheet>
 <sheet>
@@ -17033,16 +17042,6 @@ Pin 6: M2 - OUT</text>
 <junction x="-73.66" y="-48.26"/>
 </segment>
 </net>
-<net name="N$17" class="0">
-<segment>
-<pinref part="MOS_R" gate="G$1" pin="OUT_A"/>
-<junction x="-33.02" y="-43.18"/>
-<wire x1="-33.02" y1="-43.18" x2="-17.78" y2="-43.18" width="0.1524" layer="91"/>
-<wire x1="-17.78" y1="-43.18" x2="-17.78" y2="-15.24" width="0.1524" layer="91"/>
-<wire x1="-17.78" y1="-15.24" x2="-5.08" y2="-15.24" width="0.1524" layer="91"/>
-<pinref part="HB_R" gate="G$1" pin="N1G"/>
-</segment>
-</net>
 <net name="N$18" class="0">
 <segment>
 <pinref part="MOS_R" gate="G$1" pin="OUT_B"/>
@@ -17187,6 +17186,24 @@ Pin 6: M2 - OUT</text>
 <wire x1="50.8" y1="66.04" x2="68.58" y2="66.04" width="0.1524" layer="91"/>
 </segment>
 </net>
+<net name="N$7" class="0">
+<segment>
+<pinref part="HB_R" gate="G$1" pin="P1G"/>
+<junction x="30.48" y="-15.24"/>
+<wire x1="30.48" y1="-15.24" x2="33.02" y2="-15.24" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="-15.24" x2="33.02" y2="7.62" width="0.1524" layer="91"/>
+<pinref part="MOS_R" gate="G$1" pin="OUT_A"/>
+<junction x="-33.02" y="-43.18"/>
+<wire x1="-33.02" y1="-43.18" x2="-17.78" y2="-43.18" width="0.1524" layer="91"/>
+<wire x1="-17.78" y1="-43.18" x2="-17.78" y2="-15.24" width="0.1524" layer="91"/>
+<wire x1="-17.78" y1="-15.24" x2="-7.62" y2="-15.24" width="0.1524" layer="91"/>
+<pinref part="HB_R" gate="G$1" pin="N1G"/>
+<wire x1="-7.62" y1="-15.24" x2="-5.08" y2="-15.24" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="7.62" x2="-7.62" y2="7.62" width="0.1524" layer="91"/>
+<wire x1="-7.62" y1="7.62" x2="-7.62" y2="-15.24" width="0.1524" layer="91"/>
+<junction x="-7.62" y="-15.24"/>
+</segment>
+</net>
 </nets>
 </sheet>
 <sheet>
@@ -17215,6 +17232,8 @@ High - Bootloader)
 <instance part="LED3" gate="G$1" x="-45.72" y="-25.4"/>
 <instance part="LED4" gate="G$1" x="-55.88" y="-25.4"/>
 <instance part="LED5" gate="G$1" x="-66.04" y="-25.4"/>
+<instance part="R_LED8" gate="G$1" x="-96.52" y="-7.62" rot="R90"/>
+<instance part="LED8" gate="G$1" x="-96.52" y="-25.4"/>
 </instances>
 <busses>
 </busses>
@@ -17275,6 +17294,9 @@ High - Bootloader)
 <junction x="-45.72" y="-30.48"/>
 <junction x="-55.88" y="-30.48"/>
 <junction x="-66.04" y="-30.48"/>
+<wire x1="-78.74" y1="-38.1" x2="-66.04" y2="-38.1" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="-38.1" x2="101.6" y2="-38.1" width="0.1524" layer="91"/>
+<junction x="50.8" y="-38.1"/>
 </segment>
 </net>
 <net name="N$40" class="0">
@@ -17341,16 +17363,16 @@ High - Bootloader)
 <segment>
 <pinref part="R_LED4" gate="G$1" pin="2"/>
 <junction x="-55.88" y="-2.54"/>
-<label x="-55.88" y="15.24" size="1.778" layer="95" rot="R90" xref="yes"/>
 <wire x1="-55.88" y1="15.24" x2="-55.88" y2="-2.54" width="0.1524" layer="91"/>
+<label x="-55.88" y="15.24" size="1.27" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="LED5" class="0">
 <segment>
 <pinref part="R_LED5" gate="G$1" pin="2"/>
 <junction x="-66.04" y="-2.54"/>
-<label x="-66.04" y="15.24" size="1.778" layer="95" rot="R90" xref="yes"/>
 <wire x1="-66.04" y1="15.24" x2="-66.04" y2="-2.54" width="0.1524" layer="91"/>
+<label x="-66.04" y="15.24" size="1.27" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="N$44" class="0">
@@ -17395,6 +17417,31 @@ High - Bootloader)
 <wire x1="81.28" y1="10.16" x2="91.44" y2="10.16" width="0.1524" layer="91"/>
 <junction x="91.44" y="38.1"/>
 <junction x="81.28" y="10.16"/>
+</segment>
+</net>
+<net name="N$12" class="0">
+<segment>
+<wire x1="-96.52" y1="-38.1" x2="-96.52" y2="-30.48" width="0.1524" layer="91"/>
+<wire x1="-73.66" y1="-38.1" x2="-96.52" y2="-38.1" width="0.1524" layer="91"/>
+<pinref part="LED8" gate="G$1" pin="C"/>
+<junction x="-96.52" y="-30.48"/>
+</segment>
+</net>
+<net name="N$16" class="0">
+<segment>
+<pinref part="R_LED8" gate="G$1" pin="1"/>
+<junction x="-96.52" y="-12.7"/>
+<wire x1="-96.52" y1="-12.7" x2="-96.52" y2="-22.86" width="0.1524" layer="91"/>
+<pinref part="LED8" gate="G$1" pin="A"/>
+<junction x="-96.52" y="-22.86"/>
+</segment>
+</net>
+<net name="LED9" class="0">
+<segment>
+<pinref part="R_LED8" gate="G$1" pin="2"/>
+<junction x="-96.52" y="-2.54"/>
+<label x="-96.52" y="15.24" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="-96.52" y1="15.24" x2="-96.52" y2="-2.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
