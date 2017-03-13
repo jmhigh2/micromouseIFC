@@ -43,9 +43,6 @@ extern void Error_Handler(void);
   */
 void HAL_MspInit(void)
 {
-  /* USER CODE BEGIN MspInit 0 */
-
-  /* USER CODE END MspInit 0 */
 
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
@@ -74,13 +71,15 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct;
+  static DMA_HandleTypeDef  hdma_adc;
+
   if(hadc->Instance==ADC1)
   {
-  /* USER CODE BEGIN ADC1_MspInit 0 */
 
-  /* USER CODE END ADC1_MspInit 0 */
-    /* Peripheral clock enable */
     __HAL_RCC_ADC1_CLK_ENABLE();
+
+    /* Enable DMA2 clock */
+    __HAL_RCC_DMA2_CLK_ENABLE();
   
     /**ADC1 GPIO Configuration    
     PC4     ------> ADC1_IN14
@@ -98,9 +97,30 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN ADC1_MspInit 1 */
+    hdma_adc.Instance = DMA2_Stream0;
+    hdma_adc.Init.Channel  = DMA_CHANNEL_0;
+    hdma_adc.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_adc.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_adc.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_adc.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    hdma_adc.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    hdma_adc.Init.Mode = DMA_CIRCULAR;
+    hdma_adc.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_adc.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    hdma_adc.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_HALFFULL;
+    hdma_adc.Init.MemBurst = DMA_MBURST_SINGLE;
+    hdma_adc.Init.PeriphBurst = DMA_PBURST_SINGLE;
 
-  /* USER CODE END ADC1_MspInit 1 */
+    HAL_DMA_Init(&hdma_adc);
+
+      /* Associate the initialized DMA handle to the ADC handle */
+    __HAL_LINKDMA(hadc, DMA_Handle, hdma_adc);
+
+      /*##-4- Configure the NVIC for DMA #########################################*/
+      /* NVIC configuration for DMA transfer complete interrupt */
+    HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+
   }
 
 }
@@ -115,21 +135,16 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
   /* USER CODE END ADC1_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_ADC1_CLK_DISABLE();
-  
-    /**ADC1 GPIO Configuration    
-    PC4     ------> ADC1_IN14
-    PC5     ------> ADC1_IN15
-    PB0     ------> ADC1_IN8
-    PB1     ------> ADC1_IN9 
-    */
-    HAL_GPIO_DeInit(GPIOC, L_REC_Pin|LF_REC_Pin);
 
+    __HAL_RCC_ADC_FORCE_RESET();
+    __HAL_RCC_ADC_RELEASE_RESET();
+  
+
+    HAL_GPIO_DeInit(GPIOC, L_REC_Pin|LF_REC_Pin);
     HAL_GPIO_DeInit(GPIOB, RF_REC_Pin|R_REC_Pin);
 
   }
-  /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
-  /* USER CODE END ADC1_MspDeInit 1 */
 
 }
 
@@ -157,9 +172,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN SPI1_MspInit 1 */
+    HAL_NVIC_SetPriority(SPI1_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(SPI1_IRQn);
 
-  /* USER CODE END SPI1_MspInit 1 */
   }
 
 }
@@ -216,7 +231,6 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* htim_ic)
 
   /* USER CODE END TIM1_MspInit 1 */
   }
-
 }
 
 void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm)
@@ -253,17 +267,15 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
   GPIO_InitTypeDef GPIO_InitStruct;
   if(htim->Instance==TIM2)
   {
-  /* USER CODE BEGIN TIM2_MspPostInit 0 */
 
-  /* USER CODE END TIM2_MspPostInit 0 */
     /**TIM2 GPIO Configuration    
     PA0/WKUP     ------> TIM2_CH1
     PA3     ------> TIM2_CH4 
     */
-    GPIO_InitStruct.Pin = RPWMA_Pin|LPWMA_Pin;
+    GPIO_InitStruct.Pin = RPWM_Pin|LPWM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 

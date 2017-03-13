@@ -32,6 +32,7 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <string.h>
 #include "stm32f7xx_hal.h"
 
 /* USER CODE BEGIN Includes */
@@ -49,10 +50,6 @@ TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart1;
 
-/* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -67,36 +64,33 @@ static void MX_USART1_UART_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
-uint32_t uhPrescalerValue = 0; //prescaler value for tim2
-                                
-                                
+//User functions
+void Set_Left(int speed, int direction);
+void Set_Buzzer(int freq);
+void Set_Right(int speed, int direction);
+void Transmit(char message[]);
 
-/* USER CODE BEGIN PFP */
-/* Private function prototypes -----------------------------------------------*/
+int HAL_state = 0; //debug state
+int puls = 0;
+char buffer[200]; //UART buffer
 
-/* USER CODE END PFP */
+//SPI Buffer
+uint8_t aTxBuffer[] = "****SPI - Two Boards communication based on Interrupt **** SPI Message ******** SPI Message ******** SPI Message ****";
+uint8_t aRxBuffer[BUFFERSIZE];
 
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
+enum {ADC_VAL_BUFFER_LENGTH = 8192}; //DMA Buffer size
+uint32_t ADC_valbuffer[ADC_VAL_BUFFER_LENGTH];
 
 int main(void)
 {
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
+   //STARTUP
 
   /* MCU Configuration----------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* Configure the system clock */
   SystemClock_Config();
-
   /* Initialize all configured peripherals */
-
 
   MX_GPIO_Init();
   MX_ADC1_Init();
@@ -106,30 +100,130 @@ int main(void)
   MX_TIM4_Init();
   MX_USART1_UART_Init();
 
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+  //buzzer
+  //HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
 
-  /* USER CODE BEGIN 2 */
+  Set_Left(0, FORWARD);
+  Set_Right(0, FORWARD);
 
-  /* USER CODE END 2 */
+  //turn on emitters at startup CHECK main.h for #defines
+  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
+  //HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, ON);
+  //HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, ON);
+  //HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+  //END STARTUP
+
+  //MAIN INFINITE PROGRAM LOOP
   while (1)
   {
-  /* USER CODE END WHILE */
-	  //HAL_GPIO_TogglePin(GPIOA, RDIC_Pin|LDIC_Pin);
-
-
-  /* USER CODE BEGIN 3 */
-
+	  sprintf(buffer, "L Value: %d  LF Value: %d \r\nRF Value: %d R Value: %d \r\n--------------------- \r\n", ADC_valbuffer[0], ADC_valbuffer[1], ADC_valbuffer[2], ADC_valbuffer[3]); //lf, rf, r);
+	  Transmit(buffer); //transmit the message above
+	  HAL_Delay(100); //delay won't affect interrupts
   }
-  /* USER CODE END 3 */
 
 }
 
-/** System Clock Configuration
-*/
+//DONT USE YET
+void Set_Buzzer(int freq) {
+
+	int period = 3375;
+	int duty = period/2;
+	HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_1);
+
+	TIM_MasterConfigTypeDef sMasterConfig;
+	TIM_OC_InitTypeDef sConfigOC;
+
+	htim4.Instance = TIM4;
+	htim4.Init.Prescaler = 8;
+	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim4.Init.Period = period;
+	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
+	{
+	  Error_Handler();
+	}
+
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+	{
+	  Error_Handler();
+	}
+	//pulse needs to be half of period
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = duty;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+	{
+	  Error_Handler();
+	}
+
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
+
+}
+
+
+void Set_Left(int speed, int direction) {
+
+	//when switching directions, PWM polarity switches
+	if (direction == FORWARD) {
+		speed = 665 - speed;
+	}
+
+	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+	TIM_OC_InitTypeDef tim2config;
+
+	tim2config.Pulse = speed;
+	tim2config.OCMode = TIM_OCMODE_PWM1;
+	tim2config.OCPolarity = TIM_OCPOLARITY_HIGH;
+	tim2config.OCFastMode = TIM_OCFAST_DISABLE;
+	if (HAL_TIM_PWM_ConfigChannel(&htim2, &tim2config, TIM_CHANNEL_1) != HAL_OK)
+	  {
+	     Error_Handler();
+	  }
+
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+	HAL_GPIO_WritePin(GPIOA, LDIC_Pin, direction);
+
+}
+
+//when switching directions, PWM polarity switches
+void Set_Right(int speed, int direction) {
+
+	if (direction == FORWARD) {
+			speed = 665 - speed;
+	}
+
+	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+	TIM_OC_InitTypeDef tim2config;
+	tim2config.Pulse = speed;
+	tim2config.OCMode = TIM_OCMODE_PWM1;
+	tim2config.OCPolarity = TIM_OCPOLARITY_HIGH;
+	tim2config.OCFastMode = TIM_OCFAST_DISABLE;
+
+	if (HAL_TIM_PWM_ConfigChannel(&htim2, &tim2config, TIM_CHANNEL_3) != HAL_OK)
+	{
+	   Error_Handler();
+	}
+
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+	HAL_GPIO_WritePin(GPIOA, RDIC_Pin, direction);
+
+}
+
+
+//takes char array
+void Transmit(char message[]) {
+
+	int len;
+	len=strlen(message);
+	HAL_UART_Transmit(&huart1, message, len, 1000);
+}
+
+
 void SystemClock_Config(void)
 {
 
@@ -196,33 +290,71 @@ static void MX_ADC1_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ScanConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.NbrOfDiscConversion = 0;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T1_CC1;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.NbrOfConversion = 4;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.EOCSelection = DISABLE;
+
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
-    */
 
   sConfig.Channel = ADC_CHANNEL_14;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
+	//state = 1;
     Error_Handler();
   }
 
+  sConfig.Channel = ADC_CHANNEL_15;
+  sConfig.Rank = 2;
+  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+	//state = 2;
+    Error_Handler();
+  }
+
+  sConfig.Channel = ADC_CHANNEL_8;
+  sConfig.Rank = 3;
+  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+	//state = 3;
+    Error_Handler();
+  }
+
+  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Rank = 4;
+  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+
+	//state = 4;
+    Error_Handler();
+  }
+
+  if(HAL_ADC_Start_DMA(&hadc1, ADC_valbuffer, ADC_VAL_BUFFER_LENGTH) != HAL_OK)
+  {
+	//  state = 5;
+     Error_Handler();
+  }
 }
 
 /* SPI1 init function */
@@ -243,6 +375,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CRCPolynomial = 7;
   hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
   hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
   {
     Error_Handler();
@@ -295,15 +428,13 @@ static void MX_TIM1_Init(void)
 /* TIM2 init function */
 static void MX_TIM2_Init(void)
 {
-
-
   TIM_MasterConfigTypeDef sMasterConfig;
   TIM_OC_InitTypeDef sConfigOC;
 
-  uhPrescalerValue = (uint32_t)((SystemCoreClock /2) / 18000000) - 1;
+  //uhPrescalerValue = (uint32_t)((SystemCoreClock /2) / 18000000) - 1;
 
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = uhPrescalerValue;
+  htim2.Init.Prescaler = 5;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 665;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -320,7 +451,7 @@ static void MX_TIM2_Init(void)
   }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 500;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
@@ -328,8 +459,7 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
 
-
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -346,9 +476,9 @@ static void MX_TIM4_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 0;
+  htim4.Init.Prescaler = 8;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 0;
+  htim4.Init.Period = 3375;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
   {
@@ -363,7 +493,7 @@ static void MX_TIM4_Init(void)
   }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 400;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
@@ -378,7 +508,6 @@ static void MX_TIM4_Init(void)
 /* USART1 init function */
 static void MX_USART1_UART_Init(void)
 {
-
   huart1.Instance = USART1;
   huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
@@ -393,7 +522,27 @@ static void MX_USART1_UART_Init(void)
   {
     Error_Handler();
   }
+}
 
+//button interrupt routine (THIS IS RUN WHEN BUTTONS ARE PRESSED
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == BUTTON2_Pin)
+  {
+    HAL_GPIO_TogglePin(GPIOD, LED5_Pin);
+
+    if (puls < 500) {
+    Set_Left(puls, FORWARD);
+    Set_Right(puls, BACKWARD);
+    }
+    puls = puls + 25; //increment pulse
+  }
+
+  if (GPIO_Pin == BUTTON1_Pin)
+  {
+	  //Toggle LED4
+      HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
+  }
 }
 
 /** Configure pins as 
@@ -416,16 +565,12 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, RDIC_Pin|LDIC_Pin|GYRO_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, RDIC_Pin|LDIC_Pin|GYRO_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, LED5_Pin|LED4_Pin|LED3_Pin|LED2_Pin , GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, LED1_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pin Output Level */
+  //Emitters
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, LED5_Pin|LED4_Pin|LED3_Pin|LED2_Pin 
-                          |LED1_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : RDIC_Pin LDIC_Pin GYRO_CS_Pin */
@@ -437,15 +582,21 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : BUTTON1_Pin */
   GPIO_InitStruct.Pin = BUTTON1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(BUTTON1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BUTTON2_Pin */
   GPIO_InitStruct.Pin = BUTTON2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(BUTTON2_GPIO_Port, &GPIO_InitStruct);
+
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 2, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
   /*Configure GPIO pins : PC8 PC9 */
   GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
@@ -472,23 +623,19 @@ static void MX_GPIO_Init(void)
 
 }
 
-/* USER CODE BEGIN 4 */
+//ADC interrupt handler. Runs when all four channels have been converted
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* handle)
+{
+	HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+}
 
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler */
-  /* User can add his own implementation to report the HAL error return state */
   while(1) 
   {
+	  sprintf(buffer, "State: %d", HAL_state);
+	  Transmit(buffer);
   }
-  /* USER CODE END Error_Handler */ 
 }
 
 #ifdef USE_FULL_ASSERT
@@ -502,21 +649,9 @@ void Error_Handler(void)
    */
 void assert_failed(uint8_t* file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
 
 }
 
 #endif
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-*/ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

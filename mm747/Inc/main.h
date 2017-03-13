@@ -41,14 +41,14 @@
 
 /* Private define ------------------------------------------------------------*/
 
-#define RPWMA_Pin GPIO_PIN_0
-#define RPWMA_GPIO_Port GPIOA
-#define RDIC_Pin GPIO_PIN_1
+#define RPWM_Pin GPIO_PIN_2
+#define RPWM_GPIO_Port GPIOA
+#define LDIC_Pin GPIO_PIN_1
 #define RDIC_GPIO_Port GPIOA
-#define LDIC_Pin GPIO_PIN_2
+#define RDIC_Pin GPIO_PIN_3
 #define LDIC_GPIO_Port GPIOA
-#define LPWMA_Pin GPIO_PIN_3
-#define LPWMA_GPIO_Port GPIOA
+#define LPWM_Pin GPIO_PIN_0
+#define LPWM_GPIO_Port GPIOA
 #define GYRO_CS_Pin GPIO_PIN_4
 #define GYRO_CS_GPIO_Port GPIOA
 #define GYRO_SCLK_Pin GPIO_PIN_5
@@ -85,7 +85,25 @@
 #define LED2_GPIO_Port GPIOD
 #define LED1_Pin GPIO_PIN_5
 #define LED1_GPIO_Port GPIOD
+
+#define LF_EMIT_PIN GPIO_PIN_4
+#define L_EMIT_PIN GPIO_PIN_5
+#define RF_EMIT_PIN GPIO_PIN_8
+#define R_EMIT_PIN GPIO_PIN_9
+
+
+#define LF_EMIT_PORT GPIOB
+#define L_EMIT_PORT GPIOB
+#define RF_EMIT_PORT GPIOC
+#define R_EMIT_PORT GPIOC
+
+#define ADCx_IRQn ADC_IRQn
+#define BUFFERSIZE 200
 /* USER CODE BEGIN Private defines */
+#define FORWARD 1
+#define BACKWARD 0
+#define ON 1
+#define OFF 0
 
 /* USER CODE END Private defines */
 
