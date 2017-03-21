@@ -42,6 +42,8 @@
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
 extern SPI_HandleTypeDef hspi1;
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim4;
 
 /******************************************************************************/
 /*            Cortex-M7 Processor Interruption and Exception Handlers         */ 
@@ -197,6 +199,16 @@ void SPI1_IRQHandler(void)
 }
 
 
+void TIM1_CC_IRQHandler(void) {
+
+ HAL_TIM_IRQHandler(&htim1);
+
+}
+
+void TIM4_IRQHandler(void) {
+
+ HAL_TIM_IRQHandler(&htim4);
+}
 /******************************************************************************/
 /* STM32F7xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */

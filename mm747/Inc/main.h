@@ -69,8 +69,8 @@
 #define LENC_CHB_GPIO_Port GPIOE
 #define LENC_CHA_Pin GPIO_PIN_11
 #define LENC_CHA_GPIO_Port GPIOE
-#define BUZZER_Pin GPIO_PIN_12
-#define BUZZER_GPIO_Port GPIOD
+#define BUZZER_Pin GPIO_PIN_5
+#define BUZZER_GPIO_Port GPIOE
 #define BUTTON1_Pin GPIO_PIN_15
 #define BUTTON1_GPIO_Port GPIOD
 #define BUTTON2_Pin GPIO_PIN_6
@@ -92,13 +92,24 @@
 #define R_EMIT_PIN GPIO_PIN_9
 
 
+
+#define RENCB_Pin GPIO_PIN_7
+#define RENCB_GPIO_Port GPIOB
+#define RENCA_Pin GPIO_PIN_12
+#define RENCA_GPIO_Port GPIOD
+
 #define LF_EMIT_PORT GPIOB
 #define L_EMIT_PORT GPIOB
 #define RF_EMIT_PORT GPIOC
 #define R_EMIT_PORT GPIOC
 
 #define ADCx_IRQn ADC_IRQn
-#define BUFFERSIZE 200
+
+#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
+#define BUFFERSIZE                       (COUNTOF(aTxBuffer) - 1)
+
+/* Exported macro ------------------------------------------------------------*/
+
 /* USER CODE BEGIN Private defines */
 #define FORWARD 1
 #define BACKWARD 0
