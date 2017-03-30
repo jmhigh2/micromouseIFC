@@ -46,6 +46,7 @@ SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+//TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim9;
 
@@ -60,6 +61,7 @@ static void MX_ADC1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
+//static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM9_Init(void);
 static void MX_USART1_UART_Init(void);
@@ -71,14 +73,31 @@ void Set_Buzzer(int freq);
 void Set_Left(int speed, int direction);
 void Set_Right(int speed, int direction);
 void Transmit(char message[]);
+void Readline(void);
 void Read_Gyro(void);
 
 int HAL_state = 0; //debug state
-unsigned int m_puls = 0; //motor pulse variable
-char buffer[200]; //UART buffer
+char tx_buffer[200]; //UART buffers
+char rx_buffer[200];
 
-uint32_t l_count = 0; //encoder counts
+uint32_t l_count = 0; //encoder counts and m_speed variable
 uint32_t r_count = 0;
+uint32_t prev_l_count;
+uint32_t prev_r_count;
+uint32_t m_speed = 100;
+
+
+//maze shit
+uint32_t maze[3][6];
+uint32_t x_coord = 5;
+uint32_t y_coord = 2;
+int direction = NORTH;
+
+//states and flags
+int running = 0;
+int set = 0;
+int ps, ns = 0;
+int turn_count = 0;
 
 //SPI Buffer
 uint8_t aTxBuffer[] = "****SPI - Two Boards communication based on Interrupt **** SPI Message ******** SPI Message ******** SPI Message ****";
@@ -103,34 +122,129 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
+  //MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM9_Init();
   MX_USART1_UART_Init();
 
   //buzzer
-  //HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
-
-  Set_Left(0, FORWARD);
-  Set_Right(0, FORWARD);
+  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 
   //turn on emitters at startup CHECK main.h for #defines
-  //HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
+  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
 
   //END STARTUP
+  Set_Left(0, FORWARD);
+  Set_Right(0, FORWARD);
 
   //MAIN INFINITE PROGRAM LOOP
   while (1)
   {
-
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1);
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
-	  //sprintf(buffer, "L Value: %d  LF Value: %d \r\nRF Value: %d R Value: %d \r\n--------------------- \r\n", ADC_valbuffer[0], ADC_valbuffer[1], ADC_valbuffer[2], ADC_valbuffer[3]); //lf, rf, r);
-	  sprintf(buffer, "Left Count Value: %d \r\nRight Count Value %d \r\n-----------------\r\n", l_count, r_count);
-	  Transmit(buffer); //transmit the message above
-	  HAL_Delay(1000); //delay won't affect interrupts
+
+	  if (ADC_valbuffer[0] > 1500) { //start searching
+
+	  //sprintf(tx_buffer, "X Location: %u   Y Location: %u \r\n", x_coord, y_coord);
+	  //Transmit(tx_buffer);
+	  //HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+      HAL_GPIO_WritePin(GPIOD, LED5_Pin, ON);
+      HAL_GPIO_WritePin(GPIOD, LED4_Pin, ON);
+	  HAL_GPIO_WritePin(GPIOD, LED3_Pin, ON);
+	  HAL_Delay(1000);
+
+	  __HAL_TIM_SET_COUNTER(&htim1, 0); //reset counters
+	  __HAL_TIM_SET_COUNTER(&htim4, 0);
+	  prev_l_count = 0;
+	  prev_r_count = 0;
+
+	  Set_Left(m_speed, FORWARD); //start going straight
+	  Set_Right(m_speed, FORWARD); //quite the offset there mate
+
+	  while(1) {
+	  l_count = __HAL_TIM_GET_COUNTER(&htim1);
+	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
+	  //correction goes here
+
+      //THRESHOLDS STRAIGHT 1 UNIT: 600/600
+	  /*
+	  if (fwall > 2000) { //check for wall in front
+
+	  		  Set_Left(0, FORWARD);
+	  		  Set_Right(0, FORWARD);
+	  		  HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
+	  		  HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF);
+	  		  HAL_GPIO_WritePin(GPIOD, LED3_Pin, OFF);
+	  		  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+	  		  break; //stop the program
+	  }
+	  */
+	  switch (direction) {
+
+	  case NORTH:
+	  if ((l_count-prev_l_count) > 675 || ((r_count-prev_r_count) > 675)) { //encoder count lags by around 20-30 counts
+
+		if (ADC_valbuffer[0] > 700)
+		{direction = EAST;}
+		//change of direction
+
+	    switch (direction) {
+	    case NORTH:
+	    prev_l_count = l_count; //save current counters
+	    prev_r_count = r_count;
+	    break;
+	    case EAST:
+		Set_Left(120, FORWARD);
+		Set_Right(60, FORWARD);
+		prev_l_count = l_count; //save current counters
+		prev_r_count = r_count;
+		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+		break;
+	    }
+		//HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
+		//HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
+		//HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF);
+		//HAL_GPIO_WritePin(GPIOD, LED3_Pin, OFF);
+        //x_coord = x_coord + NORTH_X;
+        //y_coord = y_coord + NORTH_Y;
+        //sprintf(tx_buffer, "X Location: %u   Y Location: %u \r\n", x_coord, y_coord);
+        //Transmit(tx_buffer);
+	  }
+	  break;
+
+	  case EAST:
+	  if ((l_count-prev_l_count) > 730 || ((r_count-prev_r_count) > 300)) {
+
+
+		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
+
+		prev_l_count = l_count;
+		prev_r_count = r_count;
+		//get nearest neighbor
+		direction = NORTH;
+
+		Set_Left(m_speed, FORWARD);
+		Set_Right(m_speed, FORWARD);
+
+	  }
+	  break;
+
+	  }
+	  }
+	  }
+
+	  HAL_Delay(500);
+	  sprintf(tx_buffer, "L Value: %d  LF Value: %d \r\nRF Value: %d R Value: %d \r\n--------------------- \r\n", ADC_valbuffer[0], ADC_valbuffer[1], ADC_valbuffer[2], ADC_valbuffer[3]); //lf, rf, r);
+	  Transmit(tx_buffer); //transmitm the message above
+	  //sprintf(tx_buffer, "Left Count Value: %d \r\nRight Count Value %d \r\n-----------------\r\n", l_count, r_count);
+	  //Transmit(tx_buffer); //transmit the message above
+
   }
 }
 
@@ -230,6 +344,14 @@ void Transmit(char message[]) {
 	int len;
 	len=strlen(message);
 	HAL_UART_Transmit(&huart1, message, len, 1000);
+}
+
+void Readline(void) {
+
+	int len = strlen(rx_buffer);
+	HAL_UART_Receive(&huart1, rx_buffer, len, 5000);
+	Transmit("HAHA");
+
 }
 
 //updates the buffer. Read from global buffer
@@ -370,15 +492,13 @@ static void MX_ADC1_Init(void)
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
 
-	//state = 4;
     Error_Handler();
   }
 
-  //if(HAL_ADC_Start_DMA(&hadc1, ADC_valbuffer, ADC_VAL_BUFFER_LENGTH) != HAL_OK)
-  //{
-	//  state = 5;
-    // Error_Handler();
-  //}
+  if(HAL_ADC_Start_DMA(&hadc1, ADC_valbuffer, ADC_VAL_BUFFER_LENGTH) != HAL_OK)
+  {
+     Error_Handler();
+  }
 }
 
 /* SPI1 init function */
@@ -482,7 +602,58 @@ static void MX_TIM2_Init(void)
   HAL_TIM_MspPostInit(&htim2);
 
 }
+/*
+static void MX_TIM3_Init(void)
+{
 
+  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_OC_InitTypeDef sConfigOC;
+
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 5;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 665;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 50;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  HAL_TIM_MspPostInit(&htim3);
+
+}
+*/
 //RIGHT ENCODER CHANNELS
 static void MX_TIM4_Init(void)
 {
@@ -542,7 +713,6 @@ static void MX_TIM9_Init(void)
   {
     Error_Handler();
   }
-
   HAL_TIM_MspPostInit(&htim9);
 
 }
@@ -571,21 +741,24 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == BUTTON2_Pin)
   {
-    HAL_GPIO_TogglePin(GPIOD, LED5_Pin);
+	  //HAL_GPIO_TogglePin(L_EMIT_PORT, L_EMIT_PIN);
+	  //HAL_GPIO_TogglePin(LF_EMIT_PORT, LF_EMIT_PIN);
+	  //Set_Left(100, FORWARD);
+	  //Set_Right(120, FORWARD);
+	  __HAL_TIM_SET_COUNTER(&htim1, 0);
+	  __HAL_TIM_SET_COUNTER(&htim4, 0);
 
-    if (m_puls < 500) {
-    Set_Left(m_puls, FORWARD);
-    Set_Right(m_puls, BACKWARD);
-    }
-    m_puls = m_puls + 25; //increment pulse
+
   }
 
   if (GPIO_Pin == BUTTON1_Pin)
   {
-	  //Toggle LED4
-      HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
-      Set_Left(100, FORWARD);
-      Set_Right(20, FORWARD);
+	 //HAL_GPIO_TogglePin(RF_EMIT_PORT, RF_EMIT_PIN);
+	 //HAL_GPIO_TogglePin(R_EMIT_PORT, R_EMIT_PIN);
+	 HAL_GPIO_TogglePin(L_EMIT_PORT, L_EMIT_PIN);
+	 HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+	 //HAL_GPIO_TogglePin(LF_EMIT_PORT, LF_EMIT_PIN);
+
   }
 }
 
@@ -608,9 +781,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, LED5_Pin|LED4_Pin|LED3_Pin|LED2_Pin , GPIO_PIN_RESET);
   HAL_GPIO_WritePin(GPIOD, LED1_Pin, GPIO_PIN_SET);
 
-  //Emitters
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : RDIC_Pin LDIC_Pin GYRO_CS_Pin */
   GPIO_InitStruct.Pin = RDIC_Pin|LDIC_Pin|GYRO_CS_Pin;
@@ -637,13 +807,6 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-  /*Configure GPIO pins : PC8 PC9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
   /*Configure GPIO pins : LED5_Pin LED4_Pin LED3_Pin LED2_Pin 
                            LED1_Pin */
   GPIO_InitStruct.Pin = LED5_Pin|LED4_Pin|LED3_Pin|LED2_Pin 
@@ -653,19 +816,26 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB4 PB5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  //Configure GPIO pins : PC8 PC9
+    GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+   //Configure GPIO pins : PB4 PB5
+      GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+      GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
+      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
 //ADC interrupt handler. Runs when all four channels have been converted
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* handle)
 {
-	HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 }
 
 //SPI Interrupt Handler
@@ -685,15 +855,15 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
   //wTransferState = TRANSFER_ERROR;
-  HAL_GPIO_TogglePin(GPIOD, LED5_Pin);
+  //HAL_GPIO_TogglePin(GPIOD, LED5_Pin);
 }
 
 void Error_Handler(void)
 {
   while(1) 
   {
-	  sprintf(buffer, "State: %d", HAL_state);
-	  Transmit(buffer);
+	  sprintf(tx_buffer, "State: %d", HAL_state);
+	  Transmit(tx_buffer);
   }
 }
 

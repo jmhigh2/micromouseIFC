@@ -93,9 +93,9 @@
 
 
 
-#define RENCB_Pin GPIO_PIN_7
+#define RENCB_Pin GPIO_PIN_6
 #define RENCB_GPIO_Port GPIOB
-#define RENCA_Pin GPIO_PIN_12
+#define RENCA_Pin GPIO_PIN_13
 #define RENCA_GPIO_Port GPIOD
 
 #define LF_EMIT_PORT GPIOB
@@ -116,15 +116,25 @@
 #define ON 1
 #define OFF 0
 
+#define NORTH_X 0
+#define NORTH_Y -1
+
+#define SOUTH_X 0
+#define SOUTH_Y 1
+
+#define WEST_X -1
+#define WEST_Y 0
+
+#define EAST_X 1
+#define EAST_Y 0
+
+#define NORTH 0
+#define SOUTH 1
+#define WEST 2
+#define EAST 3
+
 /* USER CODE END Private defines */
 
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-*/ 
 
 #endif /* __MAIN_H */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
