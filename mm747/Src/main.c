@@ -91,19 +91,17 @@ uint32_t m_speed = 100;
 uint32_t maze[3][6];
 uint32_t x_coord = 5;
 uint32_t y_coord = 2;
-int direction = NORTH;
+int cur_dir = NORTH;
+int next_dir = NORTH;
 
 //states and flags
-int running = 0;
-int set = 0;
-int ps, ns = 0;
-int turn_count = 0;
+int f_wall = 0;
 
 //SPI Buffer
 uint8_t aTxBuffer[] = "****SPI - Two Boards communication based on Interrupt **** SPI Message ******** SPI Message ******** SPI Message ****";
 uint8_t aRxBuffer[BUFFERSIZE];
 
-enum {ADC_VAL_BUFFER_LENGTH = 8192}; //DMA Buffer size
+enum {ADC_VAL_BUFFER_LENGTH = 16}; //DMA Buffer size
 uint32_t ADC_valbuffer[ADC_VAL_BUFFER_LENGTH];
 
 int main(void)
@@ -143,21 +141,23 @@ int main(void)
   Set_Left(0, FORWARD);
   Set_Right(0, FORWARD);
 
-  //MAIN INFINITE PROGRAM LOOP
+  //MAIN INFINITE PROGRAM LOOP aka ready loop
   while (1)
   {
-	  l_count = __HAL_TIM_GET_COUNTER(&htim1);
+	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //check left and right encoder counts for debug
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
+	  f_wall = ADC_valbuffer[0]; //save front wall value in variable. Not really needed
 
-	  if (ADC_valbuffer[0] > 1500) { //start searching
+	  if (f_wall > 1500) { //start searching (place finger in front)
 
 	  //sprintf(tx_buffer, "X Location: %u   Y Location: %u \r\n", x_coord, y_coord);
 	  //Transmit(tx_buffer);
 	  //HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
-      HAL_GPIO_WritePin(GPIOD, LED5_Pin, ON);
+
+      HAL_GPIO_WritePin(GPIOD, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
       HAL_GPIO_WritePin(GPIOD, LED4_Pin, ON);
 	  HAL_GPIO_WritePin(GPIOD, LED3_Pin, ON);
-	  HAL_Delay(1000);
+	  HAL_Delay(1000); //delay before start to get finger out of the way
 
 	  __HAL_TIM_SET_COUNTER(&htim1, 0); //reset counters
 	  __HAL_TIM_SET_COUNTER(&htim4, 0);
@@ -165,46 +165,56 @@ int main(void)
 	  prev_r_count = 0;
 
 	  Set_Left(m_speed, FORWARD); //start going straight
-	  Set_Right(m_speed, FORWARD); //quite the offset there mate
+	  Set_Right(m_speed+25, FORWARD); //quite the offset there mate
 
-	  while(1) {
-	  l_count = __HAL_TIM_GET_COUNTER(&htim1);
+	  while(1) { //searching loop
+
+	  f_wall = ADC_valbuffer[0]; //get front wall
+	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //get encoder counts. Encoders working in background and are automatically updated
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
-	  //correction goes here
 
-      //THRESHOLDS STRAIGHT 1 UNIT: 600/600
-	  /*
-	  if (fwall > 2000) { //check for wall in front
+	  if (cur_dir == NORTH && f_wall > 500) //basic structure. Will eventually be case statement. Decide next move
+	  {next_dir = EAST;}
+	  else
+	  {next_dir = NORTH;}
 
-	  		  Set_Left(0, FORWARD);
-	  		  Set_Right(0, FORWARD);
-	  		  HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
-	  		  HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF);
-	  		  HAL_GPIO_WritePin(GPIOD, LED3_Pin, OFF);
-	  		  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
-	  		  break; //stop the program
+	  if (cur_dir == EAST)
+	  {next_dir = NORTH;}
+
+	  if (f_wall > 1800) //stop you dumb bitch
+	  {Set_Left(0, FORWARD);
+     	Set_Right(0, FORWARD); //STOP
+
+      sprintf(tx_buffer, "L Value: %d \r\n PREV: %d, %d CUR: %d, %d  --------------------- \r\n", f_wall, prev_l_count, prev_r_count, l_count, r_count); //lf, rf, r);
+      Transmit(tx_buffer); //transmit debug stuff
+	  HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
+	  HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF); //turn off LEDS to indicate stoppage
+	  HAL_GPIO_WritePin(GPIOD, LED3_Pin, OFF);
+	  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF); //turn off emitter so it doesn't enter searching again. There's a fucking wall in front so itll start again
+	  break; //exit the searching loop and go back to ready loop
 	  }
-	  */
-	  switch (direction) {
+
+
+ 	  //change of direction
+	  //motor and encoder correction goes here
+
+	  switch (cur_dir) { //main case statement. While moving, check distance traveled. If 1 unit has been covered, execute next move
 
 	  case NORTH:
-	  if ((l_count-prev_l_count) > 675 || ((r_count-prev_r_count) > 675)) { //encoder count lags by around 20-30 counts
+	  if ((l_count-prev_l_count) >= 625 || ((r_count-prev_r_count) >= 625)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
+		cur_dir = next_dir; //execute next move
 
-		if (ADC_valbuffer[0] > 700)
-		{direction = EAST;}
-		//change of direction
-
-	    switch (direction) {
+	    switch (cur_dir) { //check if motor speeds have to change with next move
 	    case NORTH:
-	    prev_l_count = l_count; //save current counters
+	    prev_l_count = l_count; //no change. keep going straight. Save encoder values
 	    prev_r_count = r_count;
 	    break;
 	    case EAST:
-		Set_Left(120, FORWARD);
+		Set_Left(120, FORWARD); //need to make right turn
 		Set_Right(60, FORWARD);
-		prev_l_count = l_count; //save current counters
+		prev_l_count = l_count;
 		prev_r_count = r_count;
-		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF); //blind turn. Will turn on if going straight again
 		break;
 	    }
 		//HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
@@ -219,18 +229,27 @@ int main(void)
 	  break;
 
 	  case EAST:
-	  if ((l_count-prev_l_count) > 730 || ((r_count-prev_r_count) > 300)) {
 
+	  if ((l_count-prev_l_count) >= 680 || ((r_count-prev_r_count) >= 250)) { //finished making turn
+        cur_dir = next_dir;
+        switch (cur_dir) {
+        	    case NORTH:
+        	    prev_l_count = l_count; //save current counters
+        	    prev_r_count = r_count;
+        	    Set_Left(m_speed, FORWARD);
+        	    Set_Right(m_speed+25, FORWARD);
+        	    break;
+        	    case EAST:
 
+        		prev_l_count = l_count; //save current counters
+        		prev_r_count = r_count;
+        		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+        		break;
+        	    }
 		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
 
-		prev_l_count = l_count;
-		prev_r_count = r_count;
 		//get nearest neighbor
-		direction = NORTH;
 
-		Set_Left(m_speed, FORWARD);
-		Set_Right(m_speed, FORWARD);
 
 	  }
 	  break;
@@ -239,11 +258,15 @@ int main(void)
 	  }
 	  }
 
-	  HAL_Delay(500);
+
+	  //ready loop again
+	  HAL_Delay(500); //ONLY CHECK FOR FINGER every half second. If you check to quickly it'll never start
+
+	  //DEBUG SHIT. It'll only transmit when it is waiting. Won't take up time while searching
 	  sprintf(tx_buffer, "L Value: %d  LF Value: %d \r\nRF Value: %d R Value: %d \r\n--------------------- \r\n", ADC_valbuffer[0], ADC_valbuffer[1], ADC_valbuffer[2], ADC_valbuffer[3]); //lf, rf, r);
 	  Transmit(tx_buffer); //transmitm the message above
-	  //sprintf(tx_buffer, "Left Count Value: %d \r\nRight Count Value %d \r\n-----------------\r\n", l_count, r_count);
-	  //Transmit(tx_buffer); //transmit the message above
+	  sprintf(tx_buffer, "Left Count Value: %d \r\nRight Count Value %d \r\n-----------------\r\n", l_count, r_count);
+	  Transmit(tx_buffer); //transmit the message above
 
   }
 }
@@ -457,7 +480,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_14;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -467,7 +490,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_15;
   sConfig.Rank = 2;
-  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -477,7 +500,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_8;
   sConfig.Rank = 3;
-  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -487,7 +510,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = 4;
-  sConfig.SamplingTime = ADC_SAMPLETIME_84CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
