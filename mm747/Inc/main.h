@@ -116,6 +116,8 @@
 #define BACKWARD 0
 #define ON 1
 #define OFF 0
+#define TRUE 1
+#define FALSE 0
 
 #define NORTH_X 0
 #define NORTH_Y -1
@@ -134,6 +136,7 @@
 #define WEST 2
 #define EAST 3
 
+#define DELAY 1000000
 /* USER CODE END Private defines */
 
 

@@ -73,6 +73,10 @@ void Set_Buzzer(int freq);
 void Set_Left(int speed, int direction);
 void Set_Right(int speed, int direction);
 void Transmit(char message[]);
+void Start_IR(void);
+void Stop_IR(void);
+void Get_IR(void);
+void Send_Debug(void);
 void Readline(void);
 void Read_Gyro(void);
 
@@ -95,13 +99,35 @@ int cur_dir = NORTH;
 int next_dir = NORTH;
 
 //states and flags
-int f_wall = 0;
+int on_l = 0;
+int on_r = 0;
+int on_rf = 0;
+int on_lf = 0;
+
+int off_l = 0;
+int off_r = 0;
+int off_rf = 0;
+int off_lf = 0;
+
+volatile unsigned int l = 0;
+volatile unsigned int r = 0;
+volatile unsigned int rf = 0;
+volatile unsigned int lf = 0;
+
+volatile int adc_conv = FALSE;
+
+int e_turnflag = FALSE;
+int w_turnflag = FALSE;
+
+int stop_flag = FALSE;
+
+int ir_flag = 0;
 
 //SPI Buffer
 uint8_t aTxBuffer[] = "****SPI - Two Boards communication based on Interrupt **** SPI Message ******** SPI Message ******** SPI Message ****";
 uint8_t aRxBuffer[BUFFERSIZE];
 
-enum {ADC_VAL_BUFFER_LENGTH = 16}; //DMA Buffer size
+enum {ADC_VAL_BUFFER_LENGTH = 32}; //DMA Buffer size
 uint32_t ADC_valbuffer[ADC_VAL_BUFFER_LENGTH];
 
 int main(void)
@@ -132,7 +158,7 @@ int main(void)
   //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 
   //turn on emitters at startup CHECK main.h for #defines
-  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
+  //HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
@@ -144,19 +170,14 @@ int main(void)
   //MAIN INFINITE PROGRAM LOOP aka ready loop
   while (1)
   {
+	  Get_IR(); //on_xx and off_xx are globals for all the variables
+
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //check left and right encoder counts for debug
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
-	  f_wall = ADC_valbuffer[0]; //save front wall value in variable. Not really needed
 
-	  if (f_wall > 1500) { //start searching (place finger in front)
-
-	  //sprintf(tx_buffer, "X Location: %u   Y Location: %u \r\n", x_coord, y_coord);
-	  //Transmit(tx_buffer);
-	  //HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+	  if ((stop_flag == FALSE) && (on_l > 1500)) { //start searching (place finger in front)
 
       HAL_GPIO_WritePin(GPIOD, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
-      HAL_GPIO_WritePin(GPIOD, LED4_Pin, ON);
-	  HAL_GPIO_WritePin(GPIOD, LED3_Pin, ON);
 	  HAL_Delay(1000); //delay before start to get finger out of the way
 
 	  __HAL_TIM_SET_COUNTER(&htim1, 0); //reset counters
@@ -165,43 +186,39 @@ int main(void)
 	  prev_r_count = 0;
 
 	  Set_Left(m_speed, FORWARD); //start going straight
-	  Set_Right(m_speed+25, FORWARD); //quite the offset there mate
+	  Set_Right(m_speed+15, FORWARD); //quite the offset there mate
 
 	  while(1) { //searching loop
 
-	  f_wall = ADC_valbuffer[0]; //get front wall
+	  Get_IR();
+	  //change of direction
+	  //motor and encoder correction goes here
+
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //get encoder counts. Encoders working in background and are automatically updated
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
 
-	  if (cur_dir == NORTH && f_wall > 500) //basic structure. Will eventually be case statement. Decide next move
+	  if (cur_dir == NORTH && ((on_l - off_l >= 250) || (on_r - off_r <= 250))) //basic structure. Will eventually be case statement. Decide next move
 	  {next_dir = EAST;}
-	  else
+
+	  if (cur_dir == EAST && e_turnflag == TRUE && ((on_l-off_l <= 250) || (on_r - off_r <= 250))) //decide next move
 	  {next_dir = NORTH;}
 
-	  if (cur_dir == EAST)
-	  {next_dir = NORTH;}
 
-	  if (f_wall > 1800) //stop you dumb bitch
-	  {Set_Left(0, FORWARD);
-     	Set_Right(0, FORWARD); //STOP
-
-      sprintf(tx_buffer, "L Value: %d \r\n PREV: %d, %d CUR: %d, %d  --------------------- \r\n", f_wall, prev_l_count, prev_r_count, l_count, r_count); //lf, rf, r);
-      Transmit(tx_buffer); //transmit debug stuff
-	  HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
-	  HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF); //turn off LEDS to indicate stoppage
-	  HAL_GPIO_WritePin(GPIOD, LED3_Pin, OFF);
-	  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF); //turn off emitter so it doesn't enter searching again. There's a fucking wall in front so itll start again
+	  if (cur_dir == NORTH && (on_l-off_l > 2900 || on_r-off_r > 2900)) //stop you dumb bitch
+	  {
+	  Set_Left(0, FORWARD);
+      Set_Right(0, FORWARD); //STOP
+      Send_Debug();
+      HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
+      stop_flag = TRUE;
 	  break; //exit the searching loop and go back to ready loop
 	  }
-
-
- 	  //change of direction
-	  //motor and encoder correction goes here
 
 	  switch (cur_dir) { //main case statement. While moving, check distance traveled. If 1 unit has been covered, execute next move
 
 	  case NORTH:
-	  if ((l_count-prev_l_count) >= 625 || ((r_count-prev_r_count) >= 625)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
+	  if ((l_count-prev_l_count) >= 690 || ((r_count-prev_r_count) >= 690)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
+		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 		cur_dir = next_dir; //execute next move
 
 	    switch (cur_dir) { //check if motor speeds have to change with next move
@@ -209,18 +226,24 @@ int main(void)
 	    prev_l_count = l_count; //no change. keep going straight. Save encoder values
 	    prev_r_count = r_count;
 	    break;
+
 	    case EAST:
-		Set_Left(120, FORWARD); //need to make right turn
-		Set_Right(60, FORWARD);
+		Set_Left(125, FORWARD); //need to make right turn
+		Set_Right(30, FORWARD);
 		prev_l_count = l_count;
 		prev_r_count = r_count;
-		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF); //blind turn. Will turn on if going straight again
+		//Stop_IR();
 		break;
+
+	    case WEST:
+	    Set_Left(30, FORWARD); //need to make left turn
+	    Set_Right(125, FORWARD);
+	    prev_l_count = l_count;
+	    prev_r_count = r_count;
+
+
 	    }
-		//HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
-		//HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
-		//HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF);
-		//HAL_GPIO_WritePin(GPIOD, LED3_Pin, OFF);
+
         //x_coord = x_coord + NORTH_X;
         //y_coord = y_coord + NORTH_Y;
         //sprintf(tx_buffer, "X Location: %u   Y Location: %u \r\n", x_coord, y_coord);
@@ -228,48 +251,87 @@ int main(void)
 	  }
 	  break;
 
-	  case EAST:
+	  case EAST: //break up turn into turn and accelerate
 
-	  if ((l_count-prev_l_count) >= 680 || ((r_count-prev_r_count) >= 250)) { //finished making turn
-        cur_dir = next_dir;
-        switch (cur_dir) {
+	  if ((e_turnflag == FALSE) && ((l_count-prev_l_count) >= 500 || ((r_count-prev_r_count) >= 80))) { //finished making turn. left and right wheel don't travel at same speeds
+
+		  Set_Left(m_speed, FORWARD); //finish turn by accelerating forward
+		  Set_Right(m_speed+15, FORWARD);
+		  e_turnflag = TRUE;
+
+
+		  HAL_Delay(10);
+
+	  }
+
+	  if ((e_turnflag == TRUE) && ((l_count-prev_l_count) >= 750 || ((r_count-prev_r_count) >= 330))) { //made it to same point
+		cur_dir = next_dir;
+		e_turnflag = FALSE;
+
+
+        switch (cur_dir) { //need to change direction or nah
+
         	    case NORTH:
         	    prev_l_count = l_count; //save current counters
         	    prev_r_count = r_count;
-        	    Set_Left(m_speed, FORWARD);
-        	    Set_Right(m_speed+25, FORWARD);
+        	    //already going straight out of turn
         	    break;
-        	    case EAST:
 
+        	    case EAST:
+        	    Set_Left(125, FORWARD); //need to make right turn again
+        	    Set_Right(30, FORWARD);
         		prev_l_count = l_count; //save current counters
         		prev_r_count = r_count;
-        		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+
         		break;
         	    }
-		HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
 
 		//get nearest neighbor
 
 
-	  }
+	  } //case east
 	  break;
 
-	  }
-	  }
-	  }
+	  case WEST:
+		  if ((l_count-prev_l_count) >= 250 || ((r_count-prev_r_count) >= 680)) { //finished making turn. left and right wheel don't travel at same speeds
+		      cur_dir = next_dir;
+		      HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+
+		       switch (cur_dir) { //need to change direction or nah
+		       	    case NORTH:
+		      	    prev_l_count = l_count; //save current counters
+		       	    prev_r_count = r_count;
+		       	    Set_Left(m_speed, FORWARD);
+		       	    Set_Right(m_speed+15, FORWARD);
+		       	    break;
+
+		       	    case WEST:
+
+		       		prev_l_count = l_count; //save current counters
+		       		prev_r_count = r_count;
+
+		       		break;
+		       	    }
+
+		  		//get nearest neighbor
+
+
+		  	  } //case west
+
+	  } //switch
+
+	  } //searching loop
+} //if front wall > 1500
 
 
 	  //ready loop again
 	  HAL_Delay(500); //ONLY CHECK FOR FINGER every half second. If you check to quickly it'll never start
 
 	  //DEBUG SHIT. It'll only transmit when it is waiting. Won't take up time while searching
-	  sprintf(tx_buffer, "L Value: %d  LF Value: %d \r\nRF Value: %d R Value: %d \r\n--------------------- \r\n", ADC_valbuffer[0], ADC_valbuffer[1], ADC_valbuffer[2], ADC_valbuffer[3]); //lf, rf, r);
-	  Transmit(tx_buffer); //transmitm the message above
-	  sprintf(tx_buffer, "Left Count Value: %d \r\nRight Count Value %d \r\n-----------------\r\n", l_count, r_count);
-	  Transmit(tx_buffer); //transmit the message above
+	  //Send_Debug();
 
-  }
-}
+  } //ready loop
+} //main function
 
 //DONT USE YET
 void Set_Buzzer(int freq) {
@@ -312,6 +374,73 @@ void Set_Buzzer(int freq) {
 
 }
 
+void Start_IR() {
+
+adc_conv = FALSE;
+if(HAL_ADC_Start_DMA(&hadc1, ADC_valbuffer, ADC_VAL_BUFFER_LENGTH) != HAL_OK)
+  {
+     Error_Handler();
+  }
+
+}
+
+
+void Stop_IR() {
+
+adc_conv = TRUE;
+if(HAL_ADC_Stop_DMA(&hadc1) != HAL_OK)
+  {
+     Error_Handler();
+  }
+
+}
+
+void Get_IR() {
+
+	//left sensor
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  off_l = l;
+		  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  on_l = l;
+		  HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+
+		  //right sensor
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  on_r = r;
+		  HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  on_r = r;
+		  HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, OFF);
+
+		  //left front
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  off_lf = lf;
+		  HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, ON);
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  on_lf = lf;
+		  HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, OFF);
+
+
+		  //right front
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  off_rf = rf;
+		  HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, ON);
+		  Start_IR();
+		  while (adc_conv == FALSE);
+		  on_rf = rf;
+		  HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, OFF);
+
+
+
+}
 
 void Set_Left(int speed, int direction) {
 
@@ -359,6 +488,21 @@ void Set_Right(int speed, int direction) {
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 	HAL_GPIO_WritePin(GPIOA, RDIC_Pin, direction);
 
+}
+
+void Send_Debug(void) {
+
+	sprintf(tx_buffer, "L Value: %d  LF Value: %d \r\nRF Value: %d R Value: %d \r\n--------------------- \r\n", on_l, on_lf, on_rf, on_r); //lf, rf, r);
+	Transmit(tx_buffer); //transmitm the message above
+	sprintf(tx_buffer, "OFF_L: %d  OFF_R: %d \r\nOFF RF: %d OFF LF: %d \r\n--------------------- \r\n", off_l, off_lf, off_rf, off_r); //lf, rf, r);
+	Transmit(tx_buffer); //transmitm the message above
+	sprintf(tx_buffer, "Left Count Value: %d \r\nRight Count Value %d \r\n-----------------\r\n", l_count, r_count);
+	Transmit(tx_buffer); //transmit the message above
+	sprintf(tx_buffer, "Prev_L: %d \r\nPrev R %d \r\n-----------------\r\n", prev_l_count, prev_r_count);
+	Transmit(tx_buffer); //transmit the message above
+	sprintf(tx_buffer, "Cur_Dir: %d \r\nNext_Dir: %d\r\n-----------------\r\n", cur_dir, next_dir);
+	Transmit(tx_buffer);
+	sprintf(tx_buffer, "East Turn Flag: %d \r\nWest Turn Flag: %d \r\n-----------------------", e_turnflag, w_turnflag);
 }
 
 //takes char array
@@ -480,7 +624,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_14;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -490,7 +634,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_15;
   sConfig.Rank = 2;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -500,7 +644,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_8;
   sConfig.Rank = 3;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -510,7 +654,7 @@ static void MX_ADC1_Init(void)
 
   sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = 4;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -518,10 +662,6 @@ static void MX_ADC1_Init(void)
     Error_Handler();
   }
 
-  if(HAL_ADC_Start_DMA(&hadc1, ADC_valbuffer, ADC_VAL_BUFFER_LENGTH) != HAL_OK)
-  {
-     Error_Handler();
-  }
 }
 
 /* SPI1 init function */
@@ -771,17 +911,57 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  __HAL_TIM_SET_COUNTER(&htim1, 0);
 	  __HAL_TIM_SET_COUNTER(&htim4, 0);
 
-
   }
 
   if (GPIO_Pin == BUTTON1_Pin)
   {
-	 //HAL_GPIO_TogglePin(RF_EMIT_PORT, RF_EMIT_PIN);
-	 //HAL_GPIO_TogglePin(R_EMIT_PORT, R_EMIT_PIN);
-	 HAL_GPIO_TogglePin(L_EMIT_PORT, L_EMIT_PIN);
-	 HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
-	 //HAL_GPIO_TogglePin(LF_EMIT_PORT, LF_EMIT_PIN);
+	  stop_flag = FALSE;
+	  HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+	  /*
+	  HAL_GPIO_TogglePin(L_EMIT_PORT, L_EMIT_PIN);
+	  //HAL_GPIO_TogglePin(R_EMIT_PORT, R_EMIT_PIN);
+	  HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+	  HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, OFF);
+	  HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, OFF);
+	  HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, OFF);
+		*/
+	  /*
+	 switch(ir_flag) {
 
+	 case 0:
+		 HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
+		 HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, OFF);
+		 ir_flag = 1;
+     break;
+
+
+	 case 1:
+		 HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, ON);
+		 HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, OFF);
+		 ir_flag = 2;
+     break;
+
+	 case 2:
+		 HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, ON);
+		 HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, OFF);
+		 ir_flag = 3;
+     break;
+	 case 3:
+		 HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, OFF);
+		 HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
+		 ir_flag = 0;
+     break;
+
+	 }
+	 */
   }
 }
 
@@ -858,7 +1038,13 @@ static void MX_GPIO_Init(void)
 //ADC interrupt handler. Runs when all four channels have been converted
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* handle)
 {
+	Stop_IR();
 	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+	l = ADC_valbuffer[0];
+	r = ADC_valbuffer[3];
+	rf = ADC_valbuffer[2];
+	lf = ADC_valbuffer[1];
+
 }
 
 //SPI Interrupt Handler
