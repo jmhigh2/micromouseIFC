@@ -112,10 +112,13 @@
 /* Exported macro ------------------------------------------------------------*/
 
 /* USER CODE BEGIN Private defines */
+#define DBG_BUFFER 10
 #define FORWARD 1
 #define BACKWARD 0
+
 #define ON 1
 #define OFF 0
+
 #define TRUE 1
 #define FALSE 0
 
@@ -136,7 +139,6 @@
 #define WEST 2
 #define EAST 3
 
-#define DELAY 1000000
 /* USER CODE END Private defines */
 
 

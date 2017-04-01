@@ -79,6 +79,8 @@ void Get_IR(void);
 void Send_Debug(void);
 void Readline(void);
 void Read_Gyro(void);
+void Save_State(void);
+void Send_State(void);
 
 int HAL_state = 0; //debug state
 char tx_buffer[200]; //UART buffers
@@ -89,6 +91,7 @@ uint32_t r_count = 0;
 uint32_t prev_l_count;
 uint32_t prev_r_count;
 uint32_t m_speed = 100;
+unsigned int m_correction = 0;
 
 
 //maze shit
@@ -114,12 +117,21 @@ volatile unsigned int r = 0;
 volatile unsigned int rf = 0;
 volatile unsigned int lf = 0;
 
+static unsigned int l_debug[DBG_BUFFER];
+static unsigned int r_debug[DBG_BUFFER];
+static unsigned int rf_debug[DBG_BUFFER];
+static unsigned int lf_debug[DBG_BUFFER];
+static unsigned int turn_debug[DBG_BUFFER];
+int dbg_count = 0;
+
+
 volatile int adc_conv = FALSE;
 
 int e_turnflag = FALSE;
 int w_turnflag = FALSE;
 
 int stop_flag = FALSE;
+int debug_flag = FALSE;
 
 int ir_flag = 0;
 
@@ -157,15 +169,20 @@ int main(void)
   //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+
   //turn on emitters at startup CHECK main.h for #defines
   //HAL_GPIO_WritePin(L_EMIT_PORT, L_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
-
-  //END STARTUP
   Set_Left(0, FORWARD);
   Set_Right(0, FORWARD);
+
+
+  //END STARTUP
+
 
   //MAIN INFINITE PROGRAM LOOP aka ready loop
   while (1)
@@ -191,16 +208,20 @@ int main(void)
 	  while(1) { //searching loop
 
 	  Get_IR();
-	  //change of direction
+
 	  //motor and encoder correction goes here
+	  if (cur_dir == NORTH && on_lf > 1000 && on_rf > 1000) {
 
-	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //get encoder counts. Encoders working in background and are automatically updated
-	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
+	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/200;
+	  Set_Left(m_speed + m_correction, FORWARD);
+	  Set_Right(m_speed + 15 - m_correction, FORWARD);
+	  }
 
-	  if (cur_dir == NORTH && ((on_l - off_l >= 250) || (on_r - off_r <= 250))) //basic structure. Will eventually be case statement. Decide next move
+
+	  if (cur_dir == NORTH && ((on_l - off_l >= 700) || (on_r - off_r >= 700))) //basic structure. Will eventually be case statement. Decide next move
 	  {next_dir = EAST;}
 
-	  if (cur_dir == EAST && e_turnflag == TRUE && ((on_l-off_l <= 250) || (on_r - off_r <= 250))) //decide next move
+	  if (cur_dir == EAST && e_turnflag == TRUE && ((on_l-off_l <= 850) || (on_r - off_r <= 850))) //decide next move
 	  {next_dir = NORTH;}
 
 
@@ -208,11 +229,17 @@ int main(void)
 	  {
 	  Set_Left(0, FORWARD);
       Set_Right(0, FORWARD); //STOP
+      if (debug_flag == TRUE) {
       Send_Debug();
+      }
+      //Send_State();
       HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
       stop_flag = TRUE;
 	  break; //exit the searching loop and go back to ready loop
 	  }
+
+	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //get encoder counts. Encoders working in background and are automatically updated
+	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
 
 	  switch (cur_dir) { //main case statement. While moving, check distance traveled. If 1 unit has been covered, execute next move
 
@@ -220,6 +247,8 @@ int main(void)
 	  if ((l_count-prev_l_count) >= 690 || ((r_count-prev_r_count) >= 690)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
 		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 		cur_dir = next_dir; //execute next move
+
+		//Save_State();
 
 	    switch (cur_dir) { //check if motor speeds have to change with next move
 	    case NORTH:
@@ -260,13 +289,13 @@ int main(void)
 		  e_turnflag = TRUE;
 
 
-		  HAL_Delay(10);
-
 	  }
 
 	  if ((e_turnflag == TRUE) && ((l_count-prev_l_count) >= 750 || ((r_count-prev_r_count) >= 330))) { //made it to same point
 		cur_dir = next_dir;
 		e_turnflag = FALSE;
+
+		//Save_State();
 
 
         switch (cur_dir) { //need to change direction or nah
@@ -328,8 +357,12 @@ int main(void)
 	  HAL_Delay(500); //ONLY CHECK FOR FINGER every half second. If you check to quickly it'll never start
 
 	  //DEBUG SHIT. It'll only transmit when it is waiting. Won't take up time while searching
-	  //Send_Debug();
-
+	  if (debug_flag == TRUE){
+	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/50;
+	  sprintf(tx_buffer, "L Speed: %d   \r\nR Speed: %d   \r\nCorrection %d \r\n-----------------\r\n", m_speed- m_correction, m_speed+15+m_correction, m_correction);
+	  Transmit(tx_buffer);
+	  Send_Debug();
+	  }
   } //ready loop
 } //main function
 
@@ -410,7 +443,7 @@ void Get_IR() {
 		  //right sensor
 		  Start_IR();
 		  while (adc_conv == FALSE);
-		  on_r = r;
+		  off_r = r;
 		  HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
 		  Start_IR();
 		  while (adc_conv == FALSE);
@@ -438,8 +471,6 @@ void Get_IR() {
 		  on_rf = rf;
 		  HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, OFF);
 
-
-
 }
 
 void Set_Left(int speed, int direction) {
@@ -449,7 +480,7 @@ void Set_Left(int speed, int direction) {
 		speed = 665 - speed;
 	}
 
-	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+	//HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
 	TIM_OC_InitTypeDef tim2config;
 
 	tim2config.Pulse = speed;
@@ -473,7 +504,7 @@ void Set_Right(int speed, int direction) {
 			speed = 665 - speed;
 	}
 
-	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+	//HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
 	TIM_OC_InitTypeDef tim2config;
 	tim2config.Pulse = speed;
 	tim2config.OCMode = TIM_OCMODE_PWM1;
@@ -488,6 +519,16 @@ void Set_Right(int speed, int direction) {
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 	HAL_GPIO_WritePin(GPIOA, RDIC_Pin, direction);
 
+}
+
+void Send_State(void) {
+
+	for(int i = 0; i < DBG_BUFFER; i++)
+	{
+	sprintf(tx_buffer, "Decision %d: \r\nL: %d   \r\nR: %d   \r\nRF: %d    \r\nLF: %d   \r\nDirection: %d  \r\n---------------------\r\n", i, l_debug[i], r_debug[i], rf_debug[i], lf_debug[i], turn_debug[i]);
+	Transmit(tx_buffer);
+	}
+	dbg_count = 0;
 }
 
 void Send_Debug(void) {
@@ -519,6 +560,20 @@ void Readline(void) {
 	HAL_UART_Receive(&huart1, rx_buffer, len, 5000);
 	Transmit("HAHA");
 
+}
+
+void Save_State(void) {
+
+	l_debug[dbg_count] = on_l - off_l;
+	r_debug[dbg_count] = on_r - off_r;
+	rf_debug[dbg_count] = on_rf - off_rf;
+	lf_debug[dbg_count] = on_lf - off_lf;
+	turn_debug[dbg_count] = cur_dir;
+
+	dbg_count++;
+
+	if (dbg_count >= DBG_BUFFER)
+		{dbg_count = 0;}
 }
 
 //updates the buffer. Read from global buffer
@@ -910,6 +965,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  //Set_Right(120, FORWARD);
 	  __HAL_TIM_SET_COUNTER(&htim1, 0);
 	  __HAL_TIM_SET_COUNTER(&htim4, 0);
+	  debug_flag = !debug_flag;
 
   }
 
@@ -1040,10 +1096,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* handle)
 {
 	Stop_IR();
 	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
-	l = ADC_valbuffer[0];
-	r = ADC_valbuffer[3];
-	rf = ADC_valbuffer[2];
-	lf = ADC_valbuffer[1];
+	l = ADC_valbuffer[28];
+	r = ADC_valbuffer[31];
+	rf = ADC_valbuffer[30];
+	lf = ADC_valbuffer[29];
 
 }
 
