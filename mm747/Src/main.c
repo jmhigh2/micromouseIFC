@@ -99,12 +99,12 @@ unsigned int m_correction = 0;
 #define NORTH_R 115
 
 //east pivot speed
-#define EAST_L 125
-#define EAST_R 60
+#define EAST_L 150
+#define EAST_R 40
 
 //west pivot speed
-#define WEST_L 60
-#define WEST_R 125
+#define WEST_L 40
+#define WEST_R 150
 
 /*NOTE: NORTH SPEED is run in second part of turn */
 
@@ -116,17 +116,18 @@ unsigned int m_correction = 0;
 //1 is first part of turn when mouse is pivoting
 //2 is second part of turn when mouse is going straight
 //second encoder parts should technically be the first counts + number
-#define E_RENC_1 65
-#define E_LENC_1 480
 
-#define E_RENC_2 330
-#define E_LENC_2 750
+#define E_RENC_1 210
+#define E_LENC_1 530
 
-#define W_RENC_1 480
-#define W_LENC_1 65
+#define E_RENC_2 510
+#define E_LENC_2 830
 
-#define W_RENC_2 750
-#define W_LENC_2 330
+#define W_RENC_1 550
+#define W_LENC_1 230
+
+#define W_RENC_2 850
+#define W_LENC_2 530
 
 
 //maze shit
@@ -246,24 +247,33 @@ int main(void)
 	  while(1) { //searching loop
 
 	  Get_IR();
-	  /*
+
 	  //motor correction for straight part of turn and NORTH moving
-	  if ((cur_dir == NORTH || e_turnflag == TRUE || w_turnflag == TRUE) && (on_lf-off_lf > 600) && (on_rf-off_rf > 600)) {
+	  if ((cur_dir == NORTH || e_turnflag == TRUE || w_turnflag == TRUE) && (on_lf-off_lf > 300) && (on_rf-off_rf > 300)) {
 	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/100;
 	  Set_Left(NORTH_L + m_correction, FORWARD);
 	  Set_Right(NORTH_R - m_correction, FORWARD);
 	  }
-		*/
+
+
 	  //STOP
-	  if ((cur_dir == NORTH || w_turnflag == TRUE || e_turnflag == TRUE) && (on_l-off_l > 3200 || on_r-off_r > 3200)) { //you're about to crash
-	 	Stop_Motor();
-	 	break; //exit the searching loop and go back to ready loop
+
+	  if (on_l-off_l > 3700 || on_r-off_r > 3700)
+	  {
+		  if (cur_dir == NORTH)
+		  {Stop_Motor(); break;}
+		  else if (cur_dir == EAST && e_turnflag == TRUE)
+		  {Stop_Motor(); break;}
+		  else if (cur_dir == WEST && w_turnflag == TRUE)
+		  {Stop_Motor(); break;}
+
 	  }
 
 	  //get next direction
 	  switch (cur_dir) {
 
 	  case NORTH:
+
 
 		  if (((on_l - off_l >= 500) || (on_r - off_r >= 500)) && (on_rf- off_rf <= 250))
 		  {next_dir = EAST;}
@@ -293,7 +303,6 @@ int main(void)
 		  break;
 	  }
 
-
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //get encoder counts. Encoders working in background and are automatically updated
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
 
@@ -301,7 +310,8 @@ int main(void)
 
 	  case NORTH:
 
-	  if ((l_count-prev_l_count) >= N_LENC || ((r_count-prev_r_count) >= N_RENC)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
+	  if ((l_count-prev_l_count) >= N_LENC || (r_count-prev_r_count) >= N_RENC) { //left and right wheel moving at same speed. If statement checks if distance has been covered
+
 		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 		cur_dir = next_dir; //execute next move
 
@@ -348,7 +358,7 @@ int main(void)
 	  if ((e_turnflag == TRUE) && ((l_count-prev_l_count) >= E_LENC_2 || ((r_count-prev_r_count) >= E_RENC_2))) { //made it to same point
 		cur_dir = next_dir;
 		e_turnflag = FALSE;
-
+		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 		Save_State();
 
         switch (cur_dir) { //need to change direction or nah
@@ -392,19 +402,20 @@ int main(void)
 		  		  w_turnflag = TRUE;
 		  	  }
 
-		  if ((w_turnflag == TRUE) && ((l_count-prev_l_count) >= W_LENC_1 || ((r_count-prev_r_count) >= W_RENC_2))) { //made it to same point
+		  if ((w_turnflag == TRUE) && ((l_count-prev_l_count) >= W_LENC_2 || ((r_count-prev_r_count) >= W_RENC_2))) { //made it to same point
 		  	cur_dir = next_dir;
 		  	w_turnflag = FALSE;
+		  	HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 
 		  	Save_State();
 
 		    switch (cur_dir) { //need to change direction or nah
 
 		    case NORTH:
-		        prev_l_count = l_count; //save current counters
-		        prev_r_count = r_count;
-		     	    //already going straight out of turn
-		        break;
+		     prev_l_count = l_count; //save current counters
+		     prev_r_count = r_count;
+		     //already going straight out of turn
+		     break;
 
 		    case WEST:
 		    Set_Left(WEST_L, FORWARD); //need to make right turn again
