@@ -70,6 +70,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 //User functions
 void Set_Buzzer(int freq);
+void Stop_Motor(void);
 void Set_Left(int speed, int direction);
 void Set_Right(int speed, int direction);
 void Transmit(char message[]);
@@ -192,7 +193,7 @@ int main(void)
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //check left and right encoder counts for debug
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
 
-	  if ((stop_flag == FALSE) && (on_l > 1500)) { //start searching (place finger in front)
+	  if ((stop_flag == FALSE) && (on_l > 4000)) { //start searching (place finger in front)
 
       HAL_GPIO_WritePin(GPIOD, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
 	  HAL_Delay(1000); //delay before start to get finger out of the way
@@ -202,6 +203,9 @@ int main(void)
 	  prev_l_count = 0;
 	  prev_r_count = 0;
 
+	  int cur_dir = NORTH;
+	  int next_dir = NORTH;
+
 	  Set_Left(m_speed, FORWARD); //start going straight
 	  Set_Right(m_speed+15, FORWARD); //quite the offset there mate
 
@@ -209,34 +213,56 @@ int main(void)
 
 	  Get_IR();
 
-	  //motor and encoder correction goes here
-	  if (cur_dir == NORTH && on_lf > 1000 && on_rf > 1000) {
+	  //motor correction
+	  if (cur_dir == NORTH && on_lf > 600 && on_rf > 600) {
 
-	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/200;
+	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/100;
 	  Set_Left(m_speed + m_correction, FORWARD);
 	  Set_Right(m_speed + 15 - m_correction, FORWARD);
 	  }
 
-
-	  if (cur_dir == NORTH && ((on_l - off_l >= 700) || (on_r - off_r >= 700))) //basic structure. Will eventually be case statement. Decide next move
-	  {next_dir = EAST;}
-
-	  if (cur_dir == EAST && e_turnflag == TRUE && ((on_l-off_l <= 850) || (on_r - off_r <= 850))) //decide next move
-	  {next_dir = NORTH;}
+	  else if (cur_dir == NORTH && on_lf) {
 
 
-	  if (cur_dir == NORTH && (on_l-off_l > 2900 || on_r-off_r > 2900)) //stop you dumb bitch
-	  {
-	  Set_Left(0, FORWARD);
-      Set_Right(0, FORWARD); //STOP
-      if (debug_flag == TRUE) {
-      Send_Debug();
-      }
-      //Send_State();
-      HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
-      stop_flag = TRUE;
-	  break; //exit the searching loop and go back to ready loop
 	  }
+
+	  //STOPxzxz
+	  if (cur_dir == NORTH && (on_l-off_l > 3600 || on_r-off_r > 3600)) { //you're about to crash
+	 	Stop_Motor();
+	 	break; //exit the searching loop and go back to ready loop
+	  }
+
+	  //get next direction
+	  switch (cur_dir) {
+
+	  case NORTH:
+
+		  if (((on_l - off_l >= 500) || (on_r - off_r >= 500)) && (on_rf- off_rf <= 250))
+		  {next_dir = EAST;}
+
+		  else if (((on_l - off_l >= 500) || (on_r - off_r >= 500)) && (on_lf- off_lf <= 250))
+		  {next_dir = WEST;}
+
+		  break;
+
+	  case EAST:
+		  if (e_turnflag == TRUE && ((on_l-off_l <= 250) || (on_r - off_r <= 250)))
+		  {next_dir = NORTH;}
+
+		  else if (e_turnflag == TRUE && on_rf - off_rf > 250)
+		  {next_dir = WEST;}
+		  break;
+
+
+	  case WEST:
+		  if (w_turnflag == TRUE && ((on_l-off_l <= 250) || (on_r - off_r <= 250)))
+		  {next_dir = NORTH;}
+
+		  else if (w_turnflag == TRUE && on_lf - off_lf > 250)
+		  {next_dir = EAST;}
+		  break;
+	  }
+
 
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //get encoder counts. Encoders working in background and are automatically updated
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
@@ -244,11 +270,11 @@ int main(void)
 	  switch (cur_dir) { //main case statement. While moving, check distance traveled. If 1 unit has been covered, execute next move
 
 	  case NORTH:
-	  if ((l_count-prev_l_count) >= 690 || ((r_count-prev_r_count) >= 690)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
+	  if ((l_count-prev_l_count) >= 700 || ((r_count-prev_r_count) >= 700)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
 		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 		cur_dir = next_dir; //execute next move
 
-		//Save_State();
+		Save_State();
 
 	    switch (cur_dir) { //check if motor speeds have to change with next move
 	    case NORTH:
@@ -261,15 +287,14 @@ int main(void)
 		Set_Right(30, FORWARD);
 		prev_l_count = l_count;
 		prev_r_count = r_count;
-		//Stop_IR();
+
 		break;
 
 	    case WEST:
-	    Set_Left(30, FORWARD); //need to make left turn
+	    Set_Left(15, FORWARD); //need to make left turn
 	    Set_Right(125, FORWARD);
 	    prev_l_count = l_count;
 	    prev_r_count = r_count;
-
 
 	    }
 
@@ -282,21 +307,18 @@ int main(void)
 
 	  case EAST: //break up turn into turn and accelerate
 
-	  if ((e_turnflag == FALSE) && ((l_count-prev_l_count) >= 500 || ((r_count-prev_r_count) >= 80))) { //finished making turn. left and right wheel don't travel at same speeds
+	  if ((e_turnflag == FALSE) && ((l_count-prev_l_count) >= 480 || ((r_count-prev_r_count) >= 65))) { //finished making turn. left and right wheel don't travel at same speeds
 
 		  Set_Left(m_speed, FORWARD); //finish turn by accelerating forward
 		  Set_Right(m_speed+15, FORWARD);
 		  e_turnflag = TRUE;
-
-
 	  }
 
 	  if ((e_turnflag == TRUE) && ((l_count-prev_l_count) >= 750 || ((r_count-prev_r_count) >= 330))) { //made it to same point
 		cur_dir = next_dir;
 		e_turnflag = FALSE;
 
-		//Save_State();
-
+		Save_State();
 
         switch (cur_dir) { //need to change direction or nah
 
@@ -313,6 +335,15 @@ int main(void)
         		prev_r_count = r_count;
 
         		break;
+
+        	    case WEST:
+
+        	    Set_Left(30, FORWARD); //need to make right turn again
+        	    Set_Right(125, FORWARD);
+        	    prev_l_count = l_count; //save current counters
+        	    prev_r_count = r_count;
+
+        	    break;
         	    }
 
 		//get nearest neighbor
@@ -322,30 +353,50 @@ int main(void)
 	  break;
 
 	  case WEST:
-		  if ((l_count-prev_l_count) >= 250 || ((r_count-prev_r_count) >= 680)) { //finished making turn. left and right wheel don't travel at same speeds
-		      cur_dir = next_dir;
-		      HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 
-		       switch (cur_dir) { //need to change direction or nah
-		       	    case NORTH:
-		      	    prev_l_count = l_count; //save current counters
-		       	    prev_r_count = r_count;
-		       	    Set_Left(m_speed, FORWARD);
-		       	    Set_Right(m_speed+15, FORWARD);
-		       	    break;
+		  if ((w_turnflag == FALSE) && ((l_count-prev_l_count) >= 65 || ((r_count-prev_r_count) >= 480))) { //finished making turn. left and right wheel don't travel at same speeds
 
-		       	    case WEST:
+		  		  Set_Left(m_speed, FORWARD); //finish turn by accelerating forward
+		  		  Set_Right(m_speed+15, FORWARD);
+		  		  w_turnflag = TRUE;
+		  	  }
 
-		       		prev_l_count = l_count; //save current counters
-		       		prev_r_count = r_count;
+		  if ((w_turnflag == TRUE) && ((l_count-prev_l_count) >= 330 || ((r_count-prev_r_count) >= 750))) { //made it to same point
+		  	cur_dir = next_dir;
+		  	w_turnflag = FALSE;
 
-		       		break;
-		       	    }
+		  	Save_State();
+
+		    switch (cur_dir) { //need to change direction or nah
+
+		    case NORTH:
+		        prev_l_count = l_count; //save current counters
+		        prev_r_count = r_count;
+		     	    //already going straight out of turn
+		        break;
+
+		    case WEST:
+		    Set_Left(15, FORWARD); //need to make right turn again
+		    Set_Right(125, FORWARD);
+		    prev_l_count = l_count; //save current counters
+		    prev_r_count = r_count;
+
+		    	break;
+
+		    case EAST:
+		    Set_Left(125, FORWARD); //need to make right turn again
+		    Set_Right(30, FORWARD);
+		    prev_l_count = l_count; //save current counters
+		    prev_r_count = r_count;
+
+		    	break;
+		    }
 
 		  		//get nearest neighbor
 
+     	  } //case west
+		  break;
 
-		  	  } //case west
 
 	  } //switch
 
@@ -359,7 +410,7 @@ int main(void)
 	  //DEBUG SHIT. It'll only transmit when it is waiting. Won't take up time while searching
 	  if (debug_flag == TRUE){
 	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/50;
-	  sprintf(tx_buffer, "L Speed: %d   \r\nR Speed: %d   \r\nCorrection %d \r\n-----------------\r\n", m_speed- m_correction, m_speed+15+m_correction, m_correction);
+	  sprintf(tx_buffer, "L Speed: %d   \r\nR Speed: %d   \r\nCorrection %d \r\n-----------------\r\n", m_speed + m_correction, m_speed+15-m_correction, m_correction);
 	  Transmit(tx_buffer);
 	  Send_Debug();
 	  }
@@ -559,6 +610,19 @@ void Readline(void) {
 	int len = strlen(rx_buffer);
 	HAL_UART_Receive(&huart1, rx_buffer, len, 5000);
 	Transmit("HAHA");
+
+}
+
+void Stop_Motor(void) {
+
+	Set_Left(0, FORWARD);
+	Set_Right(0, FORWARD); //STOP
+	if (debug_flag == TRUE) {
+	Send_Debug();
+	}
+	Send_State();
+	HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
+	stop_flag = TRUE;
 
 }
 

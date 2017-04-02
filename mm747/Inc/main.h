@@ -94,9 +94,9 @@
 //7 and 12 for mine
 //6 and 13 for allens
 
-#define RENCB_Pin GPIO_PIN_7
+#define RENCB_Pin GPIO_PIN_6
 #define RENCB_GPIO_Port GPIOB
-#define RENCA_Pin GPIO_PIN_12
+#define RENCA_Pin GPIO_PIN_13
 #define RENCA_GPIO_Port GPIOD
 
 #define LF_EMIT_PORT GPIOB
@@ -112,7 +112,7 @@
 /* Exported macro ------------------------------------------------------------*/
 
 /* USER CODE BEGIN Private defines */
-#define DBG_BUFFER 10
+#define DBG_BUFFER 5
 #define FORWARD 1
 #define BACKWARD 0
 
