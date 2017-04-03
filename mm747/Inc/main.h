@@ -116,12 +116,27 @@
 #define FORWARD 1
 #define BACKWARD 0
 
+//GPIO states
 #define ON 1
 #define OFF 0
 
+//flags
 #define TRUE 1
 #define FALSE 0
 
+//mouse movements
+#define FWD 0
+#define LEFT 1
+#define RIGHT 2
+#define DEAD 3
+
+//floodfill directions
+#define NORTH 0
+#define SOUTH 1
+#define WEST 2
+#define EAST 3
+
+//movements
 #define NORTH_X 0
 #define NORTH_Y -1
 
@@ -133,11 +148,6 @@
 
 #define EAST_X 1
 #define EAST_Y 0
-
-#define NORTH 0
-#define SOUTH 1
-#define WEST 2
-#define EAST 3
 
 /* USER CODE END Private defines */
 
