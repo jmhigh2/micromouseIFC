@@ -55,6 +55,7 @@ UART_HandleTypeDef huart1;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void SystemClock_Config_old(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
@@ -70,7 +71,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 //User functions
 void Set_Buzzer(int freq);
-void Stop_Motor(void);
+void Stop(void);
 void Set_Left(int speed, int direction);
 void Set_Right(int speed, int direction);
 void Transmit(char message[]);
@@ -91,36 +92,38 @@ uint32_t l_count = 0; //encoder counts and m_speed variable
 uint32_t r_count = 0;
 uint32_t prev_l_count;
 uint32_t prev_r_count;
+uint32_t lenc_diff = 0;
+uint32_t renc_diff = 0;
 
-unsigned int m_correction = 0;
+int m_correction = 0;
 
 //straightaway speed
-#define NORTH_L 100
-#define NORTH_R 115
+#define NORTH_L 430 //120
+#define NORTH_R 400 //135
 
 //east pivot speed
-#define EAST_L 150
-#define EAST_R 40
+#define EAST_L 400 //200
+#define EAST_R 0 //65
 
 //west pivot speed
-#define WEST_L 40
-#define WEST_R 150
+#define WEST_L 50
+#define WEST_R 240
 
 /*NOTE: NORTH SPEED is run in second part of turn */
 
 //encoder counts for straightaway
-#define N_LENC 695
-#define N_RENC 695
+#define N_LENC 685
+#define N_RENC 685
 
 //encoder counts for turns
 //1 is first part of turn when mouse is pivoting
 //2 is second part of turn when mouse is going straight
 //second encoder parts should technically be the first counts + number
 
-#define E_RENC_1 210
-#define E_LENC_1 530
+#define E_RENC_1 230
+#define E_LENC_1 630
 
-#define E_RENC_2 510
+#define E_RENC_2 530
 #define E_LENC_2 830
 
 #define W_RENC_1 550
@@ -137,7 +140,7 @@ uint32_t y_coord = 2;
 int cur_dir = NORTH;
 int next_dir = NORTH;
 
-//states and flags
+//sensor readings
 int on_l = 0;
 int on_r = 0;
 int on_rf = 0;
@@ -148,25 +151,37 @@ int off_r = 0;
 int off_rf = 0;
 int off_lf = 0;
 
+//on - off
+int dif_l = 0;
+int dif_r = 0;
+int dif_rf = 0;
+int dif_lf = 0;
+
+//interrupt variables
+volatile int adc_conv = FALSE;
 volatile unsigned int l = 0;
 volatile unsigned int r = 0;
 volatile unsigned int rf = 0;
 volatile unsigned int lf = 0;
 
+//variables to save decision stuff in
 static unsigned int l_debug[DBG_BUFFER];
 static unsigned int r_debug[DBG_BUFFER];
 static unsigned int rf_debug[DBG_BUFFER];
 static unsigned int lf_debug[DBG_BUFFER];
 static unsigned int turn_debug[DBG_BUFFER];
+static unsigned int l_count_debug[DBG_BUFFER];
+static unsigned int r_count_debug[DBG_BUFFER];
+static unsigned int prev_l_debug[DBG_BUFFER];
+static unsigned int prev_r_debug[DBG_BUFFER];
 int dbg_count = 0;
 
-
-volatile int adc_conv = FALSE;
-
+//turn flags. These will be set when mouse is done pivoting
 int e_turnflag = FALSE;
 int w_turnflag = FALSE;
 
-int stop_flag = FALSE;
+//system flags. stop_flag stops everything. Press button to enable everything. Debug flag send debug data while sitting
+int stop_flag = TRUE;
 int debug_flag = FALSE;
 
 int ir_flag = 0;
@@ -200,11 +215,9 @@ int main(void)
   MX_USART1_UART_Init();
 
   //buzzer
-  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-  //HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+  //HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1);
 
+  //start PWM for motors
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 
@@ -213,22 +226,23 @@ int main(void)
   //HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, ON);
   //HAL_GPIO_WritePin(R_EMIT_PORT, R_EMIT_PIN, ON);
-  Set_Left(0, FORWARD);
+
+  Set_Left(0, FORWARD); //set mouse to sit
   Set_Right(0, FORWARD);
-
-
   //END STARTUP
 
 
   //MAIN INFINITE PROGRAM LOOP aka ready loop
   while (1)
   {
-	  Get_IR(); //on_xx and off_xx are globals for all the variables
+	  if (stop_flag == FALSE) {
+	  Get_IR(); //get IR sensor readings. diff_x = on_x - off_x
+	  }
 
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //check left and right encoder counts for debug
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
 
-	  if ((stop_flag == FALSE) && (on_l > 1500)) { //start searching (place finger in front)
+	  if ((stop_flag == FALSE) && (dif_l > 1500)) { //start searching (place finger in front)
 
       HAL_GPIO_WritePin(GPIOD, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
 	  HAL_Delay(1000); //delay before start to get finger out of the way
@@ -238,34 +252,60 @@ int main(void)
 	  prev_l_count = 0;
 	  prev_r_count = 0;
 
-	  int cur_dir = NORTH;
-	  int next_dir = NORTH;
+	  e_turnflag = FALSE;
+	  w_turnflag = FALSE;
+
+	  cur_dir = NORTH; //reset to default direction
+	  next_dir = NORTH;
 
 	  Set_Left(NORTH_L, FORWARD); //start going straight
 	  Set_Right(NORTH_R, FORWARD); //quite the offset there mate
 
 	  while(1) { //searching loop
 
-	  Get_IR();
+	  Get_IR(); //get IR readings
 
 	  //motor correction for straight part of turn and NORTH moving
-	  if ((cur_dir == NORTH || e_turnflag == TRUE || w_turnflag == TRUE) && (on_lf-off_lf > 300) && (on_rf-off_rf > 300)) {
-	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/100;
-	  Set_Left(NORTH_L + m_correction, FORWARD);
-	  Set_Right(NORTH_R - m_correction, FORWARD);
+	  if  (cur_dir == NORTH || e_turnflag == TRUE || w_turnflag == TRUE) {
+		  if (dif_lf > 400 && dif_rf > 400) { //both walls available
+		  	  m_correction = (dif_lf - (dif_rf+500))/100;
+		  	  Set_Left(NORTH_L + m_correction, FORWARD);
+		  	  Set_Right(NORTH_R - m_correction, FORWARD);
+		  	  }
+
+		  else if (dif_lf >= 250 && dif_rf <= 250) //only left wall to correct. Optimal reading should be 1600
+		  {
+		  m_correction = (dif_lf - 1600)/75; //75 is correction factor. Left side needs more corrections for some reason
+		  Set_Left(NORTH_L + m_correction, FORWARD);
+		  Set_Right(NORTH_R - m_correction, FORWARD);
+		  }
+
+		  else if (dif_lf <= 250 && dif_rf >= 250) //only right wall to correct. Optimal reading should be 1500. (200 is offset)
+		  {
+			  m_correction = (1500 - 200 - dif_rf)/100; //100 is correction factor. Right side needs less correction
+			  Set_Left(NORTH_L + m_correction, FORWARD);
+			  Set_Right(NORTH_R - m_correction, FORWARD);
+		  }
+
+		  else if (dif_lf < 250 || dif_rf < 250) //no correction
+		  {
+			  Set_Left(NORTH_L, FORWARD);
+			  Set_Right(NORTH_R, FORWARD);
+		  }
 	  }
 
 
-	  //STOP
-
-	  if (on_l-off_l > 3700 || on_r-off_r > 3700)
+	  //STOP conditions
+	  if (dif_l > 3500 || dif_r > 3500)
 	  {
 		  if (cur_dir == NORTH)
-		  {Stop_Motor(); break;}
+		  {Stop(); break;} //stops motors, and breaks out of searching loop
 		  else if (cur_dir == EAST && e_turnflag == TRUE)
-		  {Stop_Motor(); break;}
+		  {Stop(); break;}
 		  else if (cur_dir == WEST && w_turnflag == TRUE)
-		  {Stop_Motor(); break;}
+		  {Stop(); break;}
+		  else if (dif_lf > 700 && dif_rf > 700)
+		  {Stop(); break;}
 
 	  }
 
@@ -273,44 +313,40 @@ int main(void)
 	  switch (cur_dir) {
 
 	  case NORTH:
-
-
-		  if (((on_l - off_l >= 500) || (on_r - off_r >= 500)) && (on_rf- off_rf <= 250))
+		  if (((dif_l >= 500) || (dif_r >= 500)) && (dif_rf <= 250)) //if front and right side is not blocked
 		  {next_dir = EAST;}
-
-		  else if (((on_l - off_l >= 500) || (on_r - off_r >= 500)) && (on_lf- off_lf <= 250))
+		  else if (((dif_l >= 500) || (dif_r >= 500)) && (dif_lf <= 250)) //if front and right side is blocked, but left is not
 		  {next_dir = WEST;}
-
+		  //the default next_dir is the cur_dir, so if the front isn't blocked, keep going straight
 		  break;
 
 	  case EAST:
-
-		  if (e_turnflag == TRUE && ((on_l-off_l <= 250) || (on_r - off_r <= 250)))
+		  if (e_turnflag == TRUE && ((dif_l <= 250) || (dif_r <= 250))) //e_turnflag means the second part of the turn
 		  {next_dir = NORTH;}
-
-		  else if (e_turnflag == TRUE && on_rf - off_rf > 250)
+		  else if (e_turnflag == TRUE && dif_rf > 250)
 		  {next_dir = WEST;}
+
 		  break;
 
-
 	  case WEST:
-
-		  if (w_turnflag == TRUE && ((on_l-off_l <= 250) || (on_r - off_r <= 250)))
+		  if (w_turnflag == TRUE && ((dif_l <= 250) || (dif_r <= 250)))
 		  {next_dir = NORTH;}
-
-		  else if (w_turnflag == TRUE && on_lf - off_lf > 250)
+		  else if (w_turnflag == TRUE && dif_lf > 250)
 		  {next_dir = EAST;}
+
 		  break;
 	  }
 
 	  l_count = __HAL_TIM_GET_COUNTER(&htim1); //get encoder counts. Encoders working in background and are automatically updated
 	  r_count = __HAL_TIM_GET_COUNTER(&htim4);
+	  lenc_diff = l_count - prev_l_count; //get difference between last encoder counts. prev_l and prev_r are updated when traveling 1 unit
+	  renc_diff = r_count - prev_r_count;
 
 	  switch (cur_dir) { //main case statement. While moving, check distance traveled. If 1 unit has been covered, execute next move
-
+	  	  	  	  	  	  //will eventually combine with above statement
 	  case NORTH:
 
-	  if ((l_count-prev_l_count) >= N_LENC || (r_count-prev_r_count) >= N_RENC) { //left and right wheel moving at same speed. If statement checks if distance has been covered
+	  if (lenc_diff >= N_LENC || renc_diff >= N_RENC) { //left and right wheel moving at same speed. If statement checks if distance has been covered
 
 		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
 		cur_dir = next_dir; //execute next move
@@ -324,38 +360,33 @@ int main(void)
 	    break;
 
 	    case EAST:
-		Set_Left(EAST_L, FORWARD); //need to make right turn
+		Set_Left(EAST_L, FORWARD); //need to make right pivot
 		Set_Right(EAST_R, FORWARD);
 		prev_l_count = l_count;
 		prev_r_count = r_count;
-
 		break;
 
 	    case WEST:
-	    Set_Left(WEST_L, FORWARD); //need to make left turn
+	    Set_Left(WEST_L, FORWARD); //need to make left pivot
 	    Set_Right(WEST_R, FORWARD);
 	    prev_l_count = l_count;
 	    prev_r_count = r_count;
-
+	    break;
 	    }
 
-        //x_coord = x_coord + NORTH_X;
-        //y_coord = y_coord + NORTH_Y;
-        //sprintf(tx_buffer, "X Location: %u   Y Location: %u \r\n", x_coord, y_coord);
-        //Transmit(tx_buffer);
 	  }
 	  break;
 
 	  case EAST: //break up turn into turn and accelerate
 
-	  if ((e_turnflag == FALSE) && ((l_count-prev_l_count) >= E_LENC_1 || ((r_count-prev_r_count) >= E_RENC_1))) { //finished making turn. left and right wheel don't travel at same speeds
+	  if ((e_turnflag == FALSE) && (lenc_diff >= E_LENC_1 || renc_diff >= E_RENC_1)) { //finished making turn. left and right wheel don't travel at same speeds
 
 		  Set_Left(NORTH_L, FORWARD); //finish turn by accelerating forward
 		  Set_Right(NORTH_R, FORWARD);
 		  e_turnflag = TRUE;
 	  }
 
-	  if ((e_turnflag == TRUE) && ((l_count-prev_l_count) >= E_LENC_2 || ((r_count-prev_r_count) >= E_RENC_2))) { //made it to same point
+	  if ((e_turnflag == TRUE) && (lenc_diff >= E_LENC_2 || renc_diff >= E_RENC_2)) { //made it to same point. execute next direction
 		cur_dir = next_dir;
 		e_turnflag = FALSE;
 		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
@@ -374,7 +405,6 @@ int main(void)
         	    Set_Right(EAST_R, FORWARD);
         		prev_l_count = l_count; //save current counters
         		prev_r_count = r_count;
-
         		break;
 
         	    case WEST:
@@ -383,26 +413,21 @@ int main(void)
         	    Set_Right(WEST_R, FORWARD);
         	    prev_l_count = l_count; //save current counters
         	    prev_r_count = r_count;
-
         	    break;
         	    }
-
-		//get nearest neighbor
-
-
 	  } //case east
 	  break;
 
 	  case WEST:
 
-		  if ((w_turnflag == FALSE) && ((l_count-prev_l_count) >= W_LENC_1 || ((r_count-prev_r_count) >= W_RENC_1))) { //finished making turn. left and right wheel don't travel at same speeds
+		  if ((w_turnflag == FALSE) && (lenc_diff >= W_LENC_1 || renc_diff >= W_RENC_1)) { //finished making turn. left and right wheel don't travel at same speeds
 
 		  		  Set_Left(NORTH_L, FORWARD); //finish turn by accelerating forward
 		  		  Set_Right(NORTH_R, FORWARD);
 		  		  w_turnflag = TRUE;
 		  	  }
 
-		  if ((w_turnflag == TRUE) && ((l_count-prev_l_count) >= W_LENC_2 || ((r_count-prev_r_count) >= W_RENC_2))) { //made it to same point
+		  if ((w_turnflag == TRUE) && (lenc_diff >= W_LENC_2 || renc_diff >= W_RENC_2)) { //made it to same point
 		  	cur_dir = next_dir;
 		  	w_turnflag = FALSE;
 		  	HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
@@ -412,34 +437,27 @@ int main(void)
 		    switch (cur_dir) { //need to change direction or nah
 
 		    case NORTH:
-		     prev_l_count = l_count; //save current counters
-		     prev_r_count = r_count;
-		     //already going straight out of turn
-		     break;
+		    prev_l_count = l_count; //save current counters
+		    prev_r_count = r_count;
+		    //already going straight out of turn
+            break;
 
 		    case WEST:
 		    Set_Left(WEST_L, FORWARD); //need to make right turn again
 		    Set_Right(WEST_R, FORWARD);
 		    prev_l_count = l_count; //save current counters
 		    prev_r_count = r_count;
-
-		    	break;
+		    break;
 
 		    case EAST:
 		    Set_Left(EAST_L, FORWARD); //need to make right turn again
 		    Set_Right(EAST_R, FORWARD);
 		    prev_l_count = l_count; //save current counters
 		    prev_r_count = r_count;
-
-		    	break;
+	    	break;
 		    }
-
-		  		//get nearest neighbor
-
      	  } //case west
 		  break;
-
-
 	  } //switch
 
 	  } //searching loop
@@ -451,7 +469,7 @@ int main(void)
 
 	  //DEBUG SHIT. It'll only transmit when it is waiting. Won't take up time while searching
 	  if (debug_flag == TRUE){
-	  m_correction = ((on_lf - off_lf) - (on_rf - off_rf))/50;
+	  m_correction = (dif_lf - dif_rf)/50;
 	  sprintf(tx_buffer, "L Speed: %d   \r\nR Speed: %d   \r\nCorrection %d \r\n-----------------\r\n", NORTH_L + m_correction, NORTH_R -m_correction, m_correction);
 	  Transmit(tx_buffer);
 	  Send_Debug();
@@ -553,7 +571,6 @@ void Get_IR() {
 		  on_lf = lf;
 		  HAL_GPIO_WritePin(LF_EMIT_PORT, LF_EMIT_PIN, OFF);
 
-
 		  //right front
 		  Start_IR();
 		  while (adc_conv == FALSE);
@@ -563,6 +580,11 @@ void Get_IR() {
 		  while (adc_conv == FALSE);
 		  on_rf = rf;
 		  HAL_GPIO_WritePin(RF_EMIT_PORT, RF_EMIT_PIN, OFF);
+
+		  dif_l = on_l - off_l;
+		  dif_r = on_r - off_r;
+		  dif_rf = on_rf - off_rf;
+		  dif_lf = on_lf - off_lf;
 
 }
 
@@ -616,10 +638,13 @@ void Set_Right(int speed, int direction) {
 
 void Send_State(void) {
 
-	for(int i = 0; i < DBG_BUFFER; i++)
+	int i = 0;
+	//for(int i = 0; i < DBG_BUFFER; i++)
+    while (l_debug[i] != 0 && i < DBG_BUFFER)
 	{
-	sprintf(tx_buffer, "Decision %d: \r\nL: %d   \r\nR: %d   \r\nRF: %d    \r\nLF: %d   \r\nDirection: %d  \r\n---------------------\r\n", i, l_debug[i], r_debug[i], rf_debug[i], lf_debug[i], turn_debug[i]);
+	sprintf(tx_buffer, "Decision %d: \r\nL: %d   \r\nR: %d   \r\nRF: %d    \r\nLF: %d   \r\nNext Direction: %d  \r\nL Count: %d   R Count: %d \r\nPrev L: %d    Prev R: %d  \r\n---------------------\r\n", i, l_debug[i], r_debug[i], rf_debug[i], lf_debug[i], turn_debug[i], l_count_debug[i], r_count_debug[i], prev_l_debug[i], prev_r_debug[i]);
 	Transmit(tx_buffer);
+	i++;
 	}
 	dbg_count = 0;
 }
@@ -655,7 +680,7 @@ void Readline(void) {
 
 }
 
-void Stop_Motor(void) {
+void Stop(void) {
 
 	Set_Left(0, FORWARD);
 	Set_Right(0, FORWARD); //STOP
@@ -664,17 +689,22 @@ void Stop_Motor(void) {
 	}
 	Send_State();
 	HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
+	HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF);
 	stop_flag = TRUE;
 
 }
 
 void Save_State(void) {
 
-	l_debug[dbg_count] = on_l - off_l;
-	r_debug[dbg_count] = on_r - off_r;
-	rf_debug[dbg_count] = on_rf - off_rf;
-	lf_debug[dbg_count] = on_lf - off_lf;
+	l_debug[dbg_count] = dif_l;
+	r_debug[dbg_count] = dif_r;
+	rf_debug[dbg_count] = dif_rf;
+	lf_debug[dbg_count] = dif_lf;
 	turn_debug[dbg_count] = cur_dir;
+	l_count_debug[dbg_count] = l_count;
+	r_count_debug[dbg_count] = r_count;
+	prev_l_debug[dbg_count] = prev_l_count;
+	prev_r_debug[dbg_count] = prev_r_count;
 
 	dbg_count++;
 
@@ -697,8 +727,76 @@ void Read_Gyro(void) {
 
 }
 
-
 void SystemClock_Config(void)
+{
+
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+
+    /**Configure the main internal regulator output voltage
+    */
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+    /**Initializes the CPU, AHB and APB busses clocks
+    */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 216;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 2;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+    /**Activate the Over-Drive mode
+    */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+    /**Initializes the CPU, AHB and APB busses clocks
+    */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART1;
+  PeriphClkInitStruct.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+    /**Configure the Systick interrupt time
+    */
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+
+    /**Configure the Systick
+    */
+  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+
+  /* SysTick_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+void SystemClock_Config_old(void)
 {
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
@@ -1065,20 +1163,22 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == BUTTON2_Pin)
   {
+	  stop_flag = !stop_flag;
+	  HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
 	  //HAL_GPIO_TogglePin(L_EMIT_PORT, L_EMIT_PIN);
 	  //HAL_GPIO_TogglePin(LF_EMIT_PORT, LF_EMIT_PIN);
 	  //Set_Left(100, FORWARD);
 	  //Set_Right(120, FORWARD);
-	  __HAL_TIM_SET_COUNTER(&htim1, 0);
-	  __HAL_TIM_SET_COUNTER(&htim4, 0);
-	  debug_flag = !debug_flag;
+
 
   }
 
   if (GPIO_Pin == BUTTON1_Pin)
   {
-	  stop_flag = !stop_flag;
-	  HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+	  __HAL_TIM_SET_COUNTER(&htim1, 0);
+	  __HAL_TIM_SET_COUNTER(&htim4, 0);
+	 debug_flag = !debug_flag;
+	 HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 	  /*
 	  HAL_GPIO_TogglePin(L_EMIT_PORT, L_EMIT_PIN);
 	  //HAL_GPIO_TogglePin(R_EMIT_PORT, R_EMIT_PIN);
