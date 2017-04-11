@@ -94,9 +94,9 @@
 //7 and 12 for mine
 //6 and 13 for allens
 
-#define RENCB_Pin GPIO_PIN_7
+#define RENCB_Pin GPIO_PIN_6
 #define RENCB_GPIO_Port GPIOB
-#define RENCA_Pin GPIO_PIN_12
+#define RENCA_Pin GPIO_PIN_13
 #define RENCA_GPIO_Port GPIOD
 
 #define LF_EMIT_PORT GPIOB
@@ -129,6 +129,7 @@
 #define LEFT 1
 #define RIGHT 2
 #define DEAD 3
+#define PAUSE 4
 
 //floodfill directions
 #define NORTH 0
@@ -149,7 +150,31 @@
 #define EAST_X 1
 #define EAST_Y 0
 
+
+#define FWD0 'a'
+#define FWD1 'b'
+#define FWD2 'c'
+#define FWD3 'd'
+#define FWD4 'e'
+#define FWD5 'f'
+#define FWD6 'g'
+#define FWD7 'h'
+#define FWD8 'i'
+#define FWD9 'j'
+#define FWD10 'k'
+#define FWD11 'm'
+#define FWD12 'n'
+#define FWD13 'o'
+#define FWD14 'p'
+#define FWD15 'q'
+#define L90 'l'
+#define R90 'r'
+#define STOP 's'
+
+
+
 /* USER CODE END Private defines */
+
 
 
 #endif /* __MAIN_H */

@@ -301,7 +301,6 @@ class Mouse:
             if index[0] == 3:
                 cur_direc = self.EAST
 
-
             #move to next square
             new_row = row_coord + cur_direc[0]
             new_col = col_coord + cur_direc[1]
