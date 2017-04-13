@@ -69,7 +69,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 //User functions and defines
 
 //straightaway speed
-#define FWD_L 135 //1
+#define FWD_L 130 //1
 #define FWD_R 120 //135
 //L = 120 for primary, 140 for secondary
 //R = 140 for primary, 120 for secondary
@@ -86,11 +86,11 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 //40/210 for primary
 //40/180 for secondary
 
-#define LPIVOT_L 140
-#define LPIVOT_R 100
+#define LPIVOT_L 110
+#define LPIVOT_R 70
 
-#define RPIVOT_L 140
-#define RPIVOT_R 100
+#define RPIVOT_L 110
+#define RPIVOT_R 70
 
 #define PIVOT_RENC 400 //475 for primary
 #define PIVOT_LENC 475
@@ -104,8 +104,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 #define F_RENC1 400
 
 //execute next move
-#define F_LENC2 685
-#define F_RENC2 685
+#define F_LENC2 695
+#define F_RENC2 695
 
 //encoder counts for turns
 //1 is first part of turn when mouse is pivoting
@@ -115,22 +115,22 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 #define RT_RENC_1 40
 #define RT_LENC_1 460
 
-#define RT_RENC_2 360
-#define RT_LENC_2 360
+#define RT_RENC_2 395
+#define RT_LENC_2 395
 
 #define LT_RENC_1 460
 #define LT_LENC_1 40
 
-#define LT_RENC_2 360
-#define LT_LENC_2 360
+#define LT_RENC_2 405
+#define LT_LENC_2 405
 
-#define DEAD_RENC1 140
-#define DEAD_LENC1 140
+#define DEAD_RENC1 40
+#define DEAD_LENC1 40
 
-#define DEAD_RENC2 40
-#define DEAD_LENC2 40
+#define DEAD_RENC2 60
+#define DEAD_LENC2 60
 
-#define SIDE_THRESHOLD 600
+#define SIDE_THRESHOLD 430
 #define FRONT_THRESHOLD 300
 
 
@@ -142,6 +142,8 @@ void Set_Left(int speed, int direction);  //set left motor
 void Set_Right(int speed, int direction); //set right motor
 int Motor_Correction(int l_wall, int r_wall, int debug); //motor correction
 
+void Send_Buffers();
+void Clear_Buffers();
 
 //Sensors and Feedback
 void Start_IR(void); //start DMA conversion of ADC values
@@ -178,6 +180,11 @@ void Calc_Optimal();
 void Fast_Straights();
 void Speed_Run();
 
+void Forward_Search();
+void Left_Search();
+void Right_Search();
+void Dead_End();
+
 void Forward_Spd(int num);
 void Left_Spd(int num);
 void Right_Spd(int num);
@@ -190,6 +197,13 @@ uint32_t l_count = 0; //encoder counts
 uint32_t r_count = 0;
 uint32_t prev_l_count;
 uint32_t prev_r_count;
+
+uint32_t l_count_corr = 0;
+uint32_t r_count_corr = 0;
+
+uint32_t lenc_diff_corr = 0;
+uint32_t renc_diff_corr = 0;
+
 uint32_t lenc_diff = 0; //l_count - prev_l_count
 uint32_t renc_diff = 0;
 
@@ -230,6 +244,10 @@ int dif_l = 0;
 int dif_r = 0;
 int dif_rf = 0;
 int dif_lf = 0;
+#define IR_BUFFER 1000
+
+static int lf_buffer[IR_BUFFER];
+static int rf_buffer[IR_BUFFER];
 
 //int ir_values[4] = {0, 0, 0, 0};
 
@@ -253,11 +271,17 @@ static unsigned int prev_l_debug[DBG_BUFFER];
 static unsigned int prev_r_debug[DBG_BUFFER];
 int dbg_count = 0;
 
+static int buff_count = 0; //Get_IR
+
 //turn flags. These will be set when mouse is done pivoting and should be going straight. Can correct during this time
 int r_turnflag = FALSE;
 int l_turnflag = FALSE;
 int dead_flag = FALSE;
 int fwd_flag = FALSE;
+int l_transition_flag = FALSE;
+int r_transition_flag = FALSE;
+int transition_flag = FALSE;
+int transition_set = FALSE;
 
 //system flags. stop_flag stops everything. Press button to enable everything. Debug flag send debug data while sitting
 int stop_flag = TRUE;
@@ -318,30 +342,38 @@ int main(void)
 	  if (stop_flag == FALSE && dif_l > 2000) { //start searching (place finger in front)
 
       HAL_GPIO_WritePin(GPIOD, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
+      HAL_GPIO_WritePin(GPIOD, LED2_Pin, OFF);
+      HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF);
+      Clear_Buffers();
+      Reset_Counters();
+
+      r_turnflag = FALSE; //reset turn flags
+      l_turnflag = FALSE;
+      dead_flag = FALSE;
+      fwd_flag = FALSE;
+      l_transition_flag = FALSE;
+      r_transition_flag = FALSE;
+      transition_flag = FALSE;
+      transition_set = FALSE;
+
+      cur_move = FWD; //reset to default direction
+      next_move = FWD;
+
 	  HAL_Delay(1000); //delay before start to get finger out of the way
-
-	  Reset_Counters();
-
-	  r_turnflag = FALSE; //reset turn flags
-	  l_turnflag = FALSE;
-	  dead_flag = FALSE;
-	  fwd_flag = FALSE;
-
-	  cur_move = FWD; //reset to default direction
-	  next_move = FWD;
-
 	  //Read_Walls()
 	  //Floodfill();
 	  //Get_Next_Move();
 
-	  Set_Left(FWD_L, FORWARD); //start going straight. get moving
-	  Set_Right(FWD_R, FORWARD);
+	  Set_Left(FWD_L/3, FORWARD); //start going straight. get moving
+	  Set_Right(FWD_R/3, FORWARD);
+
+	  HAL_Delay(50);
 
 	  while(1) { //searching loop //while(maze[x_coord][y_coord] != 0)
 
 	  Get_IR(); //get IR readings
 
-	  if  (cur_move == FWD /*|| r_turnflag == TRUE || l_turnflag == TRUE */) {
+	  if  (cur_move == FWD || r_turnflag == TRUE || l_turnflag == TRUE ) {
 	  m_correction = Motor_Correction(dif_lf, dif_rf, FALSE);
 	  Set_Left(FWD_L + m_correction, FORWARD);
 	  Set_Right(FWD_R - m_correction, FORWARD);
@@ -359,195 +391,43 @@ int main(void)
 	  lenc_diff = l_count - prev_l_count; //get difference between last encoder counts. prev_l and prev_r are updated when traveling 1 unit
 	  renc_diff = r_count - prev_r_count;
 
+	  if (cur_move == FWD && transition_set == FALSE && (r_transition_flag == TRUE || l_transition_flag == TRUE)) {
+		  l_count_corr = l_count;
+		  r_count_corr = r_count;
+		  transition_flag = TRUE;
+		  HAL_GPIO_WritePin(GPIOD, LED2_Pin, ON);
+		  transition_set = TRUE;
+		  if (debug_flag == TRUE) {
+		 Stop();
+		 break;
+		  }
+	  }
+
+	  if (transition_flag == TRUE) {
+	  lenc_diff_corr = l_count - l_count_corr;
+	  renc_diff_corr = r_count - r_count_corr;
+	  }
+
 	  switch (cur_move) { //main case statement. While moving, check distance traveled. If 1 unit has been covered, execute next move
 	  	  	  	  	  	  //will eventually combine with above statement
 	  case FWD:
-	  if (fwd_flag == FALSE && (lenc_diff >= F_LENC1 || renc_diff >= F_RENC1)) {
-		  //Read_Walls();
-		  //Update_Position();
-		  //if(!Get_Next_Move()) {
-		  //Floodfill();
-		  //Get_Next_Move();
-		  //}
-		  fwd_flag = TRUE;
-		  Get_IR();
-		  next_move = Get_Next_Dumb();
-		  Save_State();
-		  // place where you can read walls, not quite to end of unit
-	  }
-	  if (fwd_flag == TRUE && (lenc_diff >= F_LENC2 || renc_diff >= F_RENC2)) { //left and right wheel moving at same speed. If statement checks if distance has been covered
-
-		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
-
-		prev_l_count = l_count; //no change. keep going straight. Save encoder values
-		prev_r_count = r_count;
-		fwd_flag = FALSE;
-
-	    switch (next_move) { //check if motor speeds have to change with next move
-	    case FWD:
-	    break;
-
-	    case RIGHT:
-		Set_Left(RIGHT_L, FORWARD); //need to make right pivot
-		Set_Right(RIGHT_R, FORWARD);
-		break;
-
-	    case LEFT:
-	    Set_Left(LEFT_L, FORWARD); //need to make left pivot
-	    Set_Right(LEFT_R, FORWARD);
-	    break;
-
-	    case DEAD:
-	    break;
-	    }
-	  cur_move = next_move; //execute next move
-	  }
+	  Forward_Search();
 	  break;
 
 	  case RIGHT: //break up turn into turn and accelerate
-
-	  if ((r_turnflag == FALSE) && (lenc_diff >= RT_LENC_1 || renc_diff >= RT_RENC_1)) { //finished making turn. left and right wheel don't travel at same speeds
-
-		  Set_Left(FWD_L, FORWARD); //finish turn by accelerating forward
-		  Set_Right(FWD_R, FORWARD);
-		  //Read_Walls();
-		  //Update Position();
-		  //Get_Next_Move();
-		  r_turnflag = TRUE;
-		  prev_l_count = l_count; //save current counters
-		  prev_r_count = r_count;
-		  lenc_diff = 0;
-		  renc_diff = 0;
-		  Get_IR();
-		  next_move = Get_Next_Dumb();
-		  Save_State();
-	  }
-
-	  if ((r_turnflag == TRUE) && (lenc_diff >= RT_LENC_2 || renc_diff >= RT_RENC_2)) { //made it to same point. execute next direction
-
-		r_turnflag = FALSE;
-		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
-		prev_l_count = l_count; //save current counters
-		prev_r_count = r_count;
-
-        switch (next_move) { //need to change direction or nah
-
-        case FWD:
-        	//already going straight out of turn
-        	break;
-
-        case RIGHT:
-        	Set_Left(RIGHT_L, FORWARD); //need to make right turn again
-        	Set_Right(RIGHT_R, FORWARD);
-        	break;
-
-        case LEFT:
-        	Set_Left(LEFT_L, FORWARD); //need to make right turn again
-        	Set_Right(LEFT_R, FORWARD);
-        	break;
-
-        case DEAD:
-        	break;
-        }
-        cur_move = next_move;
-	  } //case RIGHT
+	  Right_Search();
 	  break;
 
 	  case LEFT:
-
-		  if ((l_turnflag == FALSE) && (lenc_diff >= LT_LENC_1 || renc_diff >= LT_RENC_1)) { //finished making turn. left and right wheel don't travel at same speeds
-
-		  	  Set_Left(FWD_L, FORWARD); //finish turn by accelerating forward
-	  		  Set_Right(FWD_R, FORWARD);
-	  		  //Read_Walls();
-	  		  //Update Position();
-	  		  //Get_Next_Move();
-	  		  l_turnflag = TRUE;
-	  		  prev_l_count = l_count; //save current counters
-	  		  prev_r_count = r_count;
-	  		  lenc_diff = 0;
-	  		  renc_diff = 0;
-	  		  /*while((l_count - prev_l_count) < 75 && (r_count - prev_r_count) < 75) {
-	  			l_count = __HAL_TIM_GET_COUNTER(&htim1); //check left and right encoder counts for debug
-	  			r_count = __HAL_TIM_GET_COUNTER(&htim4);
-	  		  } */
-	  		  Get_IR();
-	  		  next_move = Get_Next_Dumb();
-	  		  Save_State();
-		  	  }
-
-		  if ((l_turnflag == TRUE) && (lenc_diff >= LT_LENC_2 || renc_diff >= LT_RENC_2)) { //made it to same point
-
-		  	l_turnflag = FALSE;
-		  	HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
-		  	Save_State();
-		  	prev_l_count = l_count; //save current counters
-		  	prev_r_count = r_count;
-
-		    switch (next_move) { //need to change direction or nah
-
-		    case FWD:
-		    //already going straight out of turn
-            break;
-
-		    case LEFT:
-		    Set_Left(LEFT_L, FORWARD); //need to make right turn again
-		    Set_Right(LEFT_R, FORWARD);
-		    break;
-
-		    case RIGHT:
-		    Set_Left(RIGHT_L, FORWARD); //need to make right turn again
-		    Set_Right(RIGHT_R, FORWARD);
-	    	break;
-
-		    case DEAD:
-		    break;
-		    }
-		    cur_move = next_move;
-     	  } //case LEFT
-		  break;
+	  Left_Search();
+	  break;
 
 	  case DEAD:
-		  	 if (dead_flag == FALSE && (lenc_diff >= DEAD_LENC1 || renc_diff >= DEAD_RENC1)) {
-		  	 Set_Left(0, FORWARD); //stop
-		  	 Set_Right(0, FORWARD);
-		  	 Dead_End_Correct(); //should be aligned in middle of square
-		  	 //Read_Walls();
-		  	 //Update_Position();
-		  	 //Get_Next_Move();
-		  	 next_move = Get_Next_Dumb();
-		  	 cur_move = PAUSE;
-		  	 //Set_Left(FWD_L, FORWARD);
-		  	 //Set_Right(FWD_R, FORWARD); //move forward to next square
-		  	 //dead_flag = TRUE;
-		  	 }
-/*
-		  	 if (dead_flag == TRUE && (lenc_diff > DEAD_LENC2 || renc_diff >= DEAD_RENC2)) {
-		  		switch (next_move) { //need to change direction or nah
-
-		  	    case FWD:
-		  		    //already going straight out of turn
-		  	    break;
-
-		  	    case LEFT:
-		  	    Set_Left(LEFT_L, FORWARD); //need to make right turn again
-		  	    Set_Right(LEFT_R, FORWARD);
-		  	    break;
-		  	    case RIGHT:
-		  		Set_Left(RIGHT_L, FORWARD); //need to make right turn again
-		  		Set_Right(RIGHT_R, FORWARD);
-		  		break;
-
-		  		}
-		  		cur_move = next_move;
-
-		  	 }
-*/
+      Dead_End();
 	  break;
 	  } //switch
-
 	  } //searching loop
-	  } //if front wall > 1500
+	} //if front wall > 1500
 
 	  //ready loop again
 	  HAL_Delay(500); //ONLY CHECK FOR FINGER every half second. If you check to quickly it'll never start
@@ -561,6 +441,248 @@ int main(void)
 	  }
   } //ready loop
 } //main function
+
+void Forward_Search() {
+
+
+	if (transition_flag == TRUE) {
+		if (fwd_flag == FALSE && (lenc_diff_corr >=  300 || renc_diff_corr >= 300)) { //330
+
+			fwd_flag = TRUE;
+			Get_IR();
+			next_move = Get_Next_Dumb();
+			Save_State();
+
+		}
+
+		if (fwd_flag == TRUE && (lenc_diff_corr >=  620 || renc_diff_corr >= 620)) { //620
+
+			fwd_flag = FALSE;
+			transition_flag = FALSE;
+			transition_set = FALSE;
+
+			HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, OFF);
+			HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+
+			prev_l_count = l_count; //no change. keep going straight. Save encoder values
+			prev_r_count = r_count;
+			fwd_flag = FALSE;
+			transition_flag = FALSE;
+
+			switch (next_move) { //check if motor speeds have to change with next move
+			case FWD:
+				break;
+
+			case RIGHT:
+				Set_Left(RIGHT_L, FORWARD); //need to make right pivot
+				Set_Right(RIGHT_R, FORWARD);
+				break;
+
+			case LEFT:
+				Set_Left(LEFT_L, FORWARD); //need to make left pivot
+				Set_Right(LEFT_R, FORWARD);
+				break;
+
+			case DEAD:
+				break;
+			}
+			cur_move = next_move; //execute next move
+		}
+	}
+	/*
+	else {
+
+	if (fwd_flag == FALSE && (lenc_diff >= F_LENC1 || renc_diff >= F_RENC1))
+	{
+		//Read_Walls();
+		//Update_Position();
+		//if(!Get_Next_Move()) {
+		//Floodfill();
+		//Get_Next_Move();
+		//}
+		fwd_flag = TRUE;
+		Get_IR();
+		next_move = Get_Next_Dumb();
+		Save_State();
+		// place where you can read walls, not quite to end of unit
+	}
+
+	if (fwd_flag == TRUE && (lenc_diff >= F_LENC2 || renc_diff >= F_RENC2))
+	{ //left and right wheel moving at same speed. If statement checks if distance has been covered
+
+		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+
+		prev_l_count = l_count; //no change. keep going straight. Save encoder values
+		prev_r_count = r_count;
+		fwd_flag = FALSE;
+		transition_flag = FALSE;
+
+		switch (next_move) { //check if motor speeds have to change with next move
+		case FWD:
+			break;
+
+		case RIGHT:
+			Set_Left(RIGHT_L, FORWARD); //need to make right pivot
+			Set_Right(RIGHT_R, FORWARD);
+			break;
+
+		case LEFT:
+		    Set_Left(LEFT_L, FORWARD); //need to make left pivot
+		    Set_Right(LEFT_R, FORWARD);
+		    break;
+
+		case DEAD:
+		    break;
+		}
+		cur_move = next_move; //execute next move
+	}
+	}
+*/
+
+}
+void Left_Search() {
+
+	if ((l_turnflag == FALSE) && (lenc_diff >= LT_LENC_1 || renc_diff >= LT_RENC_1)) { //finished making turn. left and right wheel don't travel at same speeds
+
+		Set_Left(FWD_L, FORWARD); //finish turn by accelerating forward
+		Set_Right(FWD_R, FORWARD);
+		//Read_Walls();
+		//Update Position();
+		//Get_Next_Move();
+		l_turnflag = TRUE;
+		prev_l_count = l_count; //save current counters
+		prev_r_count = r_count;
+		lenc_diff = 0;
+		renc_diff = 0;
+		/*while((l_count - prev_l_count) < 75 && (r_count - prev_r_count) < 75) {
+		  		l_count = __HAL_TIM_GET_COUNTER(&htim1); //check left and right encoder counts for debug
+		  		r_count = __HAL_TIM_GET_COUNTER(&htim4);
+		  		  } */
+		Get_IR();
+		next_move = Get_Next_Dumb();
+		Save_State();
+	}
+
+	if ((l_turnflag == TRUE) && (lenc_diff >= LT_LENC_2 || renc_diff >= LT_RENC_2)) { //made it to same point
+
+		l_turnflag = FALSE;
+		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+		Save_State();
+		prev_l_count = l_count; //save current counters
+		prev_r_count = r_count;
+
+		switch (next_move) { //need to change direction or nah
+
+		case FWD:
+			//already going straight out of turn
+			break;
+
+		case LEFT:
+			Set_Left(LEFT_L, FORWARD); //need to make right turn again
+			Set_Right(LEFT_R, FORWARD);
+			break;
+
+		case RIGHT:
+			Set_Left(RIGHT_L, FORWARD); //need to make right turn again
+			Set_Right(RIGHT_R, FORWARD);
+			break;
+
+		case DEAD:
+			break;
+		}
+		cur_move = next_move;
+	} //case LEFT
+}
+void Right_Search() {
+
+	if ((r_turnflag == FALSE) && (lenc_diff >= RT_LENC_1 || renc_diff >= RT_RENC_1)) { //finished making turn. left and right wheel don't travel at same speeds
+
+		Set_Left(FWD_L, FORWARD); //finish turn by accelerating forward
+		Set_Right(FWD_R, FORWARD);
+		//Read_Walls();
+		//Update Position();
+		//Get_Next_Move();
+		r_turnflag = TRUE;
+		prev_l_count = l_count; //save current counters
+		prev_r_count = r_count;
+		lenc_diff = 0;
+		renc_diff = 0;
+		Get_IR();
+		next_move = Get_Next_Dumb();
+		Save_State();
+	}
+
+	if ((r_turnflag == TRUE) && (lenc_diff >= RT_LENC_2 || renc_diff >= RT_RENC_2)) { //made it to same point. execute next direction
+
+		r_turnflag = FALSE;
+		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+		prev_l_count = l_count; //save current counters
+		prev_r_count = r_count;
+
+		switch (next_move) { //need to change direction or nah
+
+		case FWD:
+			//already going straight out of turn
+			break;
+
+		case RIGHT:
+			Set_Left(RIGHT_L, FORWARD); //need to make right turn again
+			Set_Right(RIGHT_R, FORWARD);
+			break;
+
+		case LEFT:
+			Set_Left(LEFT_L, FORWARD); //need to make right turn again
+			Set_Right(LEFT_R, FORWARD);
+			break;
+
+		case DEAD:
+			break;
+		}
+		cur_move = next_move;
+	} //case RIGHT
+}
+
+
+void Dead_End() {
+
+	if (dead_flag == FALSE && (lenc_diff >= DEAD_LENC1 || renc_diff >= DEAD_RENC1)) {
+		Set_Left(0, FORWARD); //stop
+		Set_Right(0, FORWARD);
+		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, ON);
+		//Dead_End_Correct(); //should be aligned in middle of square
+		//Read_Walls();
+		//Update_Position();
+		//Get_Next_Move();
+		next_move = Get_Next_Dumb();
+		cur_move = PAUSE;
+		//Set_Left(FWD_L, FORWARD);
+		//Set_Right(FWD_R, FORWARD); //move forward to next square
+		//dead_flag = TRUE;
+	}
+	/*           //after correction
+			  	 if (dead_flag == TRUE && (lenc_diff > DEAD_LENC2 || renc_diff >= DEAD_RENC2)) {
+			  		switch (next_move) { //need to change direction or nah
+
+			  	    case FWD:
+			  		    //already going straight out of turn
+			  	    break;
+
+			  	    case LEFT:
+			  	    Set_Left(LEFT_L, FORWARD); //need to make right turn again
+			  	    Set_Right(LEFT_R, FORWARD);
+			  	    break;
+			  	    case RIGHT:
+			  		Set_Left(RIGHT_L, FORWARD); //need to make right turn again
+			  		Set_Right(RIGHT_R, FORWARD);
+			  		break;
+
+			  		}
+			  		cur_move = next_move;
+
+			  	 }
+	*/
+}
+
 
 //DONT USE YET
 void Set_Buzzer(int freq, int enable) {
@@ -615,53 +737,63 @@ if (dif_l > 3700 || dif_r > 3700 || cur_move == PAUSE) //Emergency STOP conditio
 		  //{return TRUE;}
 		  //else if (cur_move == LEFT && l_turnflag == TRUE)
 		  //{return TRUE;}
-		  else if (abs(dif_l - dif_r) > 3200) {
-			  return TRUE;
-		  }
+		  //else if (abs(dif_l - dif_r) > 3600) {
+			//  return TRUE;
+		  //}
 	  }
 return FALSE;
 }
 
 int Motor_Correction(int l_wall, int r_wall, int debug) {
 
-int D = 100; //parameters
-int P = 100;
+//int D = 100; //parameters
+int P = 65;
 
 int errorP = 0;
 int errorD = 0;
 int oldErrorP = 0;
 
-
+int counter_offset = 0;
 if (debug==TRUE) {
 
 errorP = 0;
-errorD = 0;
 oldErrorP = 0;
 
 }
 int correction = 0;
 
-
 if (l_wall > SIDE_THRESHOLD && r_wall > SIDE_THRESHOLD) { //both walls available
-	  	  errorP = (l_wall - dif_rf+100); //dif_rf + 500 for primary
-	  	  errorD = errorP - oldErrorP;
+	errorP = (l_wall - dif_rf+100); //dif_rf + 500 for primary
+	errorD = errorP - oldErrorP;
 }
 else if (l_wall >= SIDE_THRESHOLD && r_wall <= SIDE_THRESHOLD) { //only left wall to correct. Optimal reading should be 1600
-		  errorP = (l_wall - 1600); //75 is correction factor. Left side needs more corrections for some reason
-		  errorD = errorP - oldErrorP;
+	errorP = (l_wall - 1100); //75 is correction factor. Left side needs more corrections for some reason
+	errorD = errorP - oldErrorP;
 }
 else if (l_wall <= SIDE_THRESHOLD && r_wall >= SIDE_THRESHOLD) {//only right wall to correct. Optimal reading should be 1500. (200 is offset)
-		  errorP = (1600 - r_wall); //100 is correction factor. Right side needs less correction
-		  errorD = errorP - oldErrorP;
+	errorP = (1100 - r_wall); //100 is correction factor. Right side needs less correction
+	errorD = errorP - oldErrorP;
 }
 else if (l_wall <= SIDE_THRESHOLD && r_wall <= SIDE_THRESHOLD) { //use encoders when there's no walls available
-		  errorP = ((l_count - prev_l_count) - (r_count - prev_r_count))*5;
-	      errorD = 0;
+
+	counter_offset = prev_l_count - prev_r_count;
+
+	if (counter_offset == 0) {
+		errorP = ((r_count - prev_r_count) - (l_count - prev_l_count))*10;
+		errorD = 0;
+	}
+	else if (counter_offset > 0) { //left has has traveled more
+		errorP = ((r_count - prev_r_count + counter_offset) - (l_count - prev_l_count))*10;
+	}
+
+	else if (counter_offset < 0) { //right has traveled more
+		errorP = ((r_count - prev_r_count) - (l_count - prev_l_count - counter_offset))*10;
+	}
 }
 
-correction = errorP/P + errorD/D; //P and D are tuning parameters
+correction = errorP/P; //+ errorD/D; //P and D are tuning parameters
 oldErrorP = errorP;
-if (abs(correction) < 50) {
+if (abs(correction) < 75) {
 	return correction;
 }
 else
@@ -674,7 +806,7 @@ void Dead_End_Correct(void) {
 
 Reset_Counters();
 //3700 for primary
-while (dif_r < 3500 && dif_l < 3500) //align while going into square
+while (dif_r < 3800 && dif_l < 3800) //align while going into square
 {
 Get_IR();
 m_correction = (dif_l - dif_r)/75;
@@ -693,53 +825,88 @@ Set_Left(RPIVOT_L, FORWARD);
 Set_Right(RPIVOT_R, BACKWARD);
 }
 
-
-while (abs(dif_l - dif_r) < 75) { //should be perfectly facing the back wall
+Reset_Counters();
 Get_IR();
+
+while (abs(dif_l - dif_r) > 100) { //should be perfectly facing the back wall
+Get_IR();
+l_count = __HAL_TIM_GET_COUNTER(&htim1);
+r_count = __HAL_TIM_GET_COUNTER(&htim4);
 }
+
 Set_Left(0, FORWARD);
 Set_Right(0 , FORWARD);
 
-Get_IR();
 Reset_Counters();
+Get_IR();
 
 //pivot again until facing a side wall
 if (dif_rf > dif_lf) {
 Set_Left(LPIVOT_L, BACKWARD); //100
 Set_Right(LPIVOT_R, FORWARD); //140
+
+	do {
+		l_count = __HAL_TIM_GET_COUNTER(&htim1);
+		r_count = __HAL_TIM_GET_COUNTER(&htim4);
+		Get_IR();
+}	while (r_count < 215 ||  abs(dif_l - dif_r) > 100);
 }
 
 else { //Turn to the right if the left side is greater
 Set_Left(RPIVOT_L, FORWARD);
 Set_Right(RPIVOT_R, BACKWARD);
-}
 
-do {
-l_count = __HAL_TIM_GET_COUNTER(&htim1);
-r_count = __HAL_TIM_GET_COUNTER(&htim4);
-
-} while (r_count < 400 && l_count < 400);
-
-while (abs(dif_l - dif_r) < 75) { //should be perfectly facing the other wall
-	Get_IR();
+	do {
+		l_count = __HAL_TIM_GET_COUNTER(&htim1);
+		r_count = __HAL_TIM_GET_COUNTER(&htim4);
+		Get_IR();
+	} while (l_count < 215 || abs(dif_l - dif_r) > 100);
 }
 
 
-Set_Left(FWD_L, FORWARD);
+Reset_Counters();
+
+Set_Left(FWD_L, FORWARD); //forward towards wall
 Set_Right(FWD_R, FORWARD);
+Get_IR();
 
-while ((dif_r < 3500 && dif_l < 3500) && (abs(dif_l - dif_r) > 75)) { //should be perfectly facing the other wall
+while ((dif_r < 3500 && dif_l < 3500) || (abs(dif_l - dif_r) > 100)) { //should be perfectly facing the side wall wall
 	Get_IR();
 }
 
-//pivot again and move laterally until the front emitters are equal aka align with one side wall
-//pivot again and align with both side walls to be facing straight
+//pivot again until facing the front
+if (dif_rf > dif_lf) {
+Set_Left(LPIVOT_L, BACKWARD); //100
+Set_Right(LPIVOT_R, FORWARD); //140
+
+	do {
+		l_count = __HAL_TIM_GET_COUNTER(&htim1);
+		r_count = __HAL_TIM_GET_COUNTER(&htim4);
+		Get_IR();
+}	while (r_count < 215 ||  abs(dif_lf - dif_rf) > 70);
+}
+
+else { //Turn to the right if the left side is greater
+Set_Left(RPIVOT_L, FORWARD);
+Set_Right(RPIVOT_R, BACKWARD);
+
+	do {
+		l_count = __HAL_TIM_GET_COUNTER(&htim1);
+		r_count = __HAL_TIM_GET_COUNTER(&htim4);
+		Get_IR();
+	} while (l_count < 215 || abs(dif_lf - dif_rf) > 100);
+}
+
+
 
 HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, OFF);
 Set_Left(0, FORWARD);
 Set_Right(0, FORWARD);
-
+sprintf(tx_buffer, "Stupid 1");
+Transmit(tx_buffer);
 }
+
+
 
 void Reset_Counters() {
 
@@ -749,6 +916,13 @@ prev_l_count = 0;
 prev_r_count = 0;
 lenc_diff = 0;
 renc_diff = 0;
+l_count = 0;
+r_count = 0;
+l_count_corr = 0;
+r_count_corr = 0;
+
+lenc_diff_corr = 0;
+renc_diff_corr = 0;
 
 }
 
@@ -784,6 +958,9 @@ void Get_IR() { //int* val_array
 	int off_r = 0;
 	int off_rf = 0;
 	int off_lf = 0;
+
+	int comp_lf = 0;
+	int comp_rf = 0;
 
 	//left sensor
 	Start_IR();
@@ -829,6 +1006,39 @@ void Get_IR() { //int* val_array
 	dif_r = on_r - off_r; //val_array[1]
 	dif_rf = on_rf - off_rf; //val_array[2]
 	dif_lf = on_lf - off_lf; //val_array[3]
+
+	//lf and rf transitions
+	lf_buffer[buff_count] = dif_lf;
+	rf_buffer[buff_count] = dif_rf;
+
+	comp_lf = lf_buffer[((buff_count - 200) + IR_BUFFER) % IR_BUFFER];
+	comp_rf = rf_buffer[((buff_count - 200) + IR_BUFFER) % IR_BUFFER];
+
+	if (comp_lf > 10 && abs(dif_lf  - comp_lf)  > 275) {
+		l_transition_flag = TRUE;
+	}
+	else {
+		l_transition_flag = FALSE;
+	}
+	if (comp_rf > 10 && abs(dif_rf - comp_rf)  > 275) {
+		r_transition_flag = TRUE;
+	}
+	else {
+		r_transition_flag = FALSE;
+	}
+
+	buff_count = (buff_count+1) % IR_BUFFER;
+
+}
+
+void Clear_Buffers() {
+
+	for (int i = 0; i < IR_BUFFER; i++) {
+
+		lf_buffer[i] = 0;
+		rf_buffer[i] = 0;
+
+	}
 
 }
 
@@ -899,11 +1109,44 @@ void Send_Debug(void) {
 	Transmit(tx_buffer); //transmitm the message above
 	sprintf(tx_buffer, "Left Count Value: %d \r\nRight Count Value %d \r\n-----------------\r\n", l_count, r_count);
 	Transmit(tx_buffer); //transmit the message above
-	sprintf(tx_buffer, "Prev_L: %d \r\nPrev R %d \r\n-----------------\r\n", prev_l_count, prev_r_count);
-	Transmit(tx_buffer); //transmit the message above
-	sprintf(tx_buffer, "cur_move: %d \r\nnext_move: %d\r\n-----------------\r\n", cur_move, next_move);
+	//sprintf(tx_buffer, "Prev_L: %d \r\nPrev R %d \r\n-----------------\r\n", prev_l_count, prev_r_count);
+	//Transmit(tx_buffer); //transmit the message above
+	//sprintf(tx_buffer, "cur_move: %d \r\nnext_move: %d\r\n-----------------\r\n", cur_move, next_move);
+	//Transmit(tx_buffer);
+	//sprintf(tx_buffer, "RIGHT Turn Flag: %d \r\nLEFT Turn Flag: %d \r\n-----------------------", r_turnflag, l_turnflag);
+}
+
+void Send_Buffers() {
+
+sprintf(tx_buffer, "Buff Counter: %d \r\n", buff_count);
+Transmit(tx_buffer);
+
+Transmit("Left Values: \r\n");
+for (int i = 0; i<IR_BUFFER; i++) {
+
+	if (i == buff_count) {
+
+		Transmit(" ||START|| ");
+	}
+	sprintf(tx_buffer, "%d ", lf_buffer[i]);
 	Transmit(tx_buffer);
-	sprintf(tx_buffer, "RIGHT Turn Flag: %d \r\nLEFT Turn Flag: %d \r\n-----------------------", r_turnflag, l_turnflag);
+}
+
+Transmit("\r\n");
+Transmit("Right Values: \r\n");
+
+for (int i = 0; i < IR_BUFFER; i++) {
+
+	if (i == buff_count) {
+
+			Transmit(" ||START|| ");
+		}
+	sprintf(tx_buffer, "%d ", rf_buffer[i]);
+	Transmit(tx_buffer);
+
+}
+
+Transmit("\r\n");
 }
 
 //takes char array
@@ -919,7 +1162,6 @@ void Readline(void) {
 	int len = strlen(rx_buffer);
 	HAL_UART_Receive(&huart1, rx_buffer, len, 5000);
 	Transmit("HAHA");
-
 }
 
 void Stop(void) {
@@ -930,6 +1172,7 @@ void Stop(void) {
 	Send_Debug();
 	}
 	Send_State();
+	//Send_Buffers();
 	HAL_GPIO_WritePin(GPIOD, LED5_Pin, OFF);
 	HAL_GPIO_WritePin(GPIOD, LED4_Pin, OFF);
 	stop_flag = TRUE;
@@ -1301,18 +1544,18 @@ switch (cur_dir) {
 case NORTH:
 	switch(index) {
 	case(0):
-			optimal_path[counter] = 'f';
+			optimal_path[counter] = FOR;
 
 	break;
 	case(1):
 			//NO
 	break;
 	case(2):
-			optimal_path[counter] = 'l';
+			optimal_path[counter] = LEF;
 			cur_dir = WEST;
 	break;
 	case(3):
-			optimal_path[counter] = 'r';
+			optimal_path[counter] = RIGH;
 			cur_dir = EAST;
 	break;
 	}
@@ -1324,14 +1567,14 @@ case SOUTH:
 			//NO
 	break;
 	case(1):
-			optimal_path[counter] = 'f';
+			optimal_path[counter] = FOR;
 	break;
 	case(2):
-			optimal_path[counter] = 'r';
+			optimal_path[counter] = RIGH;
 			cur_dir = WEST;
 	break;
 	case(3):
-			optimal_path[counter] = 'l';
+			optimal_path[counter] = LEF;
 			cur_dir = EAST;
 	break;
 	}
@@ -1340,15 +1583,15 @@ break;
 case WEST:
 	switch(index) {
 	case(0):
-			optimal_path[counter] = 'r';
+			optimal_path[counter] = RIGH;
 			cur_dir = NORTH;
 	break;
 	case(1):
-			optimal_path[counter] = 'l';
+			optimal_path[counter] = LEF;
 			cur_dir = SOUTH;
 	break;
 	case(2):
-			optimal_path[counter] = 'f';
+			optimal_path[counter] = FOR;
 	break;
 	case(3):
 			//NO
@@ -1359,18 +1602,18 @@ break;
 case EAST:
 	switch(index) {
 	case(0):
-			optimal_path[counter] = 'l';
+			optimal_path[counter] = LEF;
 			cur_dir = NORTH;
 	break;
 	case(1):
-			optimal_path[counter] = 'r';
+			optimal_path[counter] = RIGH;
 			cur_dir = SOUTH;
 	break;
 	case(2):
 			//NO
 	break;
 	case(3):
-			optimal_path[counter] = 'f';
+			optimal_path[counter] = FOR;
 	break;
 	}
 break;
@@ -1406,6 +1649,7 @@ optimal_path[counter] = 's';
 sprintf(tx_buffer, "FINAL:   X VALUE: %d    Y VALUE: %d    DIRECTION: %d   VALUE: %d \r\n", x, y, cur_dir, val);
 Transmit(tx_buffer);
 Transmit(optimal_path);
+Transmit("\r\n");
 }
 
 void Fast_Straights() {
@@ -1413,13 +1657,25 @@ void Fast_Straights() {
 char command;
 int counter = 0;
 int new_count = 0;
-command = optimal_path[counter];
 int fwd_count = 0;
-char cmd_buff = 'f';
+int right_count = 0;
+int left_count = 0;
+char cmd_buff = FOR;
 
-while (command != 's') {
-	if (command == 'f') {
+do {
+	command = optimal_path[counter];
+	if (command == FOR) {
 		fwd_count++;
+		if (right_count > 0) {
+			new_path[new_count] = R90;
+			right_count = 0;
+			new_count++;
+		}
+		else if (left_count > 0) {
+			new_path[new_count] = L90;
+			left_count = 0;
+			new_count++;
+		}
 	}
 	else {
 	if (fwd_count > 0) {
@@ -1442,19 +1698,88 @@ while (command != 's') {
 			}
 			new_path[new_count] = cmd_buff;
 			new_count++;
-			sprintf(tx_buffer, "stupid \r\n");
-			Transmit(tx_buffer);
+
 		}
-		new_path[new_count] = command;
-		new_count++;
-		fwd_count = 0;
+	if (command == LEF) {
+		switch(left_count) {
+		case(0):
+			left_count++;
+			if (right_count > 0) {
+				new_path[new_count] = R90;
+				right_count = 0;
+				new_count++;
+			}
+			break;
+		case(1):
+			new_path[new_count] = L180;
+			left_count = 0;
+			new_count++;
+			break;
+		}
+	}
+	else if (command == RIGH) {
+		switch(right_count) {
+		case(0):
+			right_count++;
+			if (left_count > 0) {
+
+				new_path[new_count] = L90;
+				left_count = 0;
+				new_count++;
+			}
+		break;
+		case(1):
+				new_path[new_count] = R180;
+				right_count = 0;
+				new_count++;
+		break;
+		}
+	}
+	else if (command == STOP) {
+		switch(right_count) {
+
+		case 0:
+			break;
+		case 1:
+			cmd_buff = R90;
+			break;
+		}
+
+		switch(left_count) {
+		case 0:
+			break;
+		case 1:
+			cmd_buff = L90;
+			break;
+		}
+
+		switch(fwd_count) {
+		case 1: cmd_buff = FWD1; break;
+		case 2:	cmd_buff = FWD2; break;
+		case 3: cmd_buff = FWD3; break;
+		case 4: cmd_buff = FWD4; break;
+		case 5: cmd_buff = FWD5; break;
+		case 6:	cmd_buff = FWD6; break;
+		case 7:	cmd_buff = FWD7; break;
+		case 8: cmd_buff = FWD8; break;
+		case 9:	cmd_buff = FWD9; break;
+		case 10: cmd_buff = FWD10; break;
+		case 11: cmd_buff = FWD11; break;
+		case 12: cmd_buff = FWD12; break;
+		case 13: cmd_buff = FWD13; break;
+		case 14: cmd_buff = FWD14; break;
+		case 15: cmd_buff = FWD15; break;
+
+		}
+		new_path[new_count] = cmd_buff;
+		new_path[new_count+1] = STOP;
+	}
+	fwd_count = 0;
 	}
 counter++;
-command = optimal_path[counter];
-}
+} while (command != STOP);
+
 Transmit(new_path);
-sprintf(tx_buffer, "stupid \r\n");
-Transmit(tx_buffer);
 }
 
 
@@ -1595,7 +1920,7 @@ int Get_Next_Dumb() {
 		  case RIGHT:
 			  if (dif_l <= 250 || dif_r <= 250) //r_turnflag means the second part of the turn
 			  {next = FWD;}
-			  else if (dif_rf > SIDE_THRESHOLD && dif_lf < 300)
+			  else if (dif_rf > SIDE_THRESHOLD && dif_lf < 500)
 			  {next = LEFT;}
 			  else if ((dif_l >= FRONT_THRESHOLD || dif_r >= FRONT_THRESHOLD) && dif_lf > SIDE_THRESHOLD && dif_rf > SIDE_THRESHOLD)
 			  {next = DEAD;}
@@ -1606,7 +1931,7 @@ int Get_Next_Dumb() {
 		  case LEFT:
 			  if (dif_l <= 250 || dif_r <= 250)
 			  {next = FWD;}
-			  else if (dif_lf > SIDE_THRESHOLD && dif_rf < 300)
+			  else if (dif_lf > SIDE_THRESHOLD && dif_rf < 500)
 			  {next = RIGHT;}
 			  else if ((dif_l >= FRONT_THRESHOLD || dif_r >= FRONT_THRESHOLD) && dif_lf > SIDE_THRESHOLD && dif_rf > SIDE_THRESHOLD)
 			  {next = DEAD;}

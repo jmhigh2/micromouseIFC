@@ -151,12 +151,18 @@
 #define EAST_Y 0
 
 
+//REGULAR TURNS
+#define FOR 'f'
+#define LEF 'l'
+#define RIGH 'r'
+
+//FAST STRAIGHTS and TURNS
 #define FWD0 'a'
 #define FWD1 'b'
 #define FWD2 'c'
 #define FWD3 'd'
 #define FWD4 'e'
-#define FWD5 'f'
+#define FWD5 'v'
 #define FWD6 'g'
 #define FWD7 'h'
 #define FWD8 'i'
@@ -168,6 +174,8 @@
 #define FWD14 'p'
 #define FWD15 'q'
 #define L90 'l'
+#define L180 't'
+#define R180 'u'
 #define R90 'r'
 #define STOP 's'
 
