@@ -183,34 +183,40 @@ class Mouse:
 
         #FRONT IR
         #the three if/else blocks of code simulate reading a wall in each sensor
-        if direction == self.NORTH and row > 0:
+        if direction == self.NORTH and row > 0: #front
             horiz_walls[row - 1, column] = horiz_abs[row - 1, column]
-        if direction == self.SOUTH and row < (n - 1):
+
+        if direction == self.NORTH and column < (n - 1): #right
+            vert_walls[row, column] = vert_abs[row, column]
+
+        if direction == self.NORTH and column > 0: #left
+            vert_walls[row, column - 1] = vert_abs[row, column - 1]
+
+        if direction == self.SOUTH and row < (n - 1): #front
             horiz_walls[row, column] = horiz_abs[row, column]
-        if direction == self.WEST and column > 0:
+
+        if direction == self.SOUTH and column > 0: #right
+            vert_walls[row, column - 1] = vert_abs[row, column - 1]
+        if direction == self.SOUTH and column < (n - 1): #left
+            vert_walls[row, column] = vert_abs[row, column]
+
+
+        if direction == self.WEST and column > 0: #front
             vert_walls[row - 1, column] = vert_abs[row - 1, column]
-        if direction == self.EAST and column < (n - 1):
-            vert_walls[row, column] = vert_abs[row, column]
-
-            #LEFT IR
-        if direction == self.NORTH and column > 0:
-            vert_walls[row, column - 1] = vert_abs[row, column - 1]
-        if direction == self.SOUTH and column < (n - 1):
-            vert_walls[row, column] = vert_abs[row, column]
-        if direction == self.WEST and row < (n - 1):
+        if direction == self.WEST and row > 0: #right
+            horiz_walls[row - 1, column] = horiz_abs[row - 1, column]
+        if direction == self.WEST and row < (n - 1): #left
             horiz_walls[row, column] = horiz_abs[row, column]
-        if direction == self.EAST and column < (n - 1):
+
+
+
+        if direction == self.EAST and column < (n - 1): #front
+            vert_walls[row, column] = vert_abs[row, column]
+        if direction == self.EAST and row < (n - 1): #right
+            horiz_walls[row, column] = horiz_abs[row, column]
+        if direction == self.EAST and row > 0: #left
             horiz_walls[row - 1, column] = horiz_abs[row - 1, column]
 
-            #RIGHT IR
-        if direction == self.NORTH and column < (n - 1):
-            vert_walls[row, column] = vert_abs[row, column]
-        if direction == self.SOUTH and column > 0:
-            vert_walls[row, column - 1] = vert_abs[row, column - 1]
-        if direction == self.WEST and row > 0 :
-            horiz_walls[row - 1, column] = horiz_abs[row - 1, column]
-        if direction == self.EAST and row < (n - 1):
-            horiz_walls[row, column] = horiz_abs[row, column]
 
         self.maze.horiz_walls = horiz_walls #saves found walls into memory
         self.maze.vert_walls = vert_walls

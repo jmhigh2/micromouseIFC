@@ -56,8 +56,8 @@ def graph(mouse):
     for x in range(0, 16): #plot floodfill numbers
         for y in range(0, 16):
             plt.text(x+.25, y+.30, str(nodes[x][y]), fontproperties=font)
-            #if mouse.visited[x][y]:
-            #    plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
+            if mouse.visited[x][y]:
+                plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
 
             #horizontal walls will be drawn vertical
     for x in range(0, 15):

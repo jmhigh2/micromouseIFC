@@ -124,6 +124,11 @@
 #define TRUE 1
 #define FALSE 0
 
+//dead end states
+#define PEEK 0
+#define EXECUTE 1
+#define ARRIVE 2
+
 //mouse movements
 #define FWD 0
 #define LEFT 1
