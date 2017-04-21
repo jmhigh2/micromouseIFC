@@ -184,6 +184,7 @@
 #define R90 'r'
 #define STOP 's'
 
+#define FUCKEDUP 69
 
 
 /* USER CODE END Private defines */
