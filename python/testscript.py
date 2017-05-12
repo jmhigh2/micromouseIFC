@@ -5,6 +5,8 @@ import matplotlib.patches as patches
 from matplotlib.font_manager import FontProperties
 
 
+mouse_size = 16
+
 def graph(mouse):
     path = mouse.optimal_path
     x_coord = []
@@ -33,10 +35,10 @@ def graph(mouse):
     plot1.set_aspect('equal', adjustable='box')
     #plot1.axes.get_xaxis().set_visible(False)
     plot1.axes.get_yaxis().set_visible(False)
-    plt.axis([0, 16, 0, 16])
+    plt.axis([0, mouse_size, 0, mouse_size])
 
-    plt.vlines(16, 0, 16) #borders of maze
-    plt.hlines(16, 0, 16)
+    plt.vlines(mouse_size, 0, mouse_size) #borders of maze
+    plt.hlines(mouse_size, 0, mouse_size)
 
     plot1.scatter(position[0]+.5, position[1]+.5, s=100, color='g')
 
@@ -53,22 +55,22 @@ def graph(mouse):
     font.set_weight('bold')
 
     plt.plot(x_coord, y_coord, linewidth=2.0, color='g') #plot optimal path
-    for x in range(0, 16): #plot floodfill numbers
-        for y in range(0, 16):
+    for x in range(0, mouse_size): #plot floodfill numbers
+        for y in range(0, mouse_size):
             plt.text(x+.25, y+.30, str(nodes[x][y]), fontproperties=font)
             if mouse.visited[x][y]:
                 plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
 
             #horizontal walls will be drawn vertical
-    for x in range(0, 15):
-        for y in range(0, 16):
+    for x in range(0, mouse_size - 1):
+        for y in range(0, mouse_size):
             #plt.text(x+.85, y+.35, str(horiz_walls[x][y]), color='m', fontsize=7)
             if horiz_walls[x][y] == 1:
             #draw ()
                 plt.vlines(x+1, y, y+1)
 
-    for x in range(0, 16): #vertical walls will be drawn
-        for y in range(0, 15):
+    for x in range(0, mouse_size): #vertical walls will be drawn
+        for y in range(0, mouse_size - 1):
             #plt.text(x+.35, y+.75, str(vert_walls[x][y]), color='b', fontsize=7)
             if vert_walls[x][y] == 1:
                 #draw line
@@ -81,25 +83,25 @@ def graph(mouse):
     plot2.scatter(position[0]+.5, position[1]+.5, s=100, color='g') #position
     #plot2.axes.get_xaxis().set_visible(False)
     plot2.axes.get_yaxis().set_visible(False)
-    plt.axis([0, 16, 0, 16])
+    plt.axis([0, mouse_size, 0, mouse_size])
 
-    plt.vlines(16, 0, 16) #borders of maze
-    plt.hlines(16, 0, 16)
+    plt.vlines(mouse_size, 0, mouse_size) #borders of maze
+    plt.hlines(mouse_size, 0, mouse_size)
     plt.title("Absolute Maze/Vertical/Horizontal Wall Arrays")
     #plot2.set_xlabel('This is the maze that the mouse searches one square at a time. Optimal Path is shown with colored line.')
 
     plt.plot(x_coord, y_coord, linewidth=2.0, color='g') #plot optimal path
             #horizontal walls will be drawn vertical
-    for x in range(0, 15):
-        for y in range(0, 16):
+    for x in range(0, mouse_size - 1):
+        for y in range(0, mouse_size):
             #plt.text(x+.75, y+.35, str(abs_horizwalls[x][y]), color='m')
             if abs_horizwalls[x][y] == 1:
             #draw ()
                 plt.vlines(x+1, y, y+1)
 
 
-    for x in range(0, 16): #vertical walls will be drawn
-        for y in range(0, 15):
+    for x in range(0, mouse_size): #vertical walls will be drawn
+        for y in range(0, mouse_size - 1):
             #plt.text(x+.35, y+.75, str(abs_vertwalls[x][y]), color='b')
             if abs_vertwalls[x][y] == 1:
                 #draw line

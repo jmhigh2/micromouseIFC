@@ -185,7 +185,21 @@ void EXTI15_10_IRQHandler(void)
 
 void EXTI9_5_IRQHandler(void)
 {
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+#if MOUSE_REV == 69
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
+#else
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+#endif
+  /*if(EXTI->PR & (1 << 5)) {
+	  //EXTI->PR |= (1 << 5);
+	  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
+  }
+  */
+  //if (EXTI->PR & (1 << 6)) {
+	  //EXTI->PR |= (1 << 6);
+
+  //}
+
 }
 
 void DMA2_Stream0_IRQHandler(void)
