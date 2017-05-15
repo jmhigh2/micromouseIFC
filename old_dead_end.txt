@@ -1,0 +1,26 @@
+if (dif_lf >= LEFT_THRESHOLD && dif_rf >= RIGHT_THRESHOLD) { //both left and right wall
+		do { //both left and right wall
+			Get_IR(FALSE, FALSE, FALSE, FALSE);
+			m_correction = (dif_lf - (dif_rf + offsets[2]))/30;
+			Set_Left(FWD_L + m_correction, FORWARD);
+			Set_Right(FWD_R - m_correction, FORWARD);
+		} while (dif_r < STOP_CONDITION && dif_l < STOP_CONDITION);
+	}
+
+else if (dif_lf > LEFT_THRESHOLD && dif_rf <= RIGHT_THRESHOLD) { //just left wall
+		do { //both left and right wall
+			Get_IR(FALSE, FALSE, FALSE, FALSE);
+			m_correction = (dif_lf - offsets[0])/30;
+			Set_Left(FWD_L + m_correction, FORWARD);
+			Set_Right(FWD_R - m_correction, FORWARD);
+		} while (dif_r < STOP_CONDITION && dif_l < STOP_CONDITION);
+	}
+
+else if (dif_lf <= LEFT_THRESHOLD && dif_rf > RIGHT_THRESHOLD) { //just right wall
+		do { //both left and right wall
+			Get_IR(FALSE, FALSE, FALSE, FALSE);
+			m_correction = (offsets[1] - dif_rf)/30;
+			Set_Left(FWD_L + m_correction, FORWARD);
+			Set_Right(FWD_R - m_correction, FORWARD);
+		} while (dif_r < STOP_CONDITION && dif_l < STOP_CONDITION);
+	}

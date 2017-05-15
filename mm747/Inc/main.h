@@ -12,7 +12,7 @@
 
 //IMPORTANT PARAMETERS
 #define DEBUG TRUE
-#define CLOCK_SPEED 108
+#define CLOCK_SPEED 216
 #define MOUSE_REV 69 //69 is chode mouse, 2 is original rigged mouse
 
 /* Private define ------------------------------------------------------------*/
@@ -191,6 +191,7 @@
 #define DEAD 3
 #define PAUSE 4
 #define DONE 5
+#define FWD_SPEED 6
 
 //floodfill directions
 #define NORTH 0
@@ -211,6 +212,8 @@
 #define EAST_X 1
 #define EAST_Y 0
 
+#define TEST 6
+#define NONE 5
 #define TIME 3
 #define FWD_SEARCH 2
 #define TURN_SEARCH 1
