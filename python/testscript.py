@@ -5,7 +5,7 @@ import matplotlib.patches as patches
 from matplotlib.font_manager import FontProperties
 
 
-mouse_size = 16
+mouse_size = 5
 
 def graph(mouse):
     path = mouse.optimal_path
@@ -54,12 +54,13 @@ def graph(mouse):
     font = FontProperties()
     font.set_weight('bold')
 
-    plt.plot(x_coord, y_coord, linewidth=2.0, color='g') #plot optimal path
+    plt.plot(x_coord, y_coord, linewidth=2.0, color='g')
+    #plot optimal path
     for x in range(0, mouse_size): #plot floodfill numbers
         for y in range(0, mouse_size):
             plt.text(x+.25, y+.30, str(nodes[x][y]), fontproperties=font)
-            if mouse.visited[x][y]:
-                plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
+            #if mouse.visited[x][y]:
+                #plot1.add_patch(patches.Rectangle((x,y),1, 1, color='y'))
 
             #horizontal walls will be drawn vertical
     for x in range(0, mouse_size - 1):
@@ -80,7 +81,7 @@ def graph(mouse):
     fig.add_subplot(122)
     plot2 = plt.gca()
     plot2.set_aspect('equal', adjustable='box')
-    plot2.scatter(position[0]+.5, position[1]+.5, s=100, color='g') #position
+    plot2.scatter(position[0]+.5, position[1]+.5, s=500, color='g') #position
     #plot2.axes.get_xaxis().set_visible(False)
     plot2.axes.get_yaxis().set_visible(False)
     plt.axis([0, mouse_size, 0, mouse_size])
@@ -116,8 +117,8 @@ def graph(mouse):
 
 if __name__ == '__main__':
 
-    mouse = Mouse("L", maze_file="maze.json") #the maze file to be read
-    for a in range(1,4):
+    mouse = Mouse("L", maze_file="maze5.json") #the maze file to be read
+    for a in range(1,3):
         graph(mouse) #initialized values
         mouse.search() #first search, find target
         graph(mouse)

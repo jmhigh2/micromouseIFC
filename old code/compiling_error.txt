@@ -1,0 +1,169 @@
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c: In function 'Search_New':
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:3:2: warning: implicit declaration of function 'HAL_GPIO_WritePin' [-Wimplicit-function-declaration]
+  HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:3:20: error: 'LED5_GPIO_Port' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
+                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:3:20: note: each undeclared identifier is reported only once for each function it appears in
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:3:36: error: 'LED5_Pin' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
+                                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:3:46: error: 'ON' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, ON); //Turn on LEDs to indicate it is searching
+                                              ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:4:20: error: 'LED2_GPIO_Port' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, OFF);
+                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:4:36: error: 'LED2_Pin' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, OFF);
+                                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:4:46: error: 'OFF' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, OFF);
+                                              ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:5:20: error: 'LED4_GPIO_Port' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, OFF);
+                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:5:36: error: 'LED4_Pin' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, OFF);
+                                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:6:20: error: 'LED3_GPIO_Port' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, OFF);
+                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:6:36: error: 'LED3_Pin' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, OFF);
+                                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:7:20: error: 'LED1_GPIO_Port' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, OFF);
+                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:7:36: error: 'LED1_Pin' undeclared (first use in this function)
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, OFF);
+                                    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:9:2: warning: implicit declaration of function 'HAL_Delay' [-Wimplicit-function-declaration]
+  HAL_Delay(1000); //delay before start to get finger out of the way
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:11:6: error: 'reverse_flag' undeclared (first use in this function)
+  if (reverse_flag == FALSE) {
+      ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:11:22: error: 'FALSE' undeclared (first use in this function)
+  if (reverse_flag == FALSE) {
+                      ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:12:3: warning: implicit declaration of function 'Reset_Maze' [-Wimplicit-function-declaration]
+   Reset_Maze(); //reset walls
+   ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:13:3: warning: implicit declaration of function 'Read_Walls' [-Wimplicit-function-declaration]
+   Read_Walls();
+   ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:16:2: warning: implicit declaration of function 'Clear_Buffers' [-Wimplicit-function-declaration]
+  Clear_Buffers();
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:17:2: warning: implicit declaration of function 'Reset_Counters' [-Wimplicit-function-declaration]
+  Reset_Counters();
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:19:2: warning: implicit declaration of function 'Reset_Flags' [-Wimplicit-function-declaration]
+  Reset_Flags(); //reset flags
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:20:2: warning: implicit declaration of function 'Floodfill' [-Wimplicit-function-declaration]
+  Floodfill(reverse_flag, search_flag, FALSE);
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:20:26: error: 'search_flag' undeclared (first use in this function)
+  Floodfill(reverse_flag, search_flag, FALSE);
+                          ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:22:2: warning: implicit declaration of function 'Update_Position_New' [-Wimplicit-function-declaration]
+  Update_Position_New(); //move to next square (first move is always forward)
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:24:2: warning: implicit declaration of function 'Set_Left' [-Wimplicit-function-declaration]
+  Set_Left(FWD_L, FORWARD); //start going straight. get moving
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:24:11: error: 'FWD_L' undeclared (first use in this function)
+  Set_Left(FWD_L, FORWARD); //start going straight. get moving
+           ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:24:18: error: 'FORWARD' undeclared (first use in this function)
+  Set_Left(FWD_L, FORWARD); //start going straight. get moving
+                  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:25:2: warning: implicit declaration of function 'Set_Right' [-Wimplicit-function-declaration]
+  Set_Right(FWD_R, FORWARD);
+  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:25:12: error: 'FWD_R' undeclared (first use in this function)
+  Set_Right(FWD_R, FORWARD);
+            ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:29:10: error: 'cur_move' undeclared (first use in this function)
+   switch(cur_move) { //perform whatever move is queued
+          ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:30:8: error: 'FWD' undeclared (first use in this function)
+   case FWD:
+        ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:31:4: warning: implicit declaration of function 'Forward_Search_New' [-Wimplicit-function-declaration]
+    Forward_Search_New();
+    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:34:8: error: 'RIGHT' undeclared (first use in this function)
+   case RIGHT: //break up turn into turn and accelerate
+        ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:35:4: warning: implicit declaration of function 'Right_Search_New' [-Wimplicit-function-declaration]
+    Right_Search_New();
+    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:38:8: error: 'LEFT' undeclared (first use in this function)
+   case LEFT:
+        ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:39:4: warning: implicit declaration of function 'Left_Search_New' [-Wimplicit-function-declaration]
+    Left_Search_New();
+    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:42:8: error: 'DEAD' undeclared (first use in this function)
+   case DEAD:
+        ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:43:4: warning: implicit declaration of function 'Dead_End_New' [-Wimplicit-function-declaration]
+    Dead_End_New();
+    ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:47:3: error: 'prev_l_count' undeclared (first use in this function)
+   prev_l_count = l_count; //get current counter values
+   ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:47:18: error: 'l_count' undeclared (first use in this function)
+   prev_l_count = l_count; //get current counter values
+                  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:48:3: error: 'prev_r_count' undeclared (first use in this function)
+   prev_r_count = r_count;
+   ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:48:18: error: 'r_count' undeclared (first use in this function)
+   prev_r_count = r_count;
+                  ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:50:7: error: 'maze' undeclared (first use in this function)
+   if (maze[x_coord][y_coord] == 0) { //reached target square
+       ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:50:12: error: 'x_coord' undeclared (first use in this function)
+   if (maze[x_coord][y_coord] == 0) { //reached target square
+            ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:50:21: error: 'y_coord' undeclared (first use in this function)
+   if (maze[x_coord][y_coord] == 0) { //reached target square
+                     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:52:5: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+     sprintf(tx_buffer, "|||FINAL||| X VALUE: %d  Y VALUE: %d \r\n", x_coord, y_coord);
+     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:52:5: warning: incompatible implicit declaration of built-in function 'sprintf'
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:52:5: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:52:13: error: 'tx_buffer' undeclared (first use in this function)
+     sprintf(tx_buffer, "|||FINAL||| X VALUE: %d  Y VALUE: %d \r\n", x_coord, y_coord);
+             ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:53:5: warning: implicit declaration of function 'Transmit' [-Wimplicit-function-declaration]
+     Transmit(tx_buffer);
+     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:54:5: warning: implicit declaration of function 'Dead_End_Correct' [-Wimplicit-function-declaration]
+     Dead_End_Correct();
+     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:55:5: warning: implicit declaration of function 'Switch_Direction' [-Wimplicit-function-declaration]
+     Switch_Direction();
+     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:60:5: warning: implicit declaration of function 'Calc_Optimal' [-Wimplicit-function-declaration]
+     Calc_Optimal(); //recalculate optimal path
+     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:61:5: warning: implicit declaration of function 'Get_Coordinate' [-Wimplicit-function-declaration]
+     Get_Coordinate(); //get any coordinates that haven't been seen yet
+     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:62:9: error: 'coordinate_count' undeclared (first use in this function)
+     if (coordinate_count == 0) { //if none, go back to start
+         ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:66:5: error: 'next_move' undeclared (first use in this function)
+     next_move = Get_Next_Move(); //queue up next move
+     ^
+C:\Users\Jonathan\Desktop\micromouse\New folder\oldfunctions.c:66:17: warning: implicit declaration of function 'Get_Next_Move' [-Wimplicit-function-declaration]
+     next_move = Get_Next_Move(); //queue up next move
+                 ^
