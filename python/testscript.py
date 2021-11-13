@@ -114,7 +114,7 @@ def graph(mouse):
 
 if __name__ == '__main__':
 
-    mouse = Mouse("L", maze_file="maze.json") #the maze file to be read
+    mouse = Mouse("L", maze_file="python/maze.json") #the maze file to be read
     for a in range(1,4):
         graph(mouse) #initialized values
         mouse.search() #first search, find target

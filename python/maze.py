@@ -21,7 +21,7 @@ class Maze:
         if target == "default": #default target is center block for odds, center four for even
             if (n % 2 == 0): #even number
                 self.target = [(n/2, n/2), (n/2 - 1, n/2 -1), (n/2 - 1, n/2), (n/2, n/2 - 1)]
-
+                self.target = [(int(x), int(y)) for x, y in self.target]
             else: #odd number of squares. set center block to target
 
                 self.target = [(int(n/2), int(n/2))]

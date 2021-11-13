@@ -42,6 +42,8 @@
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
 extern SPI_HandleTypeDef hspi1;
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim4;
 
 /******************************************************************************/
 /*            Cortex-M7 Processor Interruption and Exception Handlers         */ 
@@ -183,7 +185,22 @@ void EXTI15_10_IRQHandler(void)
 
 void EXTI9_5_IRQHandler(void)
 {
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+//#if MOUSE_REV == 69
+	//HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
+//#else
+
+//#endif
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+  /*if(EXTI->PR & (1 << 5)) {
+	  //EXTI->PR |= (1 << 5);
+	  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
+  }
+  */
+  //if (EXTI->PR & (1 << 6)) {
+	  //EXTI->PR |= (1 << 6);
+
+  //}
+
 }
 
 void DMA2_Stream0_IRQHandler(void)
@@ -197,6 +214,16 @@ void SPI1_IRQHandler(void)
 }
 
 
+void TIM1_CC_IRQHandler(void) {
+
+ HAL_TIM_IRQHandler(&htim1);
+
+}
+
+void TIM4_IRQHandler(void) {
+
+ HAL_TIM_IRQHandler(&htim4);
+}
 /******************************************************************************/
 /* STM32F7xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
